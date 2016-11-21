@@ -62,6 +62,7 @@ var App = App || {};
         // create svg
         App.panels[key].svg = d3.select("#" + key + "Div")
           .append("svg")
+          .attr("class", key + "SVG")
           .attr("width", "100%")
           .attr("height", "100%");
 
