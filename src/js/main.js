@@ -11,7 +11,7 @@ var App = App || {};
   };
 
   App.init = function() {
-    App.loadData("Minimal.json");
+    App.loadData("Real.json");
 
     createSVGs();
   }
@@ -38,6 +38,8 @@ var App = App || {};
         App.timeWindow = [json.bioBeginTime, json.bioEndTime];
       }
 
+      console.log(json);
+
       for(var n in json.rules) {
         App.data[json.rules[n]] = {
           name: json.rules[n],
@@ -47,6 +49,12 @@ var App = App || {};
               name: el,
               flux: json.fluxs[n][i]
             };
+          }),
+          outf: json.rules.map((el, i) => {
+            return {
+              name: el,
+              flux: json.fluxs[i][n]
+            }
           })
         };
       }
