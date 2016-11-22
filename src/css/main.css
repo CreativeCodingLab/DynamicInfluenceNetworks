@@ -11,3 +11,6 @@ html, body, .fluidContainer, .mainCol {
 .rule,.linkElement {
     cursor:pointer;
 }
+.d3-tip {
+    pointer-events:none !important;
+}

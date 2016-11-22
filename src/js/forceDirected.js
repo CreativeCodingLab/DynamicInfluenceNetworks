@@ -33,18 +33,20 @@ function createForceDirectedGraph() {
     };
 
   /* Initialize tooltip for links */
-  let link_tip = d3.tip ? d3.tip().attr('class', 'd3-tip').direction('e')
-    .html(function(d) {
-      if (d.value < 0) { 
-        return d.source + " infl.<br>" + "on " + d.target + "<br><span style='color:#e31a1c;'>" + d.value.toFixed(3) + "</span>";
-      } else {
-        return d.source + " infl.<br>" + "on " + d.target + "<br><span style='color:#33a02c;'>" + d.value.toFixed(3) + "</span>";
-      }
-      
-    }) :
-    function() {
-      alert("! d3.tip MISSING ! \nDo you have an internet connection?");
-    };
+  let link_tip = d3.tip ? 
+      d3.tip().attr('class', 'd3-tip')
+        .direction('e')
+        .html(function(d) {
+          if (d.value < 0) { 
+            return d.source + " infl.<br>" + "on " + d.target + "<br><span style='color:#e31a1c;'>" + d.value.toFixed(3) + "</span>";
+          } else {
+            return d.source + " infl.<br>" + "on " + d.target + "<br><span style='color:#33a02c;'>" + d.value.toFixed(3) + "</span>";
+          }
+          
+        }) :
+      function() {
+        alert("! d3.tip MISSING ! \nDo you have an internet connection?");
+      };
 
   /* Invoke the tip in the context of your visualization */
   svg.call(node_tip);
@@ -96,7 +98,7 @@ function createForceDirectedGraph() {
       .domain(d3.extent(App.panels.forceDirected.links, (d) => {
         return Math.abs(d.value);
       }))
-      .range([0.3, 2]);
+      .range([0.3, 3]);
 
     for (var key in filteredData) {
       filteredData[key].x = width / 2;
@@ -142,10 +144,30 @@ function createForceDirectedGraph() {
     linkGroupElement.append('path')
       .attr("class", "link")
       .style("stroke", 'rgba(0,0,0,0)')
-      .style("stroke-width", 10)
+      .style("stroke-width", 8)
       .on("mouseover", (d, i) => {
         event.target.style.stroke = d.value > 0 ? "#33a02c" : "#e31a1c";
-        link_tip.show(d,i);
+
+        var dx = filteredData[d.target].x - filteredData[d.source].x,
+            dy = filteredData[d.target].y - filteredData[d.source].y;
+        var ex = event.x - filteredData[d.target].x + 20,
+            ey = event.y - filteredData[d.target].y;
+
+        if (event.x < width-300) {
+          link_tip
+            .direction('e')
+            .offset([dy/2+ey, (dx < 0) ? dx+ex : ex])
+            .show(d,i);
+        }
+        else {
+          var ex = event.x - filteredData[d.source].x - 20,
+              ey = event.y - filteredData[d.source].y;
+          link_tip
+            .direction('w')
+            .offset([-dy/2+ey, (dx < 0) ? -dx+ex : ex])
+            // .offset([dy/2+ey, (dx < 0) ? dx+ex : ex])
+            .show(d,i);
+        }
       })
       .on("mouseout", (d, i) => {
         event.target.style.stroke = 'rgba(0,0,0,0)';
@@ -225,7 +247,7 @@ function createForceDirectedGraph() {
             var target = data[d.target],
                 source = data[d.source];
 
-            if (!target || !source) { return ""; }
+            if (!target || !source ) { return ""; }
 
             var dx = target.x - source.x,
                 dy = target.y - source.y,
