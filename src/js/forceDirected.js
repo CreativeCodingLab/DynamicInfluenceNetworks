@@ -14,7 +14,7 @@ function createForceDirectedGraph() {
     .attr("width", width)
     .attr("height", height)
     .style("padding", "20px")
-    .style("fill", "lightgray");
+    .style("fill", "#eee");
 
 
   var linkGroup = svg.append("g")
@@ -131,7 +131,7 @@ function createForceDirectedGraph() {
       })
       .style("fill", "#abd9e9")
       .style("stroke", "#2c7bb6")
-      .style("stroke-width", 2)
+      .style("stroke-width", 1)
       .on('mouseover', node_tip.show)
       .on("mouseout", node_tip.hide)
       .on('click', function(d) {
@@ -173,7 +173,7 @@ function createForceDirectedGraph() {
 
 
 
-    var strokeScale = d3.scaleLinear()
+    var strokeScale = d3.scalePow()
       .domain([0, maxInfl])
       .range([0.3, 1])
       .clamp(true);
@@ -188,7 +188,9 @@ function createForceDirectedGraph() {
     linkGroupElement.append('path')
       .attr("class", "link")
       .style("stroke", (d) => {
-        return d.value > 0 ? "#33a02c" : "#e31a1c";
+        var color = d3.hsl(d.value > 0 ? "#33a02c" : "#e31a1c");
+        color.opacity = (strokeScale(Math.abs(d.value))-0.3)*0.5/0.7+0.5;
+        return color.toString();
       })
       .style("stroke-width", (d) => {
         return strokeScale(Math.abs(d.value));
@@ -260,10 +262,11 @@ function createForceDirectedGraph() {
       .force("link", 
         d3.forceLink()
           .id(d => d.name)
-          // .strength(function(d){ console.log('hello',d);return 5;d.value * 5})
       )
       .force("collision", d3.forceCollide(15))
-      .force("charge", d3.forceManyBody().strength(-150))
+      .force("charge", d3.forceManyBody()
+        .strength(-150)
+        .distanceMax(Math.min(width,height)/4))
       .force("center", d3.forceCenter(
         (width / 2),
         (height / 2)
@@ -287,32 +290,22 @@ function createForceDirectedGraph() {
             var target = d.source,
                 source = d.target;
 
-            // console.log(d);
-
-            // if (!target || !source ) { return ""; }
-
             var dx = target.x - source.x,
                 dy = target.y - source.y,
                 dr = Math.sqrt(dx * dx + dy * dy)*2;
 
             if (dr == 0) { return ""; }
 
-            var nx = -24* dx / dr,
-                ny = -24*dy / dr;
+            var nx = -20* dx / dr,
+                ny = -20*dy / dr;
 
             // normal ellipse version...
             return  "M" + source.x + "," + source.y + 
                     "A" + dr + "," + dr + " 0 0,1 " + 
                     (target.x+nx) + "," + (target.y+ny)+
-                    "m" + (nx-ny/2) + ',' + (ny+nx/2) + 
-                    "L" + (target.x+nx) + "," + (target.y+ny) +
+                    // "m" + (nx-ny/2) + ',' + (ny+nx/2) + 
+                    // "L" + (target.x+nx) + "," + (target.y+ny) +
                     "l" + (nx+ny/2) + ',' + (ny-nx/2);
-
-          // ?????
-          //   var cw = (dx > 0) || (dx == 0 && dy > 0);
-          //   return cw ? 
-          //     "M" + source.x + "," + source.y + "A" + dr + "," + dr + " 0 0,1 " + target.x + "," + target.y :
-          //     "M" + target.x + "," + target.y + "A" + dr*.8 + "," + dr*.8 + " 0 0,1 " + source.x + "," + source.y ;
           });
       });
 
@@ -321,23 +314,6 @@ function createForceDirectedGraph() {
         .distance((d) => {
           return d.value < 0 ? 100 : 30;
         })
-        // .strength((d) => {
-          
-        // })
-        // .strength((d) => {
-        //   return 1;
-        //   var count = function(node) {
-        //     return App.panels.forceDirected.links
-        //         .filter(link => link.target === node)
-        //         .length;
-        //   }
-        //   var cs = count(d.source), ct = count(d.target);
-        //   if (Math.min(cs, ct) < 1) {
-        //     console.log('strength',0)
-        //   }
-        //   // console.log(cs, ct);
-        //   return 1 / Math.min(count(d.source), count(d.target));
-        // })
   }
 }
 

@@ -14,3 +14,7 @@ html, body, .fluidContainer, .mainCol {
 .d3-tip {
     pointer-events:none !important;
 }
+
+svg {
+    width:75%;
+}
