@@ -128,20 +128,32 @@ function createForceDirectedGraph() {
       .attr("r", (d) => {
         return radiusScale(d.hits);
       })
-      .style("fill", "#a6cee3")
-      .style("stroke", "#1f78b4")
+      .style("fill", "#abd9e9")
+      .style("stroke", "#2c7bb6")
       .style("stroke-width", 2)
       .on('mouseover', node_tip.show)
       .on("mouseout", node_tip.hide)
-      .on('click', function(d) { d.fx = d.fy = null; })
+      .on('click', function(d) {
+        d3.select(this)
+          .style("fill", "#abd9e9")
+          .style("stroke", "#2c7bb6");
+
+        d.fx = d.fy = null; 
+      })
       .call( 
         d3.drag()
           .on('start', function(d) {
             if (!d3.event.active) {
-              simulation.alphaTarget(0.3).restart()
+              simulation.alphaTarget(0.3).restart();
             }
           })
-          .on('drag', function(d) { d.fx = d3.event.x, d.fy = d3.event.y })
+          .on('drag', function(d) { 
+            d3.select(this)
+              .style("fill", "#bababa")
+              .style("stroke", "#404040");
+            d.fx = d3.event.x, 
+            d.fy = d3.event.y;
+          })
           .on('end', function(d) {
             if (!d3.event.active) {
               simulation.alphaTarget(0);
