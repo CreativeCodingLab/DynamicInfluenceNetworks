@@ -59,7 +59,8 @@ function createForceDirectedGraph() {
     var newNode = {
       hits: App.data[key].hits,
       name: App.data[key].name,
-      inf: App.data[key].inf.filter(l => l.flux !== 0)
+      inf: App.data[key].inf.filter(l => l.flux !== 0),
+      outf: App.data[key].outf.filter(l => l.flux !== 0)
     }
 
     newNode.inf.forEach(l => {
@@ -70,13 +71,12 @@ function createForceDirectedGraph() {
       });
     })
 
-    if (newNode.inf.length > 0) {
+    if (newNode.inf.length > 0 || newNode.outf.length > 0) {
       App.panels.forceDirected.filteredData[key] = newNode;
     }
   }
 
   console.log("filteredData:", App.panels.forceDirected.filteredData);
-
   drawGraph();
 
   var simulation;
@@ -94,15 +94,16 @@ function createForceDirectedGraph() {
 
     createForceLayout();
 
-    function randX() {
-      return Math.round(Math.random() * (width));
-    }
+    // function randX() {
+    //   return Math.round(Math.random() * (width));
+    // }
 
-    function randY() {
-      return Math.round(Math.random() * (height));
-    }
+    // function randY() {
+    //   return Math.round(Math.random() * (height));
+    // }
   }
 
+  // draw nodes in graph
   function drawNodes(filteredData, width, height) {
     var radiusScale = d3.scaleLinear()
       .domain(d3.extent(Object.keys(filteredData), (d) => {
@@ -162,6 +163,7 @@ function createForceDirectedGraph() {
 
   }
 
+  // draw links in graph
   function drawLinks(filteredData, width) {
     var strokeScale = d3.scaleLinear()
       .domain(d3.extent(App.panels.forceDirected.links, (d) => {
@@ -195,7 +197,6 @@ function createForceDirectedGraph() {
           .style('stroke', d.value > 0 ? // "#33a02c" : "#e31a1c"
                 "rgba(51,160,44,0.5)" : "rgba(227,26,28,0.5)"
             );
-
         var dx = d.target.x - d.source.x,
             dy = d.target.y - d.source.y;
         var ex = event.x - d.target.x + 20,
@@ -255,16 +256,7 @@ function createForceDirectedGraph() {
           // .strength(function(d){ console.log('hello',d);return 5;d.value * 5})
       )
       .force("collision", d3.forceCollide(Math.sqrt(Math.pow(16, 2) + Math.pow(24, 2)) + 5))
-      .force("charge", //d3.forceManyBody().strength(-50))
-        d3.forceManyBody()
-          .strength(function(d) {
-            // sum all the fluxes
-            // console.log(d);
-            let fluxSum = d.inf.map(n => n.flux).reduce( (a,b) => a+b );
-            return fluxSum > 0 ? -10 : -100;
-          })
-          .distanceMax(100)
-        )
+      .force("charge", d3.forceManyBody().strength(-150))
       .force("center", d3.forceCenter(
         (width / 2),
         (height / 2)
@@ -290,16 +282,16 @@ function createForceDirectedGraph() {
 
             // console.log(d);
 
-            if (!target || !source ) { return ""; }
+            // if (!target || !source ) { return ""; }
 
             var dx = target.x - source.x,
                 dy = target.y - source.y,
-                dr = Math.sqrt(dx * dx + dy * dy)*5;
+                dr = Math.sqrt(dx * dx + dy * dy)*2;
 
             if (dr == 0) { return ""; }
 
-            var nx = -60* dx / dr,
-                ny = -60*dy / dr;
+            var nx = -24* dx / dr,
+                ny = -24*dy / dr;
 
             // normal ellipse version...
             return  "M" + source.x + "," + source.y + 
@@ -319,10 +311,23 @@ function createForceDirectedGraph() {
 
     simulation.force("link")
         .links(App.panels.forceDirected.links)
+        .distance((d) => {
+          return d.value < 0 ? 200 : 30;
+        })
         // .strength((d) => {
-        //   // console.log(d);
-        //   return d.value * 10;
-        // });
+        //   return 1;
+        //   var count = function(node) {
+        //     return App.panels.forceDirected.links
+        //         .filter(link => link.target === node)
+        //         .length;
+        //   }
+        //   var cs = count(d.source), ct = count(d.target);
+        //   if (Math.min(cs, ct) < 1) {
+        //     console.log('strength',0)
+        //   }
+        //   // console.log(cs, ct);
+        //   return 1 / Math.min(count(d.source), count(d.target));
+        // })
   }
 }
 
