@@ -165,11 +165,18 @@ function createForceDirectedGraph() {
 
   // draw links in graph
   function drawLinks(filteredData, width) {
+    var sortedInfl = App.panels.forceDirected.links.sort((a, b) => {
+      return Math.abs(b.value) - Math.abs(a.value);
+    });
+
+    maxInfl = Math.abs(sortedInfl[Math.round(sortedInfl.length/2)].value) * 2;
+
+
+
     var strokeScale = d3.scaleLinear()
-      .domain(d3.extent(App.panels.forceDirected.links, (d) => {
-        return Math.abs(d.value);
-      }))
-      .range([0.3, 3]);
+      .domain([0, maxInfl])
+      .range([0.3, 1])
+      .clamp(true);
 
     var linkGroupElement = linkGroup.selectAll(".linkElement")
       .data(App.panels.forceDirected.links)
@@ -255,7 +262,7 @@ function createForceDirectedGraph() {
           .id(d => d.name)
           // .strength(function(d){ console.log('hello',d);return 5;d.value * 5})
       )
-      .force("collision", d3.forceCollide(Math.sqrt(Math.pow(16, 2) + Math.pow(24, 2)) + 5))
+      .force("collision", d3.forceCollide(15))
       .force("charge", d3.forceManyBody().strength(-150))
       .force("center", d3.forceCenter(
         (width / 2),
@@ -312,8 +319,11 @@ function createForceDirectedGraph() {
     simulation.force("link")
         .links(App.panels.forceDirected.links)
         .distance((d) => {
-          return d.value < 0 ? 200 : 30;
+          return d.value < 0 ? 100 : 30;
         })
+        // .strength((d) => {
+          
+        // })
         // .strength((d) => {
         //   return 1;
         //   var count = function(node) {
