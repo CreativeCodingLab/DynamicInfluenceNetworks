@@ -8,6 +8,12 @@ html, body, .fluidContainer, .mainCol {
   height: 100%;
   min-height: 100%;
 }
+
+.h-30 {
+  height: 30%;
+  min-height: 30%;
+}
+
 .rule,.linkElement {
     cursor:pointer;
 }
@@ -15,6 +21,21 @@ html, body, .fluidContainer, .mainCol {
     pointer-events:none !important;
 }
 
-svg {
-    width:75%;
+.paddedCol {
+  background-color: green;
+  padding-top:  15px;
+  padding-bottom:   15px;
+}
+
+.content {
+  margin-top:  15px;
+  margin-bottom:   15px;
+  background-color: pink;
+}
+
+.control {
+  height: 75px;
+  background-color: lightgray;
+  margin-top:  15px;
+  margin-bottom:   15px; 
 }
