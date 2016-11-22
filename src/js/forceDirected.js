@@ -79,6 +79,7 @@ function createForceDirectedGraph() {
 
   drawGraph();
 
+  var simulation;
 
   // drawing methods
   function drawGraph() {
@@ -88,17 +89,26 @@ function createForceDirectedGraph() {
     var width = App.panels.forceDirected.width;
     var height = App.panels.forceDirected.height;
 
+    drawNodes(filteredData, width, height);
+    drawLinks(filteredData, width);
+
+    createForceLayout();
+
+    function randX() {
+      return Math.round(Math.random() * (width));
+    }
+
+    function randY() {
+      return Math.round(Math.random() * (height));
+    }
+  }
+
+  function drawNodes(filteredData, width, height) {
     var radiusScale = d3.scaleLinear()
       .domain(d3.extent(Object.keys(filteredData), (d) => {
         return filteredData[d].hits;
       }))
       .range([5, 10]);
-
-    var strokeScale = d3.scaleLinear()
-      .domain(d3.extent(App.panels.forceDirected.links, (d) => {
-        return Math.abs(d.value);
-      }))
-      .range([0.3, 3]);
 
     for (var key in filteredData) {
       filteredData[key].x = width / 2;
@@ -122,7 +132,30 @@ function createForceDirectedGraph() {
       .style("stroke", "#1f78b4")
       .style("stroke-width", 2)
       .on('mouseover', node_tip.show)
-      .on("mouseout", node_tip.hide);
+      .on("mouseout", node_tip.hide)
+      .on('click', function(d) { d.fx = d.fy = null; })
+      .call( 
+        d3.drag()
+          .on('start', function(d) {
+            if (!d3.event.active) {
+              simulation.alphaTarget(0.3).restart()
+            }
+          })
+          .on('drag', function(d) { d.fx = d3.event.x, d.fy = d3.event.y })
+          .on('end', function(d) {
+            if (!d3.event.active) {
+              simulation.alphaTarget(0);
+            }
+          }) );
+
+  }
+
+  function drawLinks(filteredData, width) {
+    var strokeScale = d3.scaleLinear()
+      .domain(d3.extent(App.panels.forceDirected.links, (d) => {
+        return Math.abs(d.value);
+      }))
+      .range([0.3, 3]);
 
     var linkGroupElement = linkGroup.selectAll(".linkElement")
       .data(App.panels.forceDirected.links)
@@ -146,7 +179,10 @@ function createForceDirectedGraph() {
       .style("stroke", 'rgba(0,0,0,0)')
       .style("stroke-width", 8)
       .on("mouseover", (d, i) => {
-        event.target.style.stroke = d.value > 0 ? "#33a02c" : "#e31a1c";
+        d3.select(event.target)
+          .style('stroke', d.value > 0 ? // "#33a02c" : "#e31a1c"
+                "rgba(51,160,44,0.5)" : "rgba(227,26,28,0.5)"
+            );
 
         var dx = filteredData[d.target].x - filteredData[d.source].x,
             dy = filteredData[d.target].y - filteredData[d.source].y;
@@ -170,21 +206,14 @@ function createForceDirectedGraph() {
         }
       })
       .on("mouseout", (d, i) => {
-        event.target.style.stroke = 'rgba(0,0,0,0)';
+        d3.select(event.target)
+          .transition()
+          .style('stroke','rgba(0,0,0,0)');
         link_tip.hide(d,i);
       });
-
-
-    createForceLayout();
-
-    function randX() {
-      return Math.round(Math.random() * (width));
-    }
-
-    function randY() {
-      return Math.round(Math.random() * (height));
-    }
   }
+
+
 
   function createForceLayout() {
     var data = App.panels.forceDirected.filteredData;
@@ -207,7 +236,7 @@ function createForceDirectedGraph() {
 
     var link = linkGroup.selectAll(".link");
 
-    var simulation = d3.forceSimulation()
+    simulation = d3.forceSimulation()
       .force("link", 
         d3.forceLink()
           .id(d => d.name)
@@ -262,8 +291,8 @@ function createForceDirectedGraph() {
             return  "M" + source.x + "," + source.y + 
                     "A" + dr + "," + dr + " 0 0,1 " + 
                     (target.x+nx) + "," + (target.y+ny)+
-                    "l" + (nx-ny/2) + ',' + (ny+nx/2) + 
-                    "M" + (target.x+nx) + "," + (target.y+ny) +
+                    "m" + (nx-ny/2) + ',' + (ny+nx/2) + 
+                    "L" + (target.x+nx) + "," + (target.y+ny) +
                     "l" + (nx+ny/2) + ',' + (ny-nx/2);
 
           // ?????
