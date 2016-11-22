@@ -38,9 +38,9 @@ function createForceDirectedGraph() {
         .direction('e')
         .html(function(d) {
           if (d.value < 0) { 
-            return d.source + " infl.<br>" + "on " + d.target + "<br><span style='color:#e31a1c;'>" + d.value.toFixed(3) + "</span>";
+            return d.source.name + " infl.<br>" + "on " + d.target.name + "<br><span style='color:#e31a1c;'>" + d.value.toFixed(3) + "</span>";
           } else {
-            return d.source + " infl.<br>" + "on " + d.target + "<br><span style='color:#33a02c;'>" + d.value.toFixed(3) + "</span>";
+            return d.source.name + " infl.<br>" + "on " + d.target.name + "<br><span style='color:#33a02c;'>" + d.value.toFixed(3) + "</span>";
           }
           
         }) :
@@ -184,10 +184,10 @@ function createForceDirectedGraph() {
                 "rgba(51,160,44,0.5)" : "rgba(227,26,28,0.5)"
             );
 
-        var dx = filteredData[d.target].x - filteredData[d.source].x,
-            dy = filteredData[d.target].y - filteredData[d.source].y;
-        var ex = event.x - filteredData[d.target].x + 20,
-            ey = event.y - filteredData[d.target].y;
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y;
+        var ex = event.x - d.target.x + 20,
+            ey = event.y - d.target.y;
 
         if (event.x < width-300) {
           link_tip
@@ -196,8 +196,8 @@ function createForceDirectedGraph() {
             .show(d,i);
         }
         else {
-          var ex = event.x - filteredData[d.source].x - 20,
-              ey = event.y - filteredData[d.source].y;
+          var ex = event.x - d.source.x - 20,
+              ey = event.y - d.source.y;
           link_tip
             .direction('w')
             .offset([-dy/2+ey, (dx < 0) ? -dx+ex : ex])
@@ -251,7 +251,7 @@ function createForceDirectedGraph() {
             let fluxSum = d.inf.map(n => n.flux).reduce( (a,b) => a+b );
             return fluxSum > 0 ? -10 : -100;
           })
-          .distanceMax(50)
+          .distanceMax(100)
         )
       .force("center", d3.forceCenter(
         (width / 2),
@@ -273,8 +273,10 @@ function createForceDirectedGraph() {
 
         link
           .attr('d', function(d) {
-            var target = data[d.target],
-                source = data[d.source];
+            var target = d.source,
+                source = d.target;
+
+            // console.log(d);
 
             if (!target || !source ) { return ""; }
 
@@ -303,8 +305,12 @@ function createForceDirectedGraph() {
           });
       });
 
-    // simulation.force("link")
-    //     .links(App.panels.forceDirected.links);
+    simulation.force("link")
+        .links(App.panels.forceDirected.links)
+        // .strength((d) => {
+        //   // console.log(d);
+        //   return d.value * 10;
+        // });
   }
 }
 
