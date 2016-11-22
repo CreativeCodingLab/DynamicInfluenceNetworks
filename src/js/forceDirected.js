@@ -13,6 +13,7 @@ function createForceDirectedGraph() {
   svg.append("rect")
     .attr("width", width)
     .attr("height", height)
+    .style("padding", "20px")
     .style("fill", "lightgray");
 
 
@@ -95,7 +96,7 @@ function createForceDirectedGraph() {
       .domain(d3.extent(App.panels.forceDirected.links, (d) => {
         return Math.abs(d.value);
       }))
-      .range([2, 5]);
+      .range([0.3, 2]);
 
     for (var key in filteredData) {
       filteredData[key].x = width / 2;
@@ -121,30 +122,35 @@ function createForceDirectedGraph() {
       .on('mouseover', node_tip.show)
       .on("mouseout", node_tip.hide);
 
-    linkGroup.selectAll(".link")
+    var linkGroupElement = linkGroup.selectAll(".linkElement")
       .data(App.panels.forceDirected.links)
-    .enter().append("line")
+    .enter().append("g")
+      .attr('class', 'linkElement')
+      .attr('fill','none');
+
+    // main line
+    linkGroupElement.append('path')
       .attr("class", "link")
-      .attr("x1", (d) => {
-        return filteredData[d.source].x;
-      })
-      .attr("y1", (d) => {
-        return filteredData[d.source].y;
-      })
-      .attr("x2", (d) => {
-        return filteredData[d.target].x;
-      })
-      .attr("y2", (d) => {
-        return filteredData[d.target].y;
-      })
       .style("stroke", (d) => {
         return d.value > 0 ? "#33a02c" : "#e31a1c";
       })
       .style("stroke-width", (d) => {
         return strokeScale(Math.abs(d.value));
+      });
+
+    // invisible line for collisions
+    linkGroupElement.append('path')
+      .attr("class", "link")
+      .style("stroke", 'rgba(0,0,0,0)')
+      .style("stroke-width", 10)
+      .on("mouseover", (d, i) => {
+        event.target.style.stroke = d.value > 0 ? "#33a02c" : "#e31a1c";
+        link_tip.show(d,i);
       })
-      .on("mouseover", link_tip.show)
-      .on("mouseout", link_tip.hide);
+      .on("mouseout", (d, i) => {
+        event.target.style.stroke = 'rgba(0,0,0,0)';
+        link_tip.hide(d,i);
+      });
 
 
     createForceLayout();
@@ -179,15 +185,23 @@ function createForceDirectedGraph() {
 
     var link = linkGroup.selectAll(".link");
 
-
     var simulation = d3.forceSimulation()
       .force("link", 
         d3.forceLink()
           .id(d => d.name)
-          .strength(d => d.value * 5)
+          // .strength(function(d){ console.log('hello',d);return 5;d.value * 5})
       )
       .force("collision", d3.forceCollide(Math.sqrt(Math.pow(16, 2) + Math.pow(24, 2)) + 5))
-      .force("charge", d3.forceManyBody().strength(-50))
+      .force("charge", //d3.forceManyBody().strength(-50))
+        d3.forceManyBody()
+          .strength(function(d) {
+            // sum all the fluxes
+            // console.log(d);
+            let fluxSum = d.inf.map(n => n.flux).reduce( (a,b) => a+b );
+            return fluxSum > 0 ? -10 : -100;
+          })
+          .distanceMax(50)
+        )
       .force("center", d3.forceCenter(
         (width / 2),
         (height / 2)
@@ -207,23 +221,35 @@ function createForceDirectedGraph() {
           });
 
         link
-          .attr("x1", (d) => {
-            // console.log(d);
-            // console.log(data[d.source]);
-            // console.log(data[d.target]);
+          .attr('d', function(d) {
+            var target = data[d.target],
+                source = data[d.source];
 
-            return data[d.source].x;
-          })
-          .attr("x2", (d) => {
-            return data[d.target].x;
-          })
-          .attr("y1", (d) => {
-            return data[d.source].y;
-          })
-          .attr("y2", (d) => {
-            return data[d.target].y;
+            if (!target || !source) { return ""; }
+
+            var dx = target.x - source.x,
+                dy = target.y - source.y,
+                dr = Math.sqrt(dx * dx + dy * dy)*5;
+
+            if (dr == 0) { return ""; }
+
+            var nx = -60* dx / dr,
+                ny = -60*dy / dr;
+
+            // normal ellipse version...
+            return  "M" + source.x + "," + source.y + 
+                    "A" + dr + "," + dr + " 0 0,1 " + 
+                    (target.x+nx) + "," + (target.y+ny)+
+                    "l" + (nx-ny/2) + ',' + (ny+nx/2) + 
+                    "M" + (target.x+nx) + "," + (target.y+ny) +
+                    "l" + (nx+ny/2) + ',' + (ny-nx/2);
+
+          // ?????
+          //   var cw = (dx > 0) || (dx == 0 && dy > 0);
+          //   return cw ? 
+          //     "M" + source.x + "," + source.y + "A" + dr + "," + dr + " 0 0,1 " + target.x + "," + target.y :
+          //     "M" + target.x + "," + target.y + "A" + dr*.8 + "," + dr*.8 + " 0 0,1 " + source.x + "," + source.y ;
           });
-
       });
 
     // simulation.force("link")

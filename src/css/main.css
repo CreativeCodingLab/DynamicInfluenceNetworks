@@ -8,3 +8,6 @@ html, body, .fluidContainer, .mainCol {
   height: 100%;
   min-height: 100%;
 }
+.rule,.linkElement {
+    cursor:pointer;
+}
