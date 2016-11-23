@@ -20,22 +20,39 @@ function createForceDirectedGraph() {
   var defs = svg.append('defs');
   var red1 = defs.append('linearGradient')
       .attr('id','redLine')
-      .attr('x1',0)
+      .attr('x1',1)
       .attr('y1',0)
-      .attr('x2',1)
+      .attr('x2',0)
       .attr('y2',0)
   red1.append('stop')
       .attr('offset','0%')
       .attr('stop-color','yellow');
   red1.append('stop')
       .attr('offset','100%')
-      .attr('stop-color','red');
+      .attr('stop-color', "#e31a1c");
+  var green1 = defs.append('linearGradient')
+      .attr('id','greenLine')
+      .attr('x1',1)
+      .attr('y1',0)
+      .attr('x2',0)
+      .attr('y2',0)
+  green1.append('stop')
+      .attr('offset','0%')
+      .attr('stop-color','aqua');
+  green1.append('stop')
+      .attr('offset','100%')
+      .attr('stop-color',"#33a02c");
 
   defs.append('linearGradient')
       .attr('id','redReverse')
       .attr('xlink:href','#redLine')
-      .attr('x1',1)
-      .attr('x2',0)
+      .attr('x1',0)
+      .attr('x2',1)
+  defs.append('linearGradient')
+      .attr('id','greenReverse')
+      .attr('xlink:href','#greenLine')
+      .attr('x1',0)
+      .attr('x2',1)
 
 
   var linkGroup = svg.append("g")
@@ -207,7 +224,7 @@ function createForceDirectedGraph() {
         var dx = d.target.x - d.source.x,
             dy = d.target.y - d.source.y;
         if (d.value > 0) {
-          return "#33a02c";
+          return dx >= 0 ? "url(#greenLine)" : "url(#greenReverse)";
         }
         else {
           return dx >= 0 ? "url(#redLine)" : "url(#redReverse)";
@@ -217,7 +234,7 @@ function createForceDirectedGraph() {
 
     // main line
     linkGroupElement.append('path')
-      .attr("class", "link")
+      .attr("class", "link link-1")
       .style('stroke-opacity', (d) => (strokeScale(Math.abs(d.value))-0.3)*0.5/0.7+0.5)
       .style("stroke-width", (d) => {
         return strokeScale(Math.abs(d.value));
@@ -225,7 +242,7 @@ function createForceDirectedGraph() {
 
     // invisible line for collisions
     linkGroupElement.append('path')
-      .attr("class", "link")
+      .attr("class", "link link-2")
       .style("stroke-opacity", 0)
       .style("stroke-width", 8)
       .on("mouseover", (d, i) => {
@@ -313,6 +330,18 @@ function createForceDirectedGraph() {
           });
 
         link
+          .style("stroke", (d) => {
+            var dx = d.target.x - d.source.x,
+                dy = d.target.y - d.source.y;
+            if (d.value > 0) {
+              return dx >= 0 ? "url(#greenLine)" : "url(#greenReverse)";
+            }
+            else {
+              return dx >= 0 ? "url(#redLine)" : "url(#redReverse)";
+            }
+            // return d.value > 0 ? "#33a02c" : "#e31a1c"
+          })
+        d3.selectAll('.link-1')
           .attr('d', function(d) {
             var target = d.source,
                 source = d.target;
@@ -333,7 +362,34 @@ function createForceDirectedGraph() {
               y: target.y + (target.radius+8)*ny
             };
 
-            nx *= 10, ny *= 10;
+            // normal ellipse version...
+            return  "M" + source.x + "," + source.y + 
+                    "A" + dr + "," + dr + " 0 0,1 " + 
+                    t.x + "," + t.y+
+                    "m" + (nx-ny/2) + ',' + (ny+nx/2);
+          });
+        d3.selectAll('.link-2')
+          .attr('d', function(d) {
+            var target = d.source,
+                source = d.target;
+
+            var dx = target.x - source.x,
+                dy = target.y - source.y,
+                dr = Math.sqrt(dx * dx + dy * dy)*2;
+
+            if (dr == 0) { return ""; }
+
+            var nx = -dx / dr,
+                ny = -dy / dr;
+
+            if (dr < 20) { dr /= 2; }
+
+            var t = {
+              x: target.x + (target.radius+8)*nx, 
+              y: target.y + (target.radius+8)*ny
+            };
+
+            nx *= 20, ny *= 20;
 
             // normal ellipse version...
             return  "M" + source.x + "," + source.y + 
@@ -342,8 +398,7 @@ function createForceDirectedGraph() {
                     "m" + (nx-ny/2) + ',' + (ny+nx/2) + 
                     "L" + t.x + "," + t.y+
                     "l" + (nx+ny/2) + ',' + (ny-nx/2);
-          });
-      });
+          });      });
 
     simulation.force("link")
         .links(App.panels.forceDirected.links)
