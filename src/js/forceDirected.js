@@ -1,6 +1,7 @@
 var App = App || {};
 
 function createForceDirectedGraph() {
+  var _isDragging = false;
   var svg = App.panels.forceDirected.svg;
   var width = App.panels.forceDirected.width;
   var height = App.panels.forceDirected.height;
@@ -171,7 +172,7 @@ function createForceDirectedGraph() {
       .style("fill", "#abd9e9")
       .style("stroke", "#2c7bb6")
       .style("stroke-width", 1)
-      .on('mouseover', node_tip.show)
+      .on('mouseover', _isDragging ? null : node_tip.show)
       .on("mouseout", node_tip.hide)
       .on('click', function(d) {
         d3.select(this)
@@ -188,6 +189,7 @@ function createForceDirectedGraph() {
             }
           })
           .on('drag', function(d) { 
+            _isDragging = true;
             d3.select(this)
               .style("fill", "#bababa")
               .style("stroke", "#404040");
@@ -195,6 +197,7 @@ function createForceDirectedGraph() {
             d.fy = d3.event.y;
           })
           .on('end', function(d) {
+            _isDragging = false;
             if (!d3.event.active) {
               simulation.alphaTarget(0);
             }
@@ -241,6 +244,7 @@ function createForceDirectedGraph() {
       .style("stroke", 'rgba(0,0,0,0)')
       .style("stroke-width", 8)
       .on("mouseover", (d, i) => {
+        if (_isDragging) return;
         d3.select(event.target)
           .style('stroke', d.value > 0 ? // "#33a02c" : "#e31a1c"
                 "rgba(51,160,44,0.5)" : "rgba(227,26,28,0.5)"
