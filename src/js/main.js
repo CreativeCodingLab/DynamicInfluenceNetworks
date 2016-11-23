@@ -11,8 +11,7 @@ var App = App || {};
   };
 
   App.init = function() {
-    App.loadData("Real.json");
-
+    App.loadData("Minimal.json");
     createSVGs();
   }
 
@@ -73,7 +72,6 @@ var App = App || {};
           .attr("class", key + "SVG")
           .attr("width", "100%")
           .attr("height", "100%");
-
       }
     }
 
@@ -87,7 +85,6 @@ var App = App || {};
         // create svg
         App.panels[key].width = App.panels[key].svg.node().clientWidth;
         App.panels[key].height = App.panels[key].svg.node().clientHeight;
-
       }
     }
   }
