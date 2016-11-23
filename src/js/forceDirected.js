@@ -54,13 +54,52 @@ function createForceDirectedGraph() {
 
   App.panels.forceDirected.filteredData = {};
   App.panels.forceDirected.links = [];
+  App.panels.forceDirected.nclusterNodes = [];
+  App.panels.forceDirected.pclusterNodes = [];
+  var nthreshold = -5;
+  var pthreshold = 5;
+  
+  // need to generate cluster data before actual nodes are generated
+  // sort clusterData by value
+  for (var clusterKey in App.data) {
 
+    var clusterInfp = App.data[clusterKey].inf.filter(l => l.flux > 0);
+    var clusterInfn = App.data[clusterKey].inf.filter(l => l.flux < 0);
+
+    // divide nodes into positive and negative for easier clustering
+    clusterInfp.forEach(l => {
+      App.panels.forceDirected.pclusterNodes.push({
+        source: clusterKey,
+        target: l.name,
+        value: l.flux
+      });
+    })
+
+    clusterInfn.forEach(l => {
+      App.panels.forceDirected.nclusterNodes.push({
+        source: clusterKey,
+        target: l.name,
+        value: l.flux
+      });
+    })  
+    //sort nodes
+    App.panels.forceDirected.pclusterNodes.sort(function(a,b) {
+       return parseFloat(a.value) - parseFloat(b.value)
+    });
+    App.panels.forceDirected.nclusterNodes.sort(function(a,b) {
+       return parseFloat(b.value) - parseFloat(a.value)
+    });
+  }
+
+  defineClusters(nthreshold, pthreshold);
+  
   for (var key in App.data) {
     var newNode = {
       hits: App.data[key].hits,
       name: App.data[key].name,
       inf: App.data[key].inf.filter(l => l.flux !== 0),
-      outf: App.data[key].outf.filter(l => l.flux !== 0)
+      outf: App.data[key].outf.filter(l => l.flux !== 0),
+      cluster: getCluster(key)
     }
 
     newNode.inf.forEach(l => {
@@ -314,6 +353,84 @@ function createForceDirectedGraph() {
         .distance((d) => {
           return d.value < 0 ? 100 : 30;
         })
+  }
+
+  function getCluster(key) {
+    var found = App.panels.forceDirected.clusters.filter(l => l.source === key)
+    if(found.length!=0) {
+      return found[0].cluster;
+    }
+    else {
+      return 0;
+    }
+  }
+
+ function checkFound(popped) {
+   var foundsource = App.panels.forceDirected.clusters.filter(l => l.source === popped.source);
+   var foundtarget = App.panels.forceDirected.clusters.filter(l => l.source === popped.target);
+   if(foundsource.length!=0 && foundtarget.length!=0) {
+    return 3;
+  }
+  else if (foundtarget.length!=0) {
+    return 2;
+  }
+  else if (foundsource.length!=0) {
+    return 1;
+  }
+  else {
+    return 0;
+  }
+ }
+
+  /*
+  Creates an array with the name of the source and what cluster is belongs to
+  Inputs: positive and negative flux thresholds
+   */
+  function defineClusters(nthreshold, pthreshold) {
+    App.panels.forceDirected.clusters = [];
+    var count = 1;
+    var ppopped = App.panels.forceDirected.pclusterNodes.pop();
+    var npopped = App.panels.forceDirected.nclusterNodes.pop();
+
+    // positive clusters
+    while(ppopped!=null && (ppopped.value > pthreshold))
+    {
+      
+      // already in a cluster
+      if(checkFound(ppopped))
+      {
+        //App.panels.forceDirected.clusters.push({source: ppopped.source, found[0].cluster});
+        ppopped = App.panels.forceDirected.pclusterNodes.pop();
+      }
+      // hasn't been clustered
+      else {
+        App.panels.forceDirected.clusters.push({source: ppopped.source, cluster: count});
+        ppopped = App.panels.forceDirected.pclusterNodes.pop();
+        console.log(ppopped.value);
+          App.panels.forceDirected.clusters.push({source: ppopped.source, cluster: count++});
+          ppopped = App.panels.forceDirected.pclusterNodes.pop();
+          console.log(ppopped.value);
+      }  
+    }
+
+    // negative clusters
+    while(npopped!=null && (npopped.value < nthreshold))
+    {
+      if(checkFound(npopped))
+      {
+        //App.panels.forceDirected.clusters.push({source: npopped.source, target: npopped.target, cluster: found[0].cluster});
+        npopped = App.panels.forceDirected.nclusterNodes.pop();
+      }
+      else
+      {
+        App.panels.forceDirected.clusters.push({source: npopped.source, cluster: count});
+        npopped = App.panels.forceDirected.nclusterNodes.pop();
+        console.log(npopped.value);
+          App.panels.forceDirected.clusters.push({source: npopped.source, cluster: count++});
+          npopped = App.panels.forceDirected.nclusterNodes.pop();
+        console.log(npopped.value);
+        }
+      }  
   }
 }
 
