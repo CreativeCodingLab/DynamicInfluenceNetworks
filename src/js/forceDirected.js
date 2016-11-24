@@ -98,10 +98,13 @@ function createForceDirectedGraph() {
       d3.tip().attr('class', 'd3-tip')
         .direction('e')
         .html(function(d) {
+          var value = svg.sci ?
+            Number(d.value.toPrecision(3)).toExponential() : 
+            d.value.toFixed(3); 
           if (d.value < 0) { 
-            return d.source.name + " infl.<br>" + "on " + d.target.name + "<br><span style='color:#e31a1c;'>" + d.value.toFixed(3) + "</span>";
+            return d.source.name + " infl.<br>" + "on " + d.target.name + "<br><span style='color:#e31a1c;'>" + value + "</span>";
           } else {
-            return d.source.name + " infl.<br>" + "on " + d.target.name + "<br><span style='color:#33a02c;'>" + d.value.toFixed(3) + "</span>";
+            return d.source.name + " infl.<br>" + "on " + d.target.name + "<br><span style='color:#33a02c;'>" + value + "</span>";
           }
           
         }) :

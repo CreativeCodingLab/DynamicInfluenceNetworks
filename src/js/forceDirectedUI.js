@@ -3,7 +3,8 @@ window.addEventListener('load', function() {
     var self = this;
 
     this._togglesci = function(e) {
-        console.log("sci", e)
+      console.log("sci", e)
+      App.panels.forceDirected.svg.sci = this.checked;
     };
 
     this._togglehide = function(e) {
@@ -23,7 +24,10 @@ window.addEventListener('load', function() {
 
         // remove mouseover functionality
         d3.selectAll('.link-2')
-          .attr('pointer-events','none');
+          .attr('pointer-events', function() {
+            return this.style.stroke.indexOf(key) > -1 ? 'none' :
+                this.getAttribute('pointer-events')
+          });
       }
       else {
 
@@ -37,7 +41,10 @@ window.addEventListener('load', function() {
 
         // return mouseover functionality
         d3.selectAll('.link-2')
-          .attr('pointer-events','all');
+          .attr('pointer-events', function() {
+            return this.style.stroke.indexOf(key) > -1 ? 'all' :
+                this.getAttribute('pointer-events')
+          });
 
       }
 
