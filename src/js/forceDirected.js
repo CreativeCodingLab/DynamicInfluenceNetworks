@@ -18,43 +18,65 @@ function createForceDirectedGraph() {
     .style("fill", "#eee");
 
   // define color gradients
-  var defs = svg.append('defs');
-  var red1 = defs.append('linearGradient')
-      .attr('id','redLine')
-      .attr('x1',1)
-      .attr('y1',0)
-      .attr('x2',0)
-      .attr('y2',0)
-  red1.append('stop')
-      .attr('offset','0%')
-      .attr('stop-color','yellow');
-  red1.append('stop')
-      .attr('offset','100%')
-      .attr('stop-color', "#e31a1c");
-  var green1 = defs.append('linearGradient')
-      .attr('id','greenLine')
-      .attr('x1',1)
-      .attr('y1',0)
-      .attr('x2',0)
-      .attr('y2',0)
-  green1.append('stop')
-      .attr('offset','0%')
-      .attr('stop-color','aqua');
-  green1.append('stop')
-      .attr('offset','100%')
-      .attr('stop-color',"#33a02c");
+  (function() {
+      var defs = svg.append('defs');
+      var red = defs.append('linearGradient')
+          .attr('id','redLeft')
+          .attr('x1',1)
+          .attr('y1',0)
+          .attr('x2',0)
+          .attr('y2',0)
+      red.append('stop')
+          .attr('offset','0%')
+          .attr('stop-color','gold');
+      red.append('stop')
+          .attr('offset','100%')
+          .attr('stop-color', "#e31a1c");
 
-  defs.append('linearGradient')
-      .attr('id','redReverse')
-      .attr('xlink:href','#redLine')
-      .attr('x1',0)
-      .attr('x2',1)
-  defs.append('linearGradient')
-      .attr('id','greenReverse')
-      .attr('xlink:href','#greenLine')
-      .attr('x1',0)
-      .attr('x2',1)
-
+      var green = defs.append('linearGradient')
+          .attr('id','greenLeft')
+          .attr('x1',1)
+          .attr('y1',0)
+          .attr('x2',0)
+          .attr('y2',0)
+      green.append('stop')
+          .attr('offset','0%')
+          .attr('stop-color','aquamarine');
+      green.append('stop')
+          .attr('offset','100%')
+          .attr('stop-color',"#33a02c");
+  
+      defs.append('linearGradient')
+          .attr('id','redRight')
+          .attr('xlink:href','#redLeft')
+          .attr('x1',0)
+          .attr('x2',1)
+      defs.append('linearGradient')
+          .attr('id','redUp')
+          .attr('xlink:href','#redLeft')
+          .attr('x1',0)
+          .attr('y1',1)
+      defs.append('linearGradient')
+          .attr('id','redDown')
+          .attr('xlink:href','#redLeft')
+          .attr('x1',0)
+          .attr('y2',1)
+      defs.append('linearGradient')
+          .attr('id','greenRight')
+          .attr('xlink:href','#greenLeft')
+          .attr('x1',0)
+          .attr('x2',1)
+      defs.append('linearGradient')
+          .attr('id','greenUp')
+          .attr('xlink:href','#greenLeft')
+          .attr('x1',0)
+          .attr('y1',1)
+      defs.append('linearGradient')
+          .attr('id','greenDown')
+          .attr('xlink:href','#greenLeft')
+          .attr('x1',0)
+          .attr('y2',1)
+    })();
 
   var linkGroup = svg.append("g")
     .attr("class", "linkGroup");
@@ -130,15 +152,15 @@ function createForceDirectedGraph() {
     });
   }
 
-  defineClusters(nthreshold, pthreshold);
+  // defineClusters(nthreshold, pthreshold);
   
   for (var key in App.data) {
     var newNode = {
       hits: App.data[key].hits,
       name: App.data[key].name,
       inf: App.data[key].inf.filter(l => l.flux !== 0),
-      outf: App.data[key].outf.filter(l => l.flux !== 0),
-      cluster: getCluster(key)
+      outf: App.data[key].outf.filter(l => l.flux !== 0)//,
+      // cluster: getCluster(key)
     }
 
     newNode.inf.forEach(l => {
@@ -248,36 +270,23 @@ function createForceDirectedGraph() {
       return Math.abs(b.value) - Math.abs(a.value);
     });
 
+    minInfl = Math.abs(sortedInfl[Math.round(sortedInfl.length/4)].value)/2;
     maxInfl = Math.abs(sortedInfl[Math.round(sortedInfl.length/2)].value) * 2;
-
-
 
     var strokeScale = d3.scalePow()
       .domain([0, maxInfl])
-      .range([0.3, 1])
+      .range([0.3, sortedInfl.length > 200 ? 1 : 3])
       .clamp(true);
 
     var linkGroupElement = linkGroup.selectAll(".linkElement")
       .data(App.panels.forceDirected.links)
     .enter().append("g")
       .attr('class', 'linkElement')
-      .attr('fill','none')
-      .style("stroke", (d) => {
-        var dx = d.target.x - d.source.x,
-            dy = d.target.y - d.source.y;
-        if (d.value > 0) {
-          return dx >= 0 ? "url(#greenLine)" : "url(#greenReverse)";
-        }
-        else {
-          return dx >= 0 ? "url(#redLine)" : "url(#redReverse)";
-        }
-        // return d.value > 0 ? "#33a02c" : "#e31a1c"
-      });
+      .attr('fill','none');
 
     // main line
     linkGroupElement.append('path')
       .attr("class", "link link-1")
-      // .style('stroke-opacity', (d) => (strokeScale(Math.abs(d.value))-0.3)*0.5/0.7+0.5)
       .style("stroke-width", (d) => {
         return strokeScale(Math.abs(d.value));
       });
@@ -289,13 +298,11 @@ function createForceDirectedGraph() {
       .style("stroke-width", 8)
       .on("mouseover", (d, i) => {
         if (_isDragging) return;
-        d3.select(event.target)
-          .style('stroke', d.value > 0 ? "#33a02c" : "#e31a1c");
+
         var dx = d.target.x - d.source.x,
             dy = d.target.y - d.source.y;
         var ex = event.x - d.target.x + 20,
             ey = event.y - d.target.y;
-
 
         d3.select(event.target)
           .style('stroke-opacity',0.5);
@@ -379,12 +386,17 @@ function createForceDirectedGraph() {
             var dx = d.target.x - d.source.x,
                 dy = d.target.y - d.source.y;
             if (d.value > 0) {
-              return dx >= 0 ? "url(#greenLine)" : "url(#greenReverse)";
+              if (Math.abs(dy/dx) > 3) {
+                return dy >= 0 ? "url(#greenUp)" : "url(#greenDown)";
+              }
+              return dx >= 0 ? "url(#greenLeft)" : "url(#greenRight)";
             }
             else {
-              return dx >= 0 ? "url(#redLine)" : "url(#redReverse)";
+              if (Math.abs(dy/dx) > 3) {
+                return dy >= 0 ? "url(#redUp)" : "url(#redDown)";
+              }
+              return dx >= 0 ? "url(#redLeft)" : "url(#redRight)";
             }
-            // return d.value > 0 ? "#33a02c" : "#e31a1c"
           })
           .attr('d', function(d) {
             var target = d.source,
@@ -399,7 +411,7 @@ function createForceDirectedGraph() {
             var nx = -dx / dr,
                 ny = -dy / dr;
 
-            if (dr < 20) { dr /= 2; }
+            if (dr < 100) { dr /= 2; }
 
             var t = {
               x: target.x + (target.radius+3)*nx, 
@@ -429,6 +441,20 @@ function createForceDirectedGraph() {
         .links(App.panels.forceDirected.links)
         .distance((d) => {
           return d.value < 0 ? 100 : 30;
+        })
+        .strength((d) => {
+          // console.log(d)
+          let strengthScale = d3.scaleLinear()
+            .domain([0, maxInfl])
+            .range([0.3,1])
+            .clamp(true);
+
+          var multiplier = strengthScale(Math.abs(d.value));
+          // var multiplier = d.value > 0 ? strengthScale(d.value) : 1-strengthScale(-d.value);
+
+          var cs = d.source.inf.length + d.source.outf.length,
+              ct = d.target.inf.length + d.target.outf.length;
+          return multiplier/Math.max(1,Math.min(cs, ct));
         })
   }
 
@@ -483,10 +509,10 @@ function createForceDirectedGraph() {
       else {
         App.panels.forceDirected.clusters.push({source: ppopped.source, cluster: count});
         ppopped = App.panels.forceDirected.pclusterNodes.pop();
-        console.log(ppopped.value);
+        // console.log(ppopped.value);
           App.panels.forceDirected.clusters.push({source: ppopped.source, cluster: count++});
           ppopped = App.panels.forceDirected.pclusterNodes.pop();
-          console.log(ppopped.value);
+          // console.log(ppopped.value);
       }  
     }
 
@@ -502,10 +528,10 @@ function createForceDirectedGraph() {
       {
         App.panels.forceDirected.clusters.push({source: npopped.source, cluster: count});
         npopped = App.panels.forceDirected.nclusterNodes.pop();
-        console.log(npopped.value);
+        // console.log(npopped.value);
           App.panels.forceDirected.clusters.push({source: npopped.source, cluster: count++});
           npopped = App.panels.forceDirected.nclusterNodes.pop();
-        console.log(npopped.value);
+        // console.log(npopped.value);
         }
       }  
   }

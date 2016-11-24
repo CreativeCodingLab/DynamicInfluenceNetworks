@@ -13,7 +13,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.js"></script>
 		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
 		<!-- CSS Src -->
 		<link rel="stylesheet" href="./src/css/main.css" />
 
@@ -23,6 +22,7 @@
 
 		<!-- Individual Visualization Scripts -->
     <script src="./src/js/forceDirected.js" charset="utf-8"></script>
+    <script src="./src/js/forceDirectedUI.js"></script>
 
 	</head>
 
@@ -34,22 +34,28 @@
 				<div class="col-md-8 mainCol" id="forceDirectedDiv">
 				</div>
 				<div class="col-md-4 mainCol">
-						<div class="row h-30 content" id= "topVis">	
-							Supplementary Vis #1
+					<div class="row controls">
+						<div class="control">
+							<input type="checkbox" id="sci"> Scientific notation
+							<input type="checkbox" id="hide-negative"> Hide negative influences
+							<input type="checkbox" id="hide-positive"> Hide positive influences
+							<button id="unpin">Release pinned nodes</button>
+							<button id="refresh">Refresh graph</button>
 						</div>
-						<div class="row h-30 content" id= "bottomVis">	
-							Supplementary Vis #2
+						<div class="control" id="clusterSlider">	
+							Clustering Slider
 						</div>
-						<div class="row" id="controls">	
-								<div class="col-md-12 paddedCol">	
-										<div class="row control" id="clusterSlider">	
-											Clustering Slider
-										</div>
-										<div class="row control" id="timeSlider">	
-											Timeline Slider
-										</div>
-								</div>
+						<div class="control" id="timeSlider">	
+							Timeline Slider
 						</div>
+					</div>
+
+					<div class="row h-30 content" id= "topVis">	
+						Supplementary Vis #1
+					</div>
+					<div class="row h-30 content" id= "bottomVis">	
+						Supplementary Vis #2
+					</div>
 				</div>
 			</div>
 
