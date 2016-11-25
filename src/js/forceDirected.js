@@ -155,15 +155,15 @@ function createForceDirectedGraph() {
     });
   }
 
-  // defineClusters(nthreshold, pthreshold);
+  defineClusters(nthreshold, pthreshold);
   
   for (var key in App.data) {
     var newNode = {
       hits: App.data[key].hits,
       name: App.data[key].name,
       inf: App.data[key].inf.filter(l => l.flux !== 0),
-      outf: App.data[key].outf.filter(l => l.flux !== 0)//,
-      // cluster: getCluster(key)
+      outf: App.data[key].outf.filter(l => l.flux !== 0),
+      cluster: getCluster(key)
     }
 
     newNode.inf.forEach(l => {
@@ -461,8 +461,8 @@ function createForceDirectedGraph() {
         })
   }
 
-  function getCluster(key) {
-    var found = App.panels.forceDirected.clusters.filter(l => l.source === key)
+ function getCluster(key) {
+    var found = App.panels.forceDirected.clusters.filter(l => l.name === key)
     if(found.length!=0) {
       return found[0].cluster;
     }
@@ -472,19 +472,16 @@ function createForceDirectedGraph() {
   }
 
  function checkFound(popped) {
-   var foundsource = App.panels.forceDirected.clusters.filter(l => l.source === popped.source);
-   var foundtarget = App.panels.forceDirected.clusters.filter(l => l.source === popped.target);
-   if(foundsource.length!=0 && foundtarget.length!=0) {
-    return 3;
+   var foundsource = App.panels.forceDirected.clusters.filter(l => l.name === popped.source);
+   var foundtarget = App.panels.forceDirected.clusters.filter(l => l.name === popped.target);
+   if(foundsource.length!=0) {
+    return 0;
   }
   else if (foundtarget.length!=0) {
-    return 2;
-  }
-  else if (foundsource.length!=0) {
-    return 1;
+    return foundtarget[0].cluster;
   }
   else {
-    return 0;
+    return -1;
   }
  }
 
@@ -501,42 +498,65 @@ function createForceDirectedGraph() {
     // positive clusters
     while(ppopped!=null && (ppopped.value > pthreshold))
     {
-      
-      // already in a cluster
-      if(checkFound(ppopped))
-      {
-        //App.panels.forceDirected.clusters.push({source: ppopped.source, found[0].cluster});
+      // target and source are the same, don't assign cluster
+      if (ppopped.source === ppopped.target) {
         ppopped = App.panels.forceDirected.pclusterNodes.pop();
+      }
+      // already in a cluster
+      else if(checkFound(ppopped) >= 0)
+      {
+        //  source lustered, ignore
+        if(checkFound(ppopped) === 0)
+        {
+          ppopped = App.panels.forceDirected.pclusterNodes.pop();
+        }
+        // target clustered but source not clustered yet, add to source to existing cluster
+        else {
+          var ncluster = checkFound(ppopped);
+          App.panels.forceDirected.clusters.push({name: ppopped.source, cluster: ncluster});
+          ppopped = App.panels.forceDirected.pclusterNodes.pop();
+        }        
       }
       // hasn't been clustered
       else {
-        App.panels.forceDirected.clusters.push({source: ppopped.source, cluster: count});
-        ppopped = App.panels.forceDirected.pclusterNodes.pop();
-        // console.log(ppopped.value);
-          App.panels.forceDirected.clusters.push({source: ppopped.source, cluster: count++});
+          App.panels.forceDirected.clusters.push({name: ppopped.target, cluster: count})
+          App.panels.forceDirected.clusters.push({name: ppopped.source, cluster: count});
+          count++;
           ppopped = App.panels.forceDirected.pclusterNodes.pop();
-          // console.log(ppopped.value);
+          //console.log(ppopped.value);
       }  
     }
 
     // negative clusters
     while(npopped!=null && (npopped.value < nthreshold))
     {
-      if(checkFound(npopped))
-      {
-        //App.panels.forceDirected.clusters.push({source: npopped.source, target: npopped.target, cluster: found[0].cluster});
+      if (npopped.source === npopped.target) {
         npopped = App.panels.forceDirected.nclusterNodes.pop();
       }
-      else
+      // already in a cluster
+      else if(checkFound(npopped) >= 0)
       {
-        App.panels.forceDirected.clusters.push({source: npopped.source, cluster: count});
-        npopped = App.panels.forceDirected.nclusterNodes.pop();
-        // console.log(npopped.value);
-          App.panels.forceDirected.clusters.push({source: npopped.source, cluster: count++});
+        // source already clustered, ignore
+        if(checkFound(npopped) === 0)
+        {
           npopped = App.panels.forceDirected.nclusterNodes.pop();
-        // console.log(npopped.value);
         }
+        // target clustered but source not clustered yet, add to existing cluster
+        else {
+          var ncluster = checkFound(npopped);
+          App.panels.forceDirected.clusters.push({name: npopped.source, cluster: ncluster});
+          npopped = App.panels.forceDirected.nclusterNodes.pop();
+        } 
+      }
+      // hasn't been clustered
+      else {
+          App.panels.forceDirected.clusters.push({name: npopped.target, cluster: count});
+          App.panels.forceDirected.clusters.push({name: npopped.source, cluster: count});
+          count++;
+          npopped = App.panels.forceDirected.nclusterNodes.pop();
+          //console.log(npopped.value);
       }  
+    }
   }
 }
 
