@@ -23,6 +23,7 @@
 		<!-- Individual Visualization Scripts -->
     <script src="./src/js/forceDirected.js" charset="utf-8"></script>
     <script src="./src/js/forceDirectedUI.js"></script>
+    <script src="./src/js/sliderUI.js"></script>
 
 	</head>
 
@@ -36,18 +37,18 @@
 				<div class="col-md-4 mainCol">
 					<div class="row controls">
 						<div class="control">
-							<input type="checkbox" id="sci"> Scientific notation
-							<input type="checkbox" id="hide-negative"> Hide negative influences
-							<input type="checkbox" id="hide-positive"> Hide positive influences
-							<button id="unpin">Release pinned nodes</button>
-							<button id="refresh">Refresh graph</button>
+							<p>
+								<button id="unpin">Unpin nodes</button>
+								<!-- <button id="refresh">Refresh graph</button> -->
+							</p>
+							<p>
+								<input type="checkbox" id="sci"> Scientific notation<br/>
+								<input type="checkbox" id="hide-negative"> Hide negative influences<br/>
+								<input type="checkbox" id="hide-positive"> Hide positive influences<br/>
+							</p>
 						</div>
-						<div class="control" id="clusterSlider">	
-							Clustering Slider
-						</div>
-						<div class="control" id="timeSlider">	
-							Timeline Slider
-						</div>
+						<div class="slider" id="clusterSlider"></div>
+						<div class="slider" id="timeSlider"></div>
 					</div>
 
 					<div class="row h-30 content" id= "topVis">	

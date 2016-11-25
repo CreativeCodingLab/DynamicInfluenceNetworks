@@ -3,13 +3,10 @@ window.addEventListener('load', function() {
     var self = this;
 
     this._togglesci = function(e) {
-      console.log("sci", e)
       App.panels.forceDirected.svg.sci = this.checked;
     };
 
     this._togglehide = function(e) {
-      console.log('hide', e)
-
       let key = this.id.split('-').indexOf('positive') > -1 ? 'green' : 'red';
 
       if (this.checked) {
@@ -51,7 +48,6 @@ window.addEventListener('load', function() {
     };
 
     this._unpin = function(e) {
-        console.log("unpin", e)
         for (var node in App.panels.forceDirected.filteredData) {
             App.panels.forceDirected.filteredData[node].fx = null;
             App.panels.forceDirected.filteredData[node].fy = null;
@@ -62,19 +58,24 @@ window.addEventListener('load', function() {
 
     };
 
-    this._refresh = function(e) {
-        console.log("ref", e)
+    this._filename = function(e) {
+        var input = document.getElementById('filename-input');
+        console.log(input.value);
+        if (!input.value.match(/.*#.json/)) {
+          input.value = '';
+          input.setAttribute('placeholder', 'Filenames of data series should be in the format "[prefix]_#.json"');
+        }
 
     };
 
     // add listeners
-    [].slice.call(document.querySelectorAll('input[type="checkbox"]'))
+    [].slice.call(document.querySelectorAll('.control input[type="checkbox"]'))
         .forEach((checkbox) => {
             checkbox.addEventListener('change', 
                 self['_toggle'+checkbox.id.split('-')[0]]);
         });
 
-    [].slice.call(document.querySelectorAll('button'))
+    [].slice.call(document.querySelectorAll('.control button'))
         .forEach((button) => {
             button.addEventListener('click', self['_'+button.id]);
         });

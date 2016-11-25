@@ -267,13 +267,14 @@ function createForceDirectedGraph() {
 
   }
 
+  var maxInfl;
+  
   // draw links in graph
   function drawLinks(filteredData, width) {
     var sortedInfl = App.panels.forceDirected.links.sort((a, b) => {
       return Math.abs(b.value) - Math.abs(a.value);
     });
 
-    minInfl = Math.abs(sortedInfl[Math.round(sortedInfl.length/4)].value)/2;
     maxInfl = Math.abs(sortedInfl[Math.round(sortedInfl.length/2)].value) * 2;
 
     var strokeScale = d3.scalePow()
@@ -443,7 +444,18 @@ function createForceDirectedGraph() {
     simulation.force("link")
         .links(App.panels.forceDirected.links)
         .distance((d) => {
-          return d.value < 0 ? 100 : 30;
+
+          let strengthScale = d3.scaleLinear()
+            .domain([0, maxInfl])
+            .range([1,0.4])
+            .clamp(true);
+
+          if (d.value < 0) {
+            return 25/strengthScale(-d.value);
+          }
+          else {
+            return 25*strengthScale(d.value);
+          }
         })
         .strength((d) => {
           // console.log(d)
@@ -452,15 +464,13 @@ function createForceDirectedGraph() {
             .range([0.3,1])
             .clamp(true);
 
-          var multiplier = strengthScale(Math.abs(d.value));
-          // var multiplier = d.value > 0 ? strengthScale(d.value) : 1-strengthScale(-d.value);
+          var multiplier = strengthScale(/*Math.abs*/(d.value));
 
           var cs = d.source.inf.length + d.source.outf.length,
               ct = d.target.inf.length + d.target.outf.length;
           return multiplier/Math.max(1,Math.min(cs, ct));
-        })
-  }
-
+        });
+  }// end createForceLayout
  function getCluster(key) {
     var found = App.panels.forceDirected.clusters.filter(l => l.name === key)
     if(found.length!=0) {
