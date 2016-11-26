@@ -179,6 +179,7 @@ function createForceDirectedGraph() {
     }
   }
 
+  defineMaxClusterNodes();
   console.log("filteredData:", App.panels.forceDirected.filteredData);
   drawGraph();
 
@@ -471,7 +472,7 @@ function createForceDirectedGraph() {
           return multiplier/Math.max(1,Math.min(cs, ct));
         });
   }// end createForceLayout
- function getCluster(key) {
+  function getCluster(key) {
     var found = App.panels.forceDirected.clusters.filter(l => l.name === key)
     if(found.length!=0) {
       return found[0].cluster;
@@ -481,19 +482,34 @@ function createForceDirectedGraph() {
     }
   }
 
- function checkFound(popped) {
-   var foundsource = App.panels.forceDirected.clusters.filter(l => l.name === popped.source);
-   var foundtarget = App.panels.forceDirected.clusters.filter(l => l.name === popped.target);
-   if(foundsource.length!=0) {
-    return 0;
+  function checkFound(popped) {
+    var foundsource = App.panels.forceDirected.clusters.filter(l => l.name === popped.source);
+    var foundtarget = App.panels.forceDirected.clusters.filter(l => l.name === popped.target);
+    if(foundsource.length!=0) {
+      return 0;
+    }
+    else if (foundtarget.length!=0) {
+      return foundtarget[0].cluster;
+    }
+    else {
+      return -1;
+    }
   }
-  else if (foundtarget.length!=0) {
-    return foundtarget[0].cluster;
+
+  /*
+  Finds the maximum sized node within each cluster and adds it within an array
+  */
+  function defineMaxClusterNodes() {
+    let filteredData = App.panels.forceDirected.filteredData;
+    App.panels.forceDirected.clusterMax = new Array(App.panels.forceDirected.clusterCount);
+    for (var key in filteredData) {
+      let data = filteredData[key]
+      if(App.panels.forceDirected.clusterMax[data.cluster] == undefined || App.panels.forceDirected.clusterMax[data.cluster].hits < data.hits) {
+          App.panels.forceDirected.clusterMax[data.cluster] = data;
+      }  
+    }
   }
-  else {
-    return -1;
-  }
- }
+
 
   /*
   Creates an array with the name of the source and what cluster is belongs to
@@ -567,6 +583,7 @@ function createForceDirectedGraph() {
           //console.log(npopped.value);
       }  
     }
+    App.panels.forceDirected.clusterCount = count;
   }
 }
 
