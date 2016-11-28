@@ -474,7 +474,7 @@ function createForceDirectedGraph() {
 
         simulation.force("cluster", clustering);
 
-        // Initial clustering forces
+        // Initial clustering forces:
         function clustering(alpha) {
             var clusters = App.panels.forceDirected.clusterMax;
             nodeArr.forEach(function(d) {
@@ -494,6 +494,40 @@ function createForceDirectedGraph() {
               }  
             });
         }
+
+      function collide(alpha) {
+        var clusterPadding = 6; // separation between different-color circles
+        var maxRadius = 12;
+        var quadtree = d3.quadtree()
+            .x((d) => d.x)
+            .y((d) => d.y)
+            .addAll(nodeArr);
+
+        nodeArr.forEach(function(d) {
+          var r = d.radius + maxRadius + Math.max(padding, clusterPadding),
+              nx1 = d.x - r,
+              nx2 = d.x + r,
+              ny1 = d.y - r,
+              ny2 = d.y + r;
+          quadtree.visit(function(quad, x1, y1, x2, y2) {
+
+            if (quad.data && (quad.data !== d)) {
+              var x = d.x - quad.data.x,
+                  y = d.y - quad.data.y,
+                  l = Math.sqrt(x * x + y * y),
+                  r = d.r + quad.data.radius + (d.cluster === quad.data.cluster ? padding : clusterPadding);
+              if (l < r) {
+                l = (l - r) / l * alpha;
+                d.x -= x *= l;
+                d.y -= y *= l;
+                quad.data.x += x;
+                quad.data.y += y;
+              }
+            }
+            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+          });
+        });
+      }
   }// end createForceLayout
 
   
