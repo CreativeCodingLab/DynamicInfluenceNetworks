@@ -471,7 +471,33 @@ function createForceDirectedGraph() {
               ct = d.target.inf.length + d.target.outf.length;
           return multiplier/Math.max(1,Math.min(cs, ct));
         });
+
+        simulation.force("cluster", clustering);
+
+        // Initial clustering forces
+        function clustering(alpha) {
+            var clusters = App.panels.forceDirected.clusterMax;
+            nodeArr.forEach(function(d) {
+              var cluster = clusters[d.cluster];
+              if (cluster === d) return;
+              var x = d.x - cluster.x,
+                  y = d.y - cluster.y,
+                  l = Math.sqrt(x * x + y * y),
+                  r = d.radius + cluster.radius;
+              if (x === 0 && y === 0 || (isNaN(x) || isNaN(y))) return;
+              if (l !== r) {
+                l = (l - r) / l * alpha;
+                d.x -= x *= l;
+                d.y -= y *= l;
+                cluster.x += x;
+                cluster.y += y;
+              }  
+            });
+        }
   }// end createForceLayout
+
+  
+
   function getCluster(key) {
     var found = App.panels.forceDirected.clusters.filter(l => l.name === key)
     if(found.length!=0) {
