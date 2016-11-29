@@ -246,8 +246,6 @@ function createForceDirectedGraph() {
       .attr("r", d => d.radius)
       // .style("fill", "#abd9e9")
       .style("fill", (d) => {
-        console.log(App.panels.forceDirected.clusterObj[d.name]);
-
         return clusterColor(App.panels.forceDirected.clusterObj[d.name]);
       })
       .style("stroke", "#2c7bb6")
@@ -256,7 +254,10 @@ function createForceDirectedGraph() {
       .on("mouseout", node_tip.hide)
       .on('click', function(d) {
         d3.select(this)
-          .style("fill", "#abd9e9")
+          // .style("fill", "#abd9e9")
+          .style("fill", (d) => {
+            return clusterColor(App.panels.forceDirected.clusterObj[d.name]);
+          })
           .style("stroke", "#2c7bb6");
 
         d.fx = d.fy = null; 
