@@ -1,6 +1,7 @@
 var App = App || {};
 
 function createForceDirectedGraph() {
+
   var _isDragging = false;
   var svg = App.panels.forceDirected.svg;
   var width = App.panels.forceDirected.width;
@@ -221,6 +222,17 @@ function createForceDirectedGraph() {
       filteredData[key].y = height / 2; 
     }
 
+    App.panels.forceDirected.clusterObj = {};
+
+    App.panels.forceDirected.clusters.forEach((el) => {
+      App.panels.forceDirected.clusterObj[el.name] = el.cluster;
+    });
+
+    var clusterNumArr = Array.apply(null, {length: 20}).map(Number.call, Number)
+
+    var clusterColor = d3.scaleOrdinal(d3.schemeCategory20)
+      .domain(clusterNumArr);
+
     nodeGroup.selectAll(".rule")
       .data(Object.keys(filteredData))
     .enter().append("circle")
@@ -232,7 +244,12 @@ function createForceDirectedGraph() {
         return "translate(" + d.x + ", " + d.y + ")";
       })
       .attr("r", d => d.radius)
-      .style("fill", "#abd9e9")
+      // .style("fill", "#abd9e9")
+      .style("fill", (d) => {
+        console.log(App.panels.forceDirected.clusterObj[d.name]);
+
+        return clusterColor(App.panels.forceDirected.clusterObj[d.name]);
+      })
       .style("stroke", "#2c7bb6")
       .style("stroke-width", 1)
       .on('mouseover', _isDragging ? null : node_tip.show)
