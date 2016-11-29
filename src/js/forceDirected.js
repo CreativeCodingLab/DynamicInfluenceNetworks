@@ -157,6 +157,7 @@ function createForceDirectedGraph() {
   }
 
   defineClusters(nthreshold, pthreshold);
+  findClusters2();
   
   for (var key in App.data) {
     var newNode = {
@@ -230,7 +231,7 @@ function createForceDirectedGraph() {
 
     var clusterNumArr = Array.apply(null, {length: 20}).map(Number.call, Number)
 
-    var clusterColor = App.panels.forceDirected.clusterColor = d3.scaleOrdinal(d3.schemeCategory20)
+    var clusterColor = App.panels.forceDirected.clusterColor = d3.scaleOrdinal(d3.schemeCategory20b)
       .domain(clusterNumArr);
 
     nodeGroup.selectAll(".rule")
@@ -566,6 +567,7 @@ function createForceDirectedGraph() {
   function checkFound(popped) {
     var foundsource = App.panels.forceDirected.clusters.filter(l => l.name === popped.source);
     var foundtarget = App.panels.forceDirected.clusters.filter(l => l.name === popped.target);
+
     if(foundsource.length!=0) {
       return 0;
     }
@@ -612,7 +614,7 @@ function createForceDirectedGraph() {
       // already in a cluster
       else if(checkFound(ppopped) >= 0)
       {
-        //  source lustered, ignore
+        //  source clustered, ignore
         if(checkFound(ppopped) === 0)
         {
           ppopped = App.panels.forceDirected.pclusterNodes.pop();
@@ -666,6 +668,76 @@ function createForceDirectedGraph() {
     }
     App.panels.forceDirected.clusterCount = count;
   }
+
+  function findClusters2(threshold = 5, useAbs = false) {
+    var clusterList = App.panels.forceDirected.clusters2 = {};
+    var numClusters = 0;
+
+    var edges = [];
+
+    for (var key of Object.keys(App.data)) {
+      App.data[key].aCluster = 0;
+      for (var inf of App.data[key].inf) {
+        if (inf.flux !== 0) {
+          edges.push({source: key, target: inf.name, val: inf.flux});
+        }
+      }
+    }
+
+    if (useAbs) {
+      // sort absolute val of flux
+      edges.sort((a, b) => {
+        return Math.abs(b.val) - Math.abs(a.val);
+      });
+    } else {
+      // sort flux
+      edges.sort((a, b) => {
+        return b.val - a.val;
+      });
+    }
+
+    console.log(edges);
+
+    for (var e of edges) {
+      if (e.val >= threshold || (useAbs && Math.abs(e.val) >= threshold)) {
+
+        if (App.data[e.source].aCluster && App.data[e.target].aCluster && 
+          App.data[e.source].aCluster !== App.data[e.target].aCluster) {
+
+          joinClusters2(App.data[e.source].aCluster, App.data[e.target].aCluster);
+        } else if (App.data[e.source].aCluster) {
+          // add target to source cluster
+          clusterList[App.data[e.source].aCluster].push(e.target);
+          App.data[e.target].aCluster = App.data[e.source].aCluster;
+        } else if (App.data[e.target].aCluster) {
+          // add source to target cluster
+          clusterList[App.data[e.target].aCluster].push(e.source);
+          App.data[e.source].aCluster = App.data[e.target].aCluster;
+        } else {
+          numClusters++;
+
+          App.data[e.source].aCluster = App.data[e.target].aCluster = numClusters
+          clusterList[numClusters] = [e.source, e.target];
+        }
+      }
+    }
+
+    console.log(clusterList);
+
+    App.panels.forceDirected.clusters2 = clusterList;
+    
+    // joins b into a
+    function joinClusters2(a, b) {
+      for (var rule of clusterList[b]) {
+        App.data[rule].aCluster = a;
+      }
+
+      delete clusterList[b];
+    }
+
+  }
+
+
 }
 
 
