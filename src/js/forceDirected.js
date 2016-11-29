@@ -472,7 +472,8 @@ function createForceDirectedGraph() {
           return multiplier/Math.max(1,Math.min(cs, ct));
         });
 
-        simulation.force("cluster", clustering);
+        simulation.force("cluster", clustering)
+                        .force("collide", collide);
 
         // Initial clustering forces:
         function clustering(alpha) {
@@ -496,6 +497,7 @@ function createForceDirectedGraph() {
         }
 
       function collide(alpha) {
+        var padding = 1.5;
         var clusterPadding = 6; // separation between different-color circles
         var maxRadius = 12;
         var quadtree = d3.quadtree()
