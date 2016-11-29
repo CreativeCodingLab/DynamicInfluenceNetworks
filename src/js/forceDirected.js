@@ -503,6 +503,7 @@ function createForceDirectedGraph() {
                   l = Math.sqrt(x * x + y * y),
                   r = d.radius + cluster.radius;
               if (x === 0 && y === 0 || (isNaN(x) || isNaN(y))) return;
+              if (d.cluster === 0) return;
               if (l !== r) {
                 l = (l - r) / l * alpha;
                 d.x -= x *= l;
