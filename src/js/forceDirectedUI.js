@@ -55,7 +55,7 @@ window.addEventListener('load', function() {
         d3.selectAll('.rule')
             // .style("fill", "#abd9e9")
             .style("fill", (d) => {
-              return clusterColor(App.panels.forceDirected.clusterObj[d.name]);
+              return App.panels.forceDirected.clusterColor(App.panels.forceDirected.clusterObj[d.name]);
             })
             .style("stroke", "#2c7bb6");
 

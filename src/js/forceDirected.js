@@ -230,7 +230,7 @@ function createForceDirectedGraph() {
 
     var clusterNumArr = Array.apply(null, {length: 20}).map(Number.call, Number)
 
-    var clusterColor = d3.scaleOrdinal(d3.schemeCategory20)
+    var clusterColor = App.panels.forceDirected.clusterColor = d3.scaleOrdinal(d3.schemeCategory20)
       .domain(clusterNumArr);
 
     nodeGroup.selectAll(".rule")
