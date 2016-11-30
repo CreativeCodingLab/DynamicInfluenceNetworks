@@ -11,7 +11,7 @@ var App = App || {};
   };
 
   App.init = function() {
-    App.loadData("Real.json");
+    App.loadData("flux_0.json", true);
     createSVGs();
   }
 
@@ -29,37 +29,85 @@ var App = App || {};
     ForceDirectedGraph.call(App.panels.forceDirected);
   }
 
-  App.loadData = function(file) {
-    d3.json("./data/" + file, (err, json) => {
+  App.loadData = function(file, isSeries) {
+    var dir = './data/';
 
-      if (json.bioBeginTime && json.bioEndTime) {
-        App.timeWindow = [json.bioBeginTime, json.bioEndTime];
+    var isFormattedSeries = isSeries;
+    if (isSeries) {
+      // attempt to load a series of files
+      var fformat = file.match(/^(.*)(\d+)(.*)$/);
+      if (fformat && fformat.length > 3) {
+        var prefix =  fformat[1],
+            num    = +fformat[2],
+            suffix =  fformat[3];
+
+        var datasets = [];
+
+        // recursively load next file
+        function loadNext(err, json) {
+          if (!err) {
+            ++num;
+            datasets.push(json);
+            d3.json ( dir + prefix + num + suffix, loadNext );
+          }
+          else if (datasets.length > 0) {
+            // success!!
+            App.handleData(datasets);
+          }
+          else {
+            console.log('Error', err);
+          }
+        }
+
+        d3.json(dir + file, loadNext);
       }
-
-      console.log(json);
-
-      for(var n in json.rules) {
-        App.data[json.rules[n]] = {
-          name: json.rules[n],
-          hits: json.hits[n],
-          inf: json.rules.map((el, i) => {
-            return {
-              name: el,
-              flux: json.fluxs[n][i]
-            };
-          }),
-          outf: json.rules.map((el, i) => {
-            return {
-              name: el,
-              flux: json.fluxs[i][n]
-            }
-          })
-        };
+      else {
+        isFormattedSeries = false;
       }
+    }
+    if (!isFormattedSeries) {
+      // attempt to load a single file
+      d3.json(dir + file, (err, json) => {
+        if (err) {
+          console.log('Error',err);
+          return;
+        }
+        // success!!
+        App.handleData([json])
+      })
+    }
+  };
 
-      App.draw();
-    });
-  }
+  App.handleData = function(dataset) {
+    var json = dataset[0];
+
+    if (json.bioBeginTime && json.bioEndTime) {
+      App.timeWindow = [json.bioBeginTime, json.bioEndTime];
+    }
+
+    console.log(json);
+
+    for(var n in json.rules) {
+      App.data[json.rules[n]] = {
+        name: json.rules[n],
+        hits: json.hits[n],
+        inf: json.rules.map((el, i) => {
+          return {
+            name: el,
+            flux: json.fluxs[n][i]
+          };
+        }),
+        outf: json.rules.map((el, i) => {
+          return {
+            name: el,
+            flux: json.fluxs[i][n]
+          }
+        })
+      };
+    }
+
+    App.draw();
+  };
 
   // creating SVGs in layout
   function createSVGs() {
