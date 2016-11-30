@@ -228,7 +228,9 @@ function createForceDirectedGraph() {
           .on('drag', function(d) { 
             _isDragging = true;
             d3.select(this)
-              .style("fill", "#bababa")
+              .style("fill", (d) => {
+                return clusterColor(App.panels.forceDirected.clusterObj[d.name]);
+              })
               .style("stroke", "#404040");
             d.fx = d3.event.x, 
             d.fy = d3.event.y;
@@ -473,7 +475,7 @@ function createForceDirectedGraph() {
             });
         }
 
-      function collide(alpha) {
+      function collide(alpha) {                                                            
         var padding = 1.5;
         var clusterPadding = 6; // separation between different-color circles
         var maxRadius = 20;
