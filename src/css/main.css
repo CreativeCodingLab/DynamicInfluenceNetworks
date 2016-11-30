@@ -61,6 +61,15 @@ html, body, .fluidContainer, .mainCol {
     margin:0 30px;
 }
 
+.columns {
+  column-count:2;
+  -webkit-column-count:2;
+  column-gap:5px;
+  -webkit-column-gap:5px;
+}
+.columns span {
+  display:block;
+}
 button,input {
     outline:none;
     border-radius:5px;

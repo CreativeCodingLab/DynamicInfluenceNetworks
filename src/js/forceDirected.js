@@ -23,7 +23,7 @@ function ForceDirectedGraph(args) {
     )
     .force("collision", d3.forceCollide(15))
     .force("charge", d3.forceManyBody()
-      .strength(-150)
+      .strength(-Math.pow(150, Object.keys(this.filteredData).length > 30 ? 1 : 1.2))
       .distanceMax(Math.min(this.width, this.height)/4))
     .force("center", d3.forceCenter(
       (this.width / 2),
@@ -46,7 +46,7 @@ ForceDirectedGraph.prototype = {
       .attr("width", this.width)
       .attr("height", this.height)
       .style("padding", "20px")
-      .style("fill", "#eee");
+      .style("fill", "#444");
     
     // stroke gradients
     var defs = this.svg.append('defs');
@@ -71,10 +71,10 @@ ForceDirectedGraph.prototype = {
         .attr('y2',0)
     green.append('stop')
         .attr('offset','0%')
-        .attr('stop-color','aquamarine');
+        .attr('stop-color', '#09d');
     green.append('stop')
         .attr('offset','100%')
-        .attr('stop-color',"#33a02c");
+        .attr('stop-color', '#3ad01a');
 
     defs.append('linearGradient')
         .attr('id','redRight')
@@ -122,7 +122,7 @@ ForceDirectedGraph.prototype = {
         .style('font-size', '0.85em')
         .style('padding','10px 15px')
         .style('border-radius','0 0 8px 0')
-        .style('background', 'rgba(30,30,30,0.7)')
+        .style('background', 'rgba(30,30,30,0.8)')
         .style('color','white')
         .style('letter-spacing','0.3px')
         .style('pointer-events','none');
@@ -154,7 +154,7 @@ ForceDirectedGraph.prototype = {
             Number(d.value.toPrecision(3)).toExponential() : 
             d.value.toFixed(3) )
           .style('font-weight','bold')
-          .style('color', d.value < 0 ? '#d42' : '#4c4');
+          .style('color', d.value < 0 ? '#f66' : '#4c4');
       sp.append('br');
       sp.append('span')
           .text(d.source.name)
@@ -286,7 +286,7 @@ ForceDirectedGraph.prototype = {
       .domain(d3.extent(Object.keys(filteredData), (d) => {
         return filteredData[d].hits;
       }))
-      .range([5, 10]);
+      .range([4, 14]);
 
     // scale nodes by # of hits
     for (var key in filteredData) {
@@ -308,11 +308,18 @@ ForceDirectedGraph.prototype = {
       })
       .attr("r", d => d.radius)
       .style("stroke", "white")
-      .style("stroke-width", 2)
+      .style('stroke-opacity',0.5)
+      .style("stroke-width", 1.5)
       .on('mouseover', this._isDragging ? null : function(d) {
+        d3.select(this)
+          .style('stroke-opacity',1);
         self.showTip(d, 'rule');
       })
-      .on("mouseout", function() { self.hideTip() })
+      .on("mouseout", function() { 
+        d3.select(this).transition()
+          .style('stroke-opacity',0.5);
+        self.hideTip();
+      })
       .on('click', function(d) {
         d3.select(this)
           .style("fill", (d) => self.clusterColor(d.cluster))
@@ -343,14 +350,20 @@ ForceDirectedGraph.prototype = {
           }) );
   },
 
-  clusterColor: 
-    d3.scaleOrdinal(d3.schemeCategory20)
-      .domain(d3.range(1,20)),
+  clusterColor: function(cluster) {
+    if (cluster === 0) {
+      return '#222';
+    }
+
+    return d3.scaleOrdinal(d3.schemeCategory20)
+      .domain(d3.range(1,20))
+      (cluster);
+  },
 
   drawLinks: function() {
     var strokeScale = d3.scalePow()
       .domain([0, this.maxInfl])
-      .range([0.3, this.links.length > 200 ? 1 : 3])
+      .range([0.4, this.links.length > 200 ? 1 : 3])
       .clamp(true);
 
     var linkGroupElement = this.linkGroup.selectAll(".linkElement")

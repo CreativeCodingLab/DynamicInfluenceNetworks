@@ -27,7 +27,6 @@ var App = App || {};
   App.draw = function() {
     // put function calls here to draw
     ForceDirectedGraph.call(App.panels.forceDirected);
-
   }
 
   App.loadData = function(file) {
