@@ -5,7 +5,14 @@ function ForceDirectedGraph(args) {
 
   this.init();
   this.filterData(App.data);
-  this.clusters = this.defineClusters(5); // hard coded??
+
+  this.links.sort((a, b) => {
+    return Math.abs(b.value) - Math.abs(a.value);
+  });
+
+  this.maxInfl = Math.abs(this.links[Math.round(this.links.length/2)].value) * 2;
+
+  this.defineClusters(5); // hard coded??
 
   // set up simulation
   this.simulation = d3.forceSimulation()
@@ -182,14 +189,14 @@ ForceDirectedGraph.prototype = {
     var data = this.filteredData;
 
     // clear clusters
-    this.links.forEach(l => {
-      data[l.source].cluster = data[l.target].cluster = undefined
-    });
+    for (var n in data) {
+      data[n].cluster = undefined;
+    }
 
     this.links.forEach(link => {
       if (link.value >= pthreshold || link.value <= nthreshold) {
-        var source = data[link.source],
-            target = data[link.target],
+        var source = data[link.source] || link.source,
+            target = data[link.target] || link.target,
             sc = source.cluster,
             tc = target.cluster;
 
@@ -231,7 +238,10 @@ ForceDirectedGraph.prototype = {
         });
         cluster.sort((a,b) => b.hits - a.hits);
       });
-    return clusters;
+    this.clusters = clusters;
+    if (this.simulation) {
+      this.simulation.alpha(0.8).restart();
+    }
   },
 
   // update function
@@ -269,7 +279,6 @@ ForceDirectedGraph.prototype = {
         return "translate(" + d.x + ", " + d.y + ")";
       })
       .attr("r", d => d.radius)
-      .style("fill", (d) => this.clusterColor(d.cluster))
       .style("stroke", "white")
       .style("stroke-width", 2)
       .on('mouseover', this._isDragging ? null : this.node_tip.show)
@@ -309,19 +318,13 @@ ForceDirectedGraph.prototype = {
       .domain(d3.range(1,20)),
 
   drawLinks: function() {
-    var sortedInfl = App.panels.forceDirected.links.sort((a, b) => {
-      return Math.abs(b.value) - Math.abs(a.value);
-    });
-
-    this.maxInfl = Math.abs(sortedInfl[Math.round(sortedInfl.length/2)].value) * 2;
-
     var strokeScale = d3.scalePow()
       .domain([0, this.maxInfl])
-      .range([0.3, sortedInfl.length > 200 ? 1 : 3])
+      .range([0.3, this.links.length > 200 ? 1 : 3])
       .clamp(true);
 
     var linkGroupElement = this.linkGroup.selectAll(".linkElement")
-      .data(App.panels.forceDirected.links)
+      .data(this.links)
     .enter().append("g")
       .attr('class', 'linkElement')
       .attr('fill','none');
@@ -386,6 +389,7 @@ ForceDirectedGraph.prototype = {
             d.y = clampY(d.y);
             return d;
           })
+          .style("fill", (d) => self.clusterColor(d.cluster))
           .attr("transform", (d) => {
             return "translate(" + d.x + "," + d.y + ")";
           });
@@ -451,7 +455,7 @@ ForceDirectedGraph.prototype = {
 
     // simulation forces
     this.simulation.force("link")
-        .links(App.panels.forceDirected.links)
+        .links(this.links)
         .distance((d) => {
 
           let strengthScale = d3.scaleLinear()
@@ -484,8 +488,9 @@ ForceDirectedGraph.prototype = {
 
 
     // Initial clustering forces:
+    var self = this;
     function clustering(alpha) {
-        var clusters = App.panels.forceDirected.clusters;
+        var clusters = self.clusters;
         nodeArr.forEach(function(d) {
           if (d.cluster > 0) {
             var cluster = clusters[d.cluster][0];
