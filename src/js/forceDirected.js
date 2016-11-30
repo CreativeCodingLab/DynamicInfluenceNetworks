@@ -291,9 +291,7 @@ ForceDirectedGraph.prototype = {
           .on('drag', function(d) { 
             self._isDragging = true;
             d3.select(this)
-              .style("fill", (d) => {
-                return clusterColor(App.panels.forceDirected.clusterObj[d.name]);
-              })
+              .style("fill", self.clusterColor(d.cluster))
               .style("stroke", "#404040");
             d.fx = d3.event.x, 
             d.fy = d3.event.y;
