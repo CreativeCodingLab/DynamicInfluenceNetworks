@@ -48,10 +48,12 @@ ForceDirectedGraph.prototype = {
       .attr("width", this.width)
       .attr("height", this.height)
       .style("padding", "20px")
-      .style("fill", "#444")
-      .call(d3.zoom()
+      .style("fill", "#444");
+
+    this.svg.call(d3.zoom()
         .scaleExtent([1 / 2, 4])
         .on("zoom", this.zoomed.bind(this)));
+
     
     // stroke gradients
     var defs = this.svg.append('defs');
