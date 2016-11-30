@@ -79,34 +79,90 @@ var App = App || {};
   };
 
   App.handleData = function(dataset) {
-    var json = dataset[0];
+    App.dataset = dataset.map(json => {
 
-    if (json.bioBeginTime && json.bioEndTime) {
-      App.timeWindow = [json.bioBeginTime, json.bioEndTime];
-    }
+      var obj = {};
 
-    console.log(json);
+      var w = [+json.bioBeginTime, +json.bioEndTime];
+      if (!isNaN(w[0]) && !isNaN(w[1])) {
+        obj.timeWindow = w,
+        obj.timeMean = (w[0]+w[1])/2;
+      }
 
-    for(var n in json.rules) {
-      App.data[json.rules[n]] = {
-        name: json.rules[n],
-        hits: json.hits[n],
-        inf: json.rules.map((el, i) => {
-          return {
-            name: el,
-            flux: json.fluxs[n][i]
-          };
-        }),
-        outf: json.rules.map((el, i) => {
-          return {
-            name: el,
-            flux: json.fluxs[i][n]
-          }
-        })
-      };
-    }
+      var data = {};
+      for (var n in json.rules) {
+        data[json.rules[n]] = {
+          name: json.rules[n],
+          hits: json.hits[n],
+          inf: json.rules.map((el, i) => {
+            return {
+              name: el,
+              flux: json.fluxs[n][i]
+            };
+          }),
+          outf: json.rules.map((el, i) => {
+            return {
+              name: el,
+              flux: json.fluxs[i][n]
+            }
+          })
+        };
+      }
+      obj.data = data;
 
+      return obj;
+    })
+
+    // init data to first dataset in series
+    App.data = App.dataset[0].data;
     App.draw();
+
+    // instantiate sliders
+    (function() {
+      // set up a time slider
+      if (dataset.length > 0) {
+        var start = dataset[0].bioBeginTime || 0,
+            end   = dataset[dataset.length-1].bioEndTime || start + 1;
+        App.timeSlider = new Slider( '#timeSlider', {
+          title: 'Time',
+          domain: [ start.toFixed(3), end.toFixed(3) ]
+        } );
+        App.timeSlider.onDrag = function(x) {
+          var t = this.sliderScale(x);
+          var min = Math.abs(App.dataset[0].timeMean - t),
+              minIndex = 0;
+
+          App.dataset.forEach((d,i) => {
+            var diff = Math.abs(d.timeMean - t);
+            if (diff < min) {
+              min = diff,
+              minIndex = i;
+            }
+          })
+          this.setTitle('Time: item ' + minIndex);
+          // App.data = App.dataset[minIndex].data;
+          // App.draw();
+        }
+      }
+
+      // set up an influence slider
+      var links = App.panels.forceDirected.links;
+      var domain = [ 
+                    Math.abs(links[links.length-1].value),
+                    App.panels.forceDirected.maxInfl
+                    // Math.abs(links[0].value) 
+                  ];
+      App.infSlider = new Slider( '#clusterSlider', {
+        title: 'Influence cutoff',
+        domain: domain
+      });
+      App.infSlider.onDrag = function(x) {
+        var inf = this.sliderScale(x);
+        console.log('influence',inf)
+        App.panels.forceDirected.defineClusters(inf);
+      }
+    })();
+
   };
 
   // creating SVGs in layout
