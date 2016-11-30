@@ -114,40 +114,65 @@ ForceDirectedGraph.prototype = {
     this._isDragging = false;
 
     /* Initialize tooltip for nodes */
-    let node_tip = d3.tip ? d3.tip().attr('class', 'd3-tip')
-      .html(function(d) {
-        return "Rule: <span style='color:red;'>" + d.name + "</span>";
-      }) :
-      function() {
-        alert("! d3.tip MISSING ! \nDo you have an internet connection?");
-      };
+    this.tip = d3.select('#forceDirectedDiv').append('div')
+        .style('opacity',0)
+        .style('position','absolute')
+        .style('left','15px')
+        .style('top',0)
+        .style('font-size', '0.85em')
+        .style('padding','10px 15px')
+        .style('border-radius','0 0 8px 0')
+        .style('background', 'rgba(30,30,30,0.7)')
+        .style('color','white')
+        .style('letter-spacing','0.3px')
+        .style('pointer-events','none');
+  },
 
-    /* Initialize tooltip for links */
-    var svg = this.svg;
-    let link_tip = d3.tip ? 
-        d3.tip().attr('class', 'd3-tip')
-          .direction('e')
-          .html(function(d) {
-            var value = svg.sci ?
-              Number(d.value.toPrecision(3)).toExponential() : 
-              d.value.toFixed(3); 
-            if (d.value < 0) { 
-              return d.source.name + " infl.<br>" + "on " + d.target.name + "<br><span style='color:#e31a1c;'>" + value + "</span>";
-            } else {
-              return d.source.name + " infl.<br>" + "on " + d.target.name + "<br><span style='color:#33a02c;'>" + value + "</span>";
-            }
-            
-          }) :
-        function() {
-          alert("! d3.tip MISSING ! \nDo you have an internet connection?");
-        };
+  showTip: function(d, type) {
+    this.tip.selectAll('*').remove();
+    this.tip.transition().style('opacity',1);
+    if (type === 'rule') {
+      var color = d3.hsl(this.clusterColor(d.cluster));
+      if (color.l < 0.65) { color.l = 0.65 }
+      this.tip.append('span')
+          .text('Rule: ')
+        .append('span')
+          .style('letter-spacing',0)
+          .style('font-weight','bold')
+          .style('color', color.toString())
+          .text(d.name);
+    }
+    else {
+      var cs = d3.hsl(this.clusterColor(d.source.cluster));
+      var ct = d3.hsl(this.clusterColor(d.target.cluster));
+      if (cs.l < 0.65) { cs.l = 0.65 }
+      if (ct.l < 0.65) { ct.l = 0.65 }
 
-    /* Invoke the tip in the context of your visualization */
-    this.svg.call(node_tip);
-    this.svg.call(link_tip);
+      var sp = this.tip.append('span');
+      sp.text('Influence: ')
+        .append('span').text(this.svg.sci ? 
+            Number(d.value.toPrecision(3)).toExponential() : 
+            d.value.toFixed(3) )
+          .style('font-weight','bold')
+          .style('color', d.value < 0 ? '#d42' : '#4c4');
+      sp.append('br');
+      sp.append('span')
+          .text(d.source.name)
+          .style('letter-spacing',0)
+          .style('font-weight','bold')
+          .style('color', cs.toString());
+      sp.append('br');
+      sp.append('text').text('on ');
+      sp.append('span')
+          .text(d.target.name)
+          .style('letter-spacing',0)
+          .style('font-weight','bold')
+          .style('color', ct.toString());
+    }
 
-    this.node_tip = node_tip;
-    this.link_tip = link_tip;
+  },
+  hideTip: function() {
+    this.tip.transition().style('opacity',0);
   },
 
   // process data into nodes & links where links have magnitude > 0
@@ -229,7 +254,6 @@ ForceDirectedGraph.prototype = {
     });
 
     // filter out null clusters & re-index
-    console.log(clusters);
     clusters = [[]].concat(clusters.filter(cluster => cluster.length > 0));
     for (var n in data) {
       if (data[n].cluster == undefined) {
@@ -285,8 +309,10 @@ ForceDirectedGraph.prototype = {
       .attr("r", d => d.radius)
       .style("stroke", "white")
       .style("stroke-width", 2)
-      .on('mouseover', this._isDragging ? null : this.node_tip.show)
-      .on("mouseout", this.node_tip.hide)
+      .on('mouseover', this._isDragging ? null : function(d) {
+        self.showTip(d, 'rule');
+      })
+      .on("mouseout", function() { self.hideTip() })
       .on('click', function(d) {
         d3.select(this)
           .style("fill", (d) => self.clusterColor(d.cluster))
@@ -350,13 +376,13 @@ ForceDirectedGraph.prototype = {
         if (self._isDragging) return;
         d3.select(event.target)
           .style('stroke-opacity',0.5);
-        self.link_tip.show(d,i);
+        self.showTip(d, 'path');
       })
       .on("mouseout", (d, i) => {
         d3.select(event.target)
           .transition()
           .style('stroke-opacity',0);
-        self.link_tip.hide(d,i);
+        self.hideTip();
       });
   },
 
@@ -404,23 +430,23 @@ ForceDirectedGraph.prototype = {
                 dy = d.target.y - d.source.y;
             if (d.value > 0) {
               if (Math.abs(dy/dx) > 3) {
-                return dy >= 0 ? "url(#greenUp)" : "url(#greenDown)";
+                return dy < 0 ? "url(#greenUp)" : "url(#greenDown)";
               }
-              return dx >= 0 ? "url(#greenLeft)" : "url(#greenRight)";
+              return dx < 0 ? "url(#greenLeft)" : "url(#greenRight)";
             }
             else {
               if (Math.abs(dy/dx) > 3) {
-                return dy >= 0 ? "url(#redUp)" : "url(#redDown)";
+                return dy < 0 ? "url(#redUp)" : "url(#redDown)";
               }
-              return dx >= 0 ? "url(#redLeft)" : "url(#redRight)";
+              return dx < 0 ? "url(#redLeft)" : "url(#redRight)";
             }
           })
           .attr('d', createArrowPath);
     }
 
     function createArrowPath(d) {
-      var target = d.source,
-          source = d.target;
+      var target = d.target,
+          source = d.source;
 
       var dx = target.x - source.x,
           dy = target.y - source.y,
