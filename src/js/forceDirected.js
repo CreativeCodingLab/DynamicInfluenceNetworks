@@ -12,7 +12,8 @@ function ForceDirectedGraph(args) {
 
   this.maxInfl = Math.abs(this.links[Math.round(this.links.length/2)].value) * 2;
 
-  this.defineClusters(5); // hard coded??
+  var threshold = this.links[Math.round(Math.sqrt(this.links.length))].value;
+  this.defineClusters(threshold);
 
   // set up simulation
   this.simulation = d3.forceSimulation()
@@ -200,6 +201,8 @@ ForceDirectedGraph.prototype = {
             sc = source.cluster,
             tc = target.cluster;
 
+        if (source === target) { return; } // ignore self influencing nodes?
+
         // create a new cluster
         if (sc == undefined && tc == undefined) {
           source.cluster = target.cluster = clusters.length;
@@ -226,6 +229,7 @@ ForceDirectedGraph.prototype = {
     });
 
     // filter out null clusters & re-index
+    console.log(clusters);
     clusters = [[]].concat(clusters.filter(cluster => cluster.length > 0));
     for (var n in data) {
       if (data[n].cluster == undefined) {
