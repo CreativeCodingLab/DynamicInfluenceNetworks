@@ -200,21 +200,19 @@ function createForceDirectedGraph() {
         return "translate(" + d.x + ", " + d.y + ")";
       })
       .attr("r", d => d.radius)
-      // .style("fill", "#abd9e9")
       .style("fill", (d) => {
         return clusterColor(App.panels.forceDirected.clusterObj[d.name]);
       })
-      .style("stroke", "#2c7bb6")
-      .style("stroke-width", 1)
+      .style("stroke", "white")
+      .style("stroke-width", 2)
       .on('mouseover', _isDragging ? null : node_tip.show)
       .on("mouseout", node_tip.hide)
       .on('click', function(d) {
         d3.select(this)
-          // .style("fill", "#abd9e9")
           .style("fill", (d) => {
             return clusterColor(App.panels.forceDirected.clusterObj[d.name]);
           })
-          .style("stroke", "#2c7bb6");
+          .style("stroke", "white");
 
         d.fx = d.fy = null; 
       })
@@ -364,7 +362,6 @@ function createForceDirectedGraph() {
           .style("stroke", (d) => {
             var dx = d.target.x - d.source.x,
                 dy = d.target.y - d.source.y;
-                // return 'black';
             if (d.value > 0) {
               if (Math.abs(dy/dx) > 3) {
                 return dy >= 0 ? "url(#greenUp)" : "url(#greenDown)";

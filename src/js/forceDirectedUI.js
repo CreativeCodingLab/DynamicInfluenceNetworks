@@ -53,11 +53,10 @@ window.addEventListener('load', function() {
             App.panels.forceDirected.filteredData[node].fy = null;
         }
         d3.selectAll('.rule')
-            // .style("fill", "#abd9e9")
             .style("fill", (d) => {
               return App.panels.forceDirected.clusterColor(App.panels.forceDirected.clusterObj[d.name]);
             })
-            .style("stroke", "#2c7bb6");
+            .style("stroke", "white");
 
     };
 
