@@ -38,6 +38,8 @@ ForceDirectedGraph.prototype = {
   // set up svg elements
   init: function() {
     // allows all work to be done using same coordinates initially used
+
+
     // no need to redraw on resize
     this.svg.attr("viewBox", "0 0 " + this.width + " " + this.height);
 
@@ -46,7 +48,10 @@ ForceDirectedGraph.prototype = {
       .attr("width", this.width)
       .attr("height", this.height)
       .style("padding", "20px")
-      .style("fill", "#444");
+      .style("fill", "#444")
+      .call(d3.zoom()
+        .scaleExtent([1 / 2, 4])
+        .on("zoom", this.zoomed.bind(this)));
     
     // stroke gradients
     var defs = this.svg.append('defs');
@@ -110,7 +115,8 @@ ForceDirectedGraph.prototype = {
     this.linkGroup = this.svg.append("g")
       .attr("class", "linkGroup");
     this.nodeGroup = this.svg.append("g")
-      .attr("class", "nodeGroup");
+      .attr("class", "nodeGroup")
+
     this._isDragging = false;
 
     /* Initialize tooltip for nodes */
@@ -127,7 +133,11 @@ ForceDirectedGraph.prototype = {
         .style('letter-spacing','0.3px')
         .style('pointer-events','none');
   },
-
+  zoomed: function() {
+    var transform = d3.event.transform;
+    this.nodeGroup.attr("transform", transform);
+    this.linkGroup.attr("transform", transform);
+  },
   showTip: function(d, type) {
     this.tip.selectAll('*').remove();
     this.tip.transition().style('opacity',1);
@@ -398,6 +408,7 @@ ForceDirectedGraph.prototype = {
         self.hideTip();
       });
   },
+
 
   // the big workhorse of the simulation ???
   createForceLayout: function() {
