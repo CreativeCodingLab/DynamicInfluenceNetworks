@@ -184,7 +184,7 @@ var App = App || {};
       this.setTitle('Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3));
       App.panels.forceDirected.threshold = inf;
       App.panels.forceDirected.defineClusters(inf);
-      App.panels.forceDirected.drawClusters();
+      App.panels.forceDirected.drawGraph();
     }
   }
 
