@@ -465,15 +465,17 @@ ForceDirectedGraph.prototype = {
         return "translate(" + d.x + ", " + d.y + ")";
       })
       .style("stroke", "white")
+      .style("stroke-opacity", 0.5)
       .style("stroke-width", 1.5)
     .merge(rule)
       .attr("cluster", d => d.cluster)
       .attr("r", d => d.radius)
       .on('mouseover', this._isDragging ? null : function(d) {
-        if (App.panels.topVis) { App.panels.topVis.message(d); }
         d3.select(this)
           .style('stroke-opacity',1);
         self.showTip(d, 'rule');
+        if (App.panels.topVis) { App.panels.topVis.message(d); }
+        if (App.panels.bottomVis) { App.panels.bottomVis.message(d, true); }
       })
       .on("mouseout", function() {
         d3.select(this).transition()

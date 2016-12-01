@@ -8,12 +8,12 @@ function LineGraph(selector, options) {
         .attr('fill','#eee');
 
 
-    this.margin = {top: 30, right: 20, bottom: 30, left: 60};
+    this.margin = {top: 40, right: 20, bottom: 30, left: 60};
 
     this.svg.append('text')
         .attr('transform','translate(' + 10 + ',' + (this.margin.top/2+5) + ')')
         .style('font-weight','bold')
-        .attr('font-size','18px')
+        .attr('font-size','14px')
         .attr('class','title');
 
     var graph = this.svg.append('g')
@@ -43,7 +43,7 @@ LineGraph.prototype = {
 
         this.svg
             .style('margin-left', '15px')
-            .style("font-size", "12px")
+            .style("font-size", "9px")
             .attr('width', w)
             .attr('height', h)
             .attr("viewBox", "0 0 " + vw + " " + vh)
@@ -54,7 +54,7 @@ LineGraph.prototype = {
         this.svg.select('.axis-x')
             .attr('transform', 'translate(0,' + this.height + ')');
     },
-    message: function(d) {
+    message: function(d, out) {
 
         this.svg.select('.title')
           .text(d.name)
@@ -66,22 +66,17 @@ LineGraph.prototype = {
           });
 
 
-        var infMap = App.dataset.map(dataset => {
-            var obj = dataset.data[d.name];
-            if (obj && obj.inf) { return obj.inf; }
-            return [];
-        })
-        // var outfMap = App.dataset.map(dataset => {
-        //     var obj = dataset.data[d.name];
-        //     if (obj && obj.outf) { return obj.outf; }
-        //     return [];
-        // })
-
-        // console.log('message', d, infMap);
-
-        // var ymax = d3.max(infMap, dataset => d3.max(dataset, inf => inf.flux)),
-        //     ymin = d3.min(infMap, dataset => d3.min(dataset, inf => inf.flux));
-
+        var infMap = out ?
+            App.dataset.map(dataset => {
+                var obj = dataset.data[d.name];
+                if (obj && obj.inf) { return obj.inf; }
+                return [];
+            }) :
+            App.dataset.map(dataset => {
+                var obj = dataset.data[d.name];
+                if (obj && obj.outf) { return obj.outf; }
+                return [];
+            });
 
         var fluxs = {};
         infMap.forEach((step, i) => {
@@ -129,8 +124,7 @@ LineGraph.prototype = {
 
         this.svg.select('.axis-y')
             .call(d3.axisLeft(y)
-                    .ticks(6)
-                    .tickPadding(5)
+                    .ticks(5)
                     .tickFormat(function(d) {
                         if (Math.abs(d) > 999999) {
                             return d.toPrecision(3);
@@ -147,9 +141,11 @@ LineGraph.prototype = {
         path.enter().append('path')
             .attr('class','flux')
             .attr('fill','none')
-            .style('stroke', '#888')
             .style('stroke-width', 0.5)
         .merge(path)
+            .style('stroke', '#888')
+        .transition()
+            .duration(500)
             .attr('d', (d) => line(d) );
 
     }
