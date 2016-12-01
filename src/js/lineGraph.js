@@ -13,7 +13,7 @@ function LineGraph(selector, options) {
     this.svg.append('text')
         .attr('transform','translate(' + 10 + ',' + (this.margin.top/2+5) + ')')
         .style('font-weight','bold')
-        .attr('font-size','0.85em')
+        .attr('font-size','18px')
         .attr('class','title');
 
     var graph = this.svg.append('g')
@@ -34,13 +34,19 @@ LineGraph.prototype = {
         var w = this.container.getBoundingClientRect().width - 45;
         var h = this.container.getBoundingClientRect().height;
 
-        this.width = w - this.margin.right - this.margin.left;
-        this.height = h - this.margin.top - this.margin.bottom;
+        var aspect = w / h;
+        var vw = 323.328125;
+        var vh = vw / aspect;
+
+        this.width = vw - this.margin.right - this.margin.left;
+        this.height = vh - this.margin.top - this.margin.bottom;
 
         this.svg
             .style('margin-left', '15px')
+            .style("font-size", "12px")
             .attr('width', w)
             .attr('height', h)
+            .attr("viewBox", "0 0 " + vw + " " + vh)
         .select('rect')
             .attr('width', w)
             .attr('height', h);
