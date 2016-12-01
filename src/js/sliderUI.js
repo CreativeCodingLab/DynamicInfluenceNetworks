@@ -52,6 +52,7 @@ function Slider(selector, options) {
 
     svg.append('text')
         .attr('class','title')
+        .attr('pointer-events','none')
         .attr('text-anchor','middle')
         .attr('fill','black')
         .attr('font-size','1.25vmin')
