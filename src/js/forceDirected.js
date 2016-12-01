@@ -345,6 +345,7 @@ ForceDirectedGraph.prototype = {
       .style('stroke-opacity',0.5)
       .style("stroke-width", 1.5)
     .merge(rule)
+      .attr("cluster", d => d.cluster)
       .attr("r", d => d.radius)
       .on('mouseover', this._isDragging ? null : function(d) {
         d3.select(this)
@@ -381,7 +382,6 @@ ForceDirectedGraph.prototype = {
       .domain([0, this.maxInfl])
       .range([0.4, this.links.length > 200 ? 1 : 3])
       .clamp(true);
-
 
     var mainLink = this.linkGroup.selectAll('.link-1')
       .data(this.links);

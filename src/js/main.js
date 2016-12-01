@@ -159,6 +159,7 @@ var App = App || {};
       App.infSlider.onDrag = function(x) {
         var inf = this.sliderScale(x);
         console.log('influence',inf)
+        App.panels.forceDirected.threshold = inf;
         App.panels.forceDirected.defineClusters(inf);
       }
     })();
