@@ -636,5 +636,6 @@ ForceDirectedGraph.prototype = {
     this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
+    this.simulation.alpha(0.001).restart();
   }
 }
