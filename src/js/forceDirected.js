@@ -13,7 +13,6 @@ function ForceDirectedGraph(args) {
   this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
 
   var threshold = this.sortedLinks[Math.round(Math.sqrt(this.links.length))].value;
-  this.maxInfl = threshold;
   this.defineClusters(Math.abs(threshold));
 
   // set up simulation
