@@ -16,7 +16,7 @@ html, body, .fluidContainer, .mainCol {
   min-height: 30%;
 }
 
-.rule,.linkElement {
+.rule,.link {
     cursor:pointer;
 }
 

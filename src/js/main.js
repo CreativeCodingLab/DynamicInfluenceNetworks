@@ -140,13 +140,13 @@ var App = App || {};
             }
           })
           this.setTitle('Time: item ' + minIndex);
-          // App.data = App.dataset[minIndex].data;
-          // App.draw();
+          App.data = App.dataset[minIndex].data;
+          App.panels.forceDirected.updateData(App.data);
         }
       }
 
       // set up an influence slider
-      var links = App.panels.forceDirected.links;
+      var links = App.panels.forceDirected.sortedLinks;
       var domain = [ 
                     Math.abs(links[links.length-1].value),
                     App.panels.forceDirected.maxInfl

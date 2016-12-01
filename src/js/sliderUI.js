@@ -28,6 +28,8 @@ function Slider(selector, options) {
         .ticks(4)
         .tickSize(10);
 
+    svg.attr('height', height)
+        .attr('width',width);
     svg.append('g')
         .attr('class','axis')
         .attr('transform','translate(0,8)')

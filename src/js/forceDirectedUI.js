@@ -53,8 +53,8 @@ window.addEventListener('load', function() {
             App.panels.forceDirected.filteredData[node].fy = null;
         }
         d3.selectAll('.rule')
-          .style("fill", d => App.panels.forceDirected.clusterColor(d.cluster))
-          .style("stroke", "white");
+            .style("fill", App.panels.forceDirected.clusterColor(d.cluster))
+            .style("stroke", "white");
 
     };
 

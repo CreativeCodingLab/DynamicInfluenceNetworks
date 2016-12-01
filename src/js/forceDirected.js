@@ -6,13 +6,13 @@ function ForceDirectedGraph(args) {
   this.init();
   this.filterData(App.data);
 
-  this.links.sort((a, b) => {
+  this.sortedLinks = this.links.concat().sort((a, b) => {
     return Math.abs(b.value) - Math.abs(a.value);
   });
 
-  this.maxInfl = Math.abs(this.links[Math.round(this.links.length/2)].value) * 2;
+  this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
 
-  var threshold = this.links[Math.round(Math.sqrt(this.links.length))].value;
+  var threshold = this.sortedLinks[Math.round(Math.sqrt(this.links.length))].value;
   this.defineClusters(threshold);
 
   // set up simulation
@@ -218,10 +218,11 @@ ForceDirectedGraph.prototype = {
   },
 
   // cluster data based on threshold(s) of influence
-  defineClusters: function(pthreshold, nthreshold) {
-    if (nthreshold == undefined) { 
-      pthreshold = Math.abs(pthreshold);
-      nthreshold = -pthreshold; 
+  defineClusters: function(threshold, alpha) {
+    if (threshold) {
+      this.threshold = threshold;
+    } else {
+      threshold = this.threshold;
     }
     var clusters = [];
     var data = this.filteredData;
@@ -232,7 +233,7 @@ ForceDirectedGraph.prototype = {
     }
 
     this.links.forEach(link => {
-      if (link.value >= pthreshold || link.value <= nthreshold) {
+      if (Math.abs(link.value) >= threshold) {
         var source = data[link.source] || link.source,
             target = data[link.target] || link.target,
             sc = source.cluster,
@@ -279,8 +280,8 @@ ForceDirectedGraph.prototype = {
         cluster.sort((a,b) => b.hits - a.hits);
       });
     this.clusters = clusters;
-    if (this.simulation) {
-      this.simulation.alpha(0.8).restart();
+    if (this.simulation && alpha !== 0) {
+      this.simulation.alpha(alpha || 0.15).restart();
     }
   },
 
@@ -303,25 +304,48 @@ ForceDirectedGraph.prototype = {
     // scale nodes by # of hits
     for (var key in filteredData) {
       filteredData[key].radius = radiusScale(filteredData[key].hits);
-      filteredData[key].x = this.width / 2;
-      filteredData[key].y = this.height / 2; 
+      filteredData[key].x = filteredData[key].x || this.width / 2;
+      filteredData[key].y = filteredData[key].y || this.height / 2; 
     }
 
+    // define dragging behavior
     var self = this;
-    this.nodeGroup.selectAll(".rule")
-      .data(Object.keys(filteredData))
-    .enter().append("circle")
-      .datum((d) => {
-        return filteredData[d];
-      })
+    var drag = d3.drag()
+        .on('start', function(d) {
+          if (!d3.event.active) {
+            self.simulation.alphaTarget(0.3).restart();
+          }
+        })
+        .on('drag', function(d) { 
+          self._isDragging = true;
+          d3.select(this)
+            .style("fill", self.clusterColor(d.cluster))
+            .style("stroke", "#404040");
+          d.fx = d3.event.x, 
+          d.fy = d3.event.y;
+        })
+        .on('end', function(d) {
+          self._isDragging = false;
+          if (!d3.event.active) {
+            self.simulation.alphaTarget(0);
+          }
+        });
+
+    var rule = this.nodeGroup.selectAll(".rule")
+        .data(Object.keys(filteredData).map(d => filteredData[d]));
+
+    rule.exit().remove();
+
+    rule.enter().append("circle")
       .attr("class", "rule")
       .attr("transform", (d, i) => {
         return "translate(" + d.x + ", " + d.y + ")";
       })
-      .attr("r", d => d.radius)
       .style("stroke", "white")
       .style('stroke-opacity',0.5)
       .style("stroke-width", 1.5)
+    .merge(rule)
+      .attr("r", d => d.radius)
       .on('mouseover', this._isDragging ? null : function(d) {
         d3.select(this)
           .style('stroke-opacity',1);
@@ -339,27 +363,7 @@ ForceDirectedGraph.prototype = {
 
         d.fx = d.fy = null; 
       })
-      .call( 
-        d3.drag()
-          .on('start', function(d) {
-            if (!d3.event.active) {
-              self.simulation.alphaTarget(0.3).restart();
-            }
-          })
-          .on('drag', function(d) { 
-            self._isDragging = true;
-            d3.select(this)
-              .style("fill", self.clusterColor(d.cluster))
-              .style("stroke", "#404040");
-            d.fx = d3.event.x, 
-            d.fy = d3.event.y;
-          })
-          .on('end', function(d) {
-            self._isDragging = false;
-            if (!d3.event.active) {
-              self.simulation.alphaTarget(0);
-            }
-          }) );
+      .call(drag);
   },
 
   clusterColor: function(cluster) {
@@ -378,37 +382,43 @@ ForceDirectedGraph.prototype = {
       .range([0.4, this.links.length > 200 ? 1 : 3])
       .clamp(true);
 
-    var linkGroupElement = this.linkGroup.selectAll(".linkElement")
-      .data(this.links)
-    .enter().append("g")
-      .attr('class', 'linkElement')
-      .attr('fill','none');
 
-    // main line
-    linkGroupElement.append('path')
-      .attr("class", "link link-1")
-      .style("stroke-width", (d) => {
-        return strokeScale(Math.abs(d.value));
-      });
+    var mainLink = this.linkGroup.selectAll('.link-1')
+      .data(this.links);
+
+    mainLink.exit().remove();
+    mainLink.enter().append('path')
+        .attr('class', 'link link-1')
+        .attr('fill','none')
+      .merge(mainLink)
+        .style("stroke-width", (d) => {
+          // console.log('hi')
+          return strokeScale(Math.abs(d.value));
+        });
 
     // invisible line for collisions
     var self = this;
-    linkGroupElement.append('path')
-      .attr("class", "link link-2")
-      .style("stroke-opacity", 0)
-      .style("stroke-width", 8)
-      .on("mouseover", (d, i) => {
-        if (self._isDragging) return;
-        d3.select(event.target)
-          .style('stroke-opacity',0.5);
-        self.showTip(d, 'path');
-      })
-      .on("mouseout", (d, i) => {
-        d3.select(event.target)
-          .transition()
-          .style('stroke-opacity',0);
-        self.hideTip();
-      });
+    var hoverLink = this.linkGroup.selectAll('.link-2')
+      .data(this.links);
+
+    hoverLink.exit().remove();
+    hoverLink.enter().append('path')
+        .attr("class", "link link-2")
+        .attr('fill','none')
+        .style("stroke-opacity", 0)
+        .style("stroke-width", 8)
+        .on("mouseover", (d, i) => {
+          if (self._isDragging) return;
+          d3.select(event.target)
+            .style('stroke-opacity',0.5);
+          self.showTip(d, 'path');
+        })
+        .on("mouseout", (d, i) => {
+          d3.select(event.target)
+            .transition()
+            .style('stroke-opacity',0);
+          self.hideTip();
+        });
   },
 
 
@@ -601,5 +611,21 @@ ForceDirectedGraph.prototype = {
           });
         });
       }
-  } // end createForceLayout
+  }, // end createForceLayout
+
+  // to be called externally: change the source data
+  updateData:function(data) {
+    if (data) { App.data = data; }
+
+    // reprocess and cluster data
+    this.simulation.stop();
+    this.filterData(App.data);
+    this.sortedLinks = this.links.concat().sort((a, b) => {
+      return Math.abs(b.value) - Math.abs(a.value);
+    });
+    this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
+    this.defineClusters(this.threshold, 0);
+    this.drawGraph();
+    // this.simulation.restart();
+  }
 }
