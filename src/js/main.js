@@ -139,9 +139,17 @@ var App = App || {};
               minIndex = i;
             }
           })
-          this.setTitle('Time: item ' + minIndex);
-          App.data = App.dataset[minIndex].data;
-          App.panels.forceDirected.updateData(App.data);
+
+          if (App.data != App.dataset[minIndex].data) {
+            this.setTitle('Time: item ' + minIndex);
+            App.data = App.dataset[minIndex].data;
+            App.panels.forceDirected.updateData(App.data);
+          }
+        }
+        App.timeSlider.onDragEnd = function() {
+          App.panels.forceDirected.simulation
+            .alpha(0.3)
+            .restart();
         }
       }
 
@@ -153,7 +161,7 @@ var App = App || {};
                     // Math.abs(links[0].value)
                   ];
       App.infSlider = new Slider( '#clusterSlider', {
-        title: 'Influence cutoff',
+        title: 'Influence cutoff: ' + App.panels.forceDirected.threshold.toPrecision(3),
         domain: domain
       });
       App.infSlider.onDrag = function(x) {

@@ -434,7 +434,6 @@ ForceDirectedGraph.prototype = {
         .attr('fill','none')
       .merge(mainLink)
         .style("stroke-width", (d) => {
-          // console.log('hi')
           return strokeScale(Math.abs(d.value));
         });
 
@@ -635,7 +634,7 @@ ForceDirectedGraph.prototype = {
         });
 
     this.simulation.force("cluster", clustering)
-                   .force("collide", collide);
+                   // .force("collide", collide);
 
 
     // Initial clustering forces:
@@ -704,13 +703,24 @@ ForceDirectedGraph.prototype = {
 
     // reprocess and cluster data
     this.simulation.stop();
+    var oldData = this.filteredData;
     this.filterData(App.data);
+
+    for (var key in this.filteredData) {
+      if (oldData[key]) {
+        this.filteredData[key].x = oldData[key].x;
+        this.filteredData[key].y = oldData[key].y;
+        this.filteredData[key].fx = oldData[key].fx;
+        this.filteredData[key].fy = oldData[key].fy;
+      }
+    }
+
     this.sortedLinks = this.links.concat().sort((a, b) => {
       return Math.abs(b.value) - Math.abs(a.value);
     });
     this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
-    // this.simulation.restart();
+    this.simulation.alpha(0.001).restart();
   }
 }
