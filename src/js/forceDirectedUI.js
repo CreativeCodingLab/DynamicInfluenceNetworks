@@ -126,7 +126,6 @@ window.addEventListener('load', function() {
         d3.selectAll('.rule')
           .style("fill", d => App.panels.forceDirected.clusterColor(d.cluster))
           .style("stroke", "white");
-
     };
 
     this._filename = function(e) {

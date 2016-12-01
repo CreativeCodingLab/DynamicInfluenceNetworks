@@ -27,7 +27,7 @@ html, body, .fluidContainer, .mainCol {
 .content {
   margin-top:  15px;
   margin-bottom:   15px;
-  background-color: pink;
+  /*background-color: pink;*/
 }
 .controls {
     max-width:625px;

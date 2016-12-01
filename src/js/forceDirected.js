@@ -137,6 +137,29 @@ ForceDirectedGraph.prototype = {
         .style('letter-spacing','0.3px')
         .style('pointer-events','none');
   },
+  resize:function() {
+    var rect = this.svg.node().parentNode.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      this.width = rect.width,
+      this.height = rect.height;
+    }
+    this.svg.attr("viewBox", "0 0 " + this.width + " " + this.height);
+    this.svg
+      .attr('width', this.width)
+      .attr('height', this.height)
+    .select('rect')
+      .attr('width', this.width)
+      .attr('height', this.height)
+
+    if (this.simulation) {
+      this.simulation
+        .force("center", d3.forceCenter(
+          (this.width / 2),
+          (this.height / 2)
+          ));
+      this.simulation.alpha(0.001).restart();
+    }
+  },
   zoomed: function() {
     var transform = d3.event.transform;
     this.nodeGroup.attr("transform", transform);
@@ -414,6 +437,7 @@ ForceDirectedGraph.prototype = {
       .attr("cluster", d => d.cluster)
       .attr("r", d => d.radius)
       .on('mouseover', this._isDragging ? null : function(d) {
+        if (App.panels.topVis) { App.panels.topVis.message(d); }
         d3.select(this)
           .style('stroke-opacity',1);
         self.showTip(d, 'rule');

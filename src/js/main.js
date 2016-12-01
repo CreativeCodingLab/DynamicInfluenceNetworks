@@ -20,13 +20,22 @@ var App = App || {};
     getDimSVGs();
 
     // call any necessary resize methods for visualization
-
-
+    for(key in App.panels) {
+      if (App.panels[key].resize) {
+        App.panels[key].resize();
+      }
+    }
   }
 
   App.draw = function() {
     // put function calls here to draw
     ForceDirectedGraph.call(App.panels.forceDirected);
+
+    // instantiate sliders
+    initSliders();
+
+    // topVis
+    App.panels.topVis = new nodeVis('#topVis');
   }
 
   App.loadData = function(file, isSeries) {
@@ -116,70 +125,68 @@ var App = App || {};
     // init data to first dataset in series
     App.data = App.dataset[0].data;
     App.draw();
+  }
 
-    // instantiate sliders
-    (function() {
-      // set up a time slider
-      if (dataset.length > 0) {
-        var start = dataset[0].bioBeginTime || 0,
-            end   = dataset[dataset.length-1].bioEndTime || start + 1;
-        App.timeSlider = new Slider( '#timeSlider', {
-          title: 'Time',
-          domain: [ start.toFixed(3), end.toFixed(3) ]
-        } );
-        App.timeSlider.onDrag = function(x) {
-          var t = this.sliderScale(x);
-          var min = Math.abs(App.dataset[0].timeMean - t),
-              minIndex = 0;
+  function initSliders() {
+    // set up a time slider
+    if (App.dataset.length > 0) {
+      var start = App.dataset[0].timeWindow[0] || 0,
+          end   = App.dataset[App.dataset.length-1].timeWindow[1] || start + 1;
+      App.timeSlider = new Slider( '#timeSlider', {
+        title: 'Time',
+        domain: [ start.toFixed(3), end.toFixed(3) ]
+      } );
+      App.timeSlider.onDrag = function(x) {
+        var t = this.sliderScale(x);
+        var min = Math.abs(App.dataset[0].timeMean - t),
+            minIndex = 0;
 
-          App.dataset.forEach((d,i) => {
-            var diff = Math.abs(d.timeMean - t);
-            if (diff < min) {
-              min = diff,
-              minIndex = i;
-            }
-          })
-
-          if (App.data != App.dataset[minIndex].data) {
-            this.setTitle('Time: item ' + minIndex);
-            App.data = App.dataset[minIndex].data;
-            App.panels.forceDirected.updateData(App.data);
+        App.dataset.forEach((d,i) => {
+          var diff = Math.abs(d.timeMean - t);
+          if (diff < min) {
+            min = diff,
+            minIndex = i;
           }
-        }
-        App.timeSlider.onDragEnd = function() {
-          App.panels.forceDirected.simulation
-            .alpha(0.3)
-            .restart();
+        })
+
+        if (App.data != App.dataset[minIndex].data) {
+          this.setTitle('Time: item ' + minIndex);
+          App.data = App.dataset[minIndex].data;
+          App.panels.forceDirected.updateData(App.data);
         }
       }
+      App.timeSlider.onDragEnd = function() {
+        App.panels.forceDirected.simulation
+          .alpha(0.3)
+          .restart();
+      }
+    }
 
-      // set up an influence slider
-      var links = App.panels.forceDirected.sortedLinks;
-      var domain = [
-                    Math.min(
-                        Math.abs(links[links.length-1].value),
-                        App.panels.forceDirected.threshold
-                      ),
-                    Math.max(
-                      App.panels.forceDirected.maxInfl,
+    // set up an influence slider
+    var links = App.panels.forceDirected.sortedLinks;
+    var domain = [
+                  Math.min(
+                      Math.abs(links[links.length-1].value),
                       App.panels.forceDirected.threshold
-                      )
-                  ];
-      App.infSlider = new Slider( '#clusterSlider', {
-        title: 'Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3),
-        domain: domain
-      });
-      App.infSlider.setPosition( App.panels.forceDirected.threshold );
-      App.infSlider.onDrag = function(x) {
-        var inf = this.sliderScale(x);
-        this.setTitle('Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3));
-        App.panels.forceDirected.threshold = inf;
-        App.panels.forceDirected.defineClusters(inf);
-        App.panels.forceDirected.drawClusters();
-      }
-    })();
-
-  };
+                    ),
+                  Math.max(
+                    App.panels.forceDirected.maxInfl,
+                    App.panels.forceDirected.threshold
+                    )
+                ];
+    App.infSlider = new Slider( '#clusterSlider', {
+      title: 'Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3),
+      domain: domain
+    });
+    App.infSlider.setPosition( App.panels.forceDirected.threshold );
+    App.infSlider.onDrag = function(x) {
+      var inf = this.sliderScale(x);
+      this.setTitle('Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3));
+      App.panels.forceDirected.threshold = inf;
+      App.panels.forceDirected.defineClusters(inf);
+      App.panels.forceDirected.drawClusters();
+    }
+  }
 
   // creating SVGs in layout
   function createSVGs() {
