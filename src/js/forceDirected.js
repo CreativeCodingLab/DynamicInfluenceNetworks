@@ -329,7 +329,31 @@ ForceDirectedGraph.prototype = {
         return d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
       })
       .style("stroke-dasharray", "2, 2")
-      .style("fill-opacity", 0.5);
+      .style("fill-opacity", 0.5)
+      .call(d3.drag()
+        .on('start', function(d) { 
+          if (!d3.event.active) {
+            self.simulation.alphaTarget(0.3).restart();
+          }
+          d.forEach((n) => {
+            n.fx = n.x;
+            n.fy = n.y;
+          })
+        })
+        .on('drag', function(d) { 
+          d.forEach((n) => {
+            n.fx += d3.event.dx;
+            n.fy += d3.event.dy;
+          })
+        })
+        .on('end', function(d) { 
+          if (!d3.event.active) {
+            self.simulation.alphaTarget(0);
+          }
+          d.forEach((n) => {
+            n.fx = n.fy = null;
+          })
+        }) );
   },
 
   // draw nodes
