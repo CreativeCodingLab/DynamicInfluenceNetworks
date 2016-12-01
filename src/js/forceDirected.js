@@ -222,6 +222,7 @@ ForceDirectedGraph.prototype = {
 
   // cluster data based on threshold(s) of influence
   defineClusters: function(threshold, alpha) {
+    App.panels.forceDirected.threshold = threshold;
     if (threshold) {
       this.threshold = threshold;
     } else {
@@ -431,8 +432,8 @@ ForceDirectedGraph.prototype = {
     mainLink.enter().append('path')
         .attr('class', 'link link-1')
         .attr('fill','none')
-        .attr("value", d=>d.value)
       .merge(mainLink)
+        .attr("value", d => d.value)
         .style("stroke-width", (d) => {
           return strokeScale(Math.abs(d.value));
         });

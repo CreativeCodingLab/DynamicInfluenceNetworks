@@ -44,7 +44,7 @@ window.addEventListener('load', function() {
       }
 
     };
-    
+
     this._toggleinfl = function(e) {
       let key = this.id.split('-').indexOf('link') > -1 ? 'link' : 'node';
       let threshold = Math.abs(parseFloat(App.panels.forceDirected.threshold));
@@ -70,15 +70,13 @@ window.addEventListener('load', function() {
           d3.selectAll('.link-1')
             .transition()
             .style('stroke-opacity', function() {
-              return Math.abs(parseFloat(this.getAttribute("value"))) < threshold ? 1 :
-                  this.style['stroke-opacity']
+              return 1           
             });
 
           // return mouseover functionality
           d3.selectAll('.link-2')
             .attr('pointer-events', function() {
-              return Math.abs(parseFloat(this.getAttribute("value"))) < threshold ? 'all' :
-                  this.getAttribute('pointer-events')
+              return 'all'
             });
         }
       }
@@ -106,17 +104,14 @@ window.addEventListener('load', function() {
           d3.selectAll('.rule')
               .transition()
               .style('stroke-opacity', function() {
-                return parseInt(this.getAttribute("cluster")) === 0 ? 0.5 :
-                    this.style['stroke-opacity']
+                return 0.5;
               })
               .style('opacity', function() {
-                return parseInt(this.getAttribute("cluster")) === 0 ? 1 :
-                    this.style['opacity']
+                return 1;
               })
               // return  mouseover functionality
               .attr('pointer-events', function() {
-                return parseInt(this.getAttribute("cluster")) === 0 ? 'all' :
-                    this.getAttribute('pointer-events')
+                return 'all'
               });
         }
       }
