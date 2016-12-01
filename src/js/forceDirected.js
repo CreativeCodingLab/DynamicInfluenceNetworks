@@ -323,7 +323,7 @@ ForceDirectedGraph.prototype = {
   },
 
   drawClusters: function() {
-    // console.log("drawClusters");
+    console.log("drawClusters");
     let clusters = this.clusters.filter(c => c.length);
     let filteredData = this.filteredData;
     var radiusScale = d3.scaleLinear()
@@ -420,11 +420,31 @@ ForceDirectedGraph.prototype = {
             self.simulation.alphaTarget(0);
           }
         });
+    var ruleToggle = d3.selectAll("#infl-node");
 
     var rule = this.nodeGroup.selectAll(".rule")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
 
     rule.exit().remove();
+    rule
+      .attr("pointer-event", (d) => {
+        if(ruleToggle.property("checked") && d.cluster === 0) {
+          return 'none';
+        }
+        else return 'all';
+      })
+      .style("opacity", (d) => {
+        if(ruleToggle.property("checked") && d.cluster === 0) {
+          return 0;
+        }
+        else return 1;
+      })
+      .style('stroke-opacity', (d) => {
+        if(ruleToggle.property("checked") && d.cluster === 0) {
+          return 0;
+        }
+        else return 0.5;
+      });
 
     rule.enter().append("circle")
       .attr("class", "rule")
@@ -432,7 +452,6 @@ ForceDirectedGraph.prototype = {
         return "translate(" + d.x + ", " + d.y + ")";
       })
       .style("stroke", "white")
-      .style('stroke-opacity',0.5)
       .style("stroke-width", 1.5)
     .merge(rule)
       .attr("cluster", d => d.cluster)
@@ -475,9 +494,18 @@ ForceDirectedGraph.prototype = {
       .clamp(true)
       .exponent(2);
 
+    var inflToggle = d3.selectAll("#infl-link");
+    var threshold = Math.abs(App.panels.forceDirected.threshold);
     var mainLink = this.linkGroup.selectAll('.link-1')
       .data(this.links)
 
+   mainLink
+      .style('stroke-opacity', (d) => {
+        if(inflToggle.property("checked") && d.value < threshold ) {
+          return 0;
+        }
+        else return 1;
+      });
 
     mainLink.exit().remove();
     mainLink.enter().append('path')
@@ -493,6 +521,14 @@ ForceDirectedGraph.prototype = {
     var self = this;
     var hoverLink = this.linkGroup.selectAll('.link-2')
       .data(this.links);
+
+   hoverLink
+      .attr('pointer-events', (d) => {
+        if(inflToggle.property("checked") && d.value < threshold ) {
+          return 'none';
+        }
+        else return 'all';
+      });
 
     hoverLink.exit().remove();
     hoverLink.enter().append('path')
