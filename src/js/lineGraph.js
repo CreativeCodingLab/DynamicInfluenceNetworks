@@ -8,7 +8,14 @@ function LineGraph(selector, options) {
         .attr('fill','#eee');
 
 
-    this.margin = {top: 20, right: 20, bottom: 30, left: 70};
+    this.margin = {top: 30, right: 20, bottom: 30, left: 60};
+
+    this.svg.append('text')
+        .attr('transform','translate(' + 10 + ',' + (this.margin.top/2+5) + ')')
+        .style('font-weight','bold')
+        .attr('font-size','0.85em')
+        .attr('class','title');
+
     var graph = this.svg.append('g')
         .attr('class', 'graph')
         .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
@@ -43,6 +50,16 @@ LineGraph.prototype = {
     },
     message: function(d) {
 
+        this.svg.select('.title')
+          .text(d.name)
+          .attr('fill', () => {
+              var c = d3.hsl(App.panels.forceDirected.clusterColor(d.cluster));
+
+              if (c.l > 0.65) c.l = 0.65;
+              return c.toString();
+          });
+
+
         var infMap = App.dataset.map(dataset => {
             var obj = dataset.data[d.name];
             if (obj && obj.inf) { return obj.inf; }
@@ -54,10 +71,34 @@ LineGraph.prototype = {
         //     return [];
         // })
 
-        console.log('message', d, infMap);
+        // console.log('message', d, infMap);
 
-        var ymax = d3.max(infMap, dataset => d3.max(dataset, inf => inf.flux)),
-            ymin = d3.min(infMap, dataset => d3.max(dataset, inf => inf.flux));
+        // var ymax = d3.max(infMap, dataset => d3.max(dataset, inf => inf.flux)),
+        //     ymin = d3.min(infMap, dataset => d3.min(dataset, inf => inf.flux));
+
+
+        var fluxs = {};
+        infMap.forEach((step, i) => {
+            step.forEach(inf => {
+                fluxs[inf.name] = fluxs[inf.name] || [];
+
+                fluxs[inf.name].push( {
+                    name: inf.name,
+                    i: i,
+                    flux: inf.flux
+                } )
+            });
+        });
+
+        fluxs = Object.keys(fluxs).filter(i => {
+            var max = Math.abs(d3.max(fluxs[i], d => d.flux)),
+                min = Math.abs(d3.min(fluxs[i], d => d.flux));
+            return max || min;
+        }).map(i => fluxs[i]);
+        console.log('fluxs', fluxs)
+
+        var ymax = d3.max(fluxs, dataset => d3.max(dataset, inf => inf.flux)),
+            ymin = d3.min(fluxs, dataset => d3.min(dataset, inf => inf.flux));
 
         var y = d3.scaleLinear()
                 .domain([ymin, ymax])
@@ -68,8 +109,8 @@ LineGraph.prototype = {
                 .range([0, this.width]);
 
         var line = d3.line()
-            .curve(d3.curveBasis)
-            .x((d,i) => x(i))
+            .curve(d3.curveCatmullRom)
+            .x((d) => x(d.i))
             .y(d => y(d.flux));
 
         var g = this.svg.select('.graph');
@@ -77,10 +118,33 @@ LineGraph.prototype = {
         this.svg.select('.axis-x')
             .call(d3.axisBottom(x));
 
-        this.svg.select('.axis-y')
-            .call(d3.axisLeft(y).ticks(8));
+        this.svg.select('.axis-x path')
+            .style('display','none');
 
-        var fluxs = g.selectAll('.flux')
-        // todo... draw the line http://bl.ocks.org/mbostock/3884955
+        this.svg.select('.axis-y')
+            .call(d3.axisLeft(y)
+                    .ticks(6)
+                    .tickPadding(5)
+                    .tickFormat(function(d) {
+                        if (Math.abs(d) > 999999) {
+                            return d.toPrecision(3);
+                        }
+                        else {
+                            return d3.format(',')(d);
+                        }
+                    }) );
+
+        var path = g.selectAll('.flux')
+            .data(fluxs);
+
+        path.exit().remove();
+        path.enter().append('path')
+            .attr('class','flux')
+            .attr('fill','none')
+            .style('stroke', '#888')
+            .style('stroke-width', 0.5)
+        .merge(path)
+            .attr('d', (d) => line(d) );
+
     }
 }
