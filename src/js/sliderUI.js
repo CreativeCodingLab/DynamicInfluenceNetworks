@@ -21,7 +21,8 @@ function Slider(selector, options) {
 
     var scale = d3.scaleLinear()
         .range([10, width-10])
-        .domain(domain);
+        .domain(domain)
+        .clamp(true);
 
     var axis = d3.axisBottom()
         .scale(scale)
@@ -77,5 +78,11 @@ function Slider(selector, options) {
     }
     this.onDragEnd = function(x) {
         // console.log('drag end', x);
+    }
+
+    this.setPosition = function(x, absolute) {
+        this.x = (absolute ? x : scale(x)) -10;
+        svg.select('.slider')
+            .attr('x', this.x);
     }
 };

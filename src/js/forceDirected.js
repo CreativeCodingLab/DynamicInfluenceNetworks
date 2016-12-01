@@ -222,12 +222,13 @@ ForceDirectedGraph.prototype = {
 
   // cluster data based on threshold(s) of influence
   defineClusters: function(threshold, alpha) {
-    App.panels.forceDirected.threshold = threshold;
     if (threshold) {
       this.threshold = threshold;
     } else {
       threshold = this.threshold;
     }
+    if (App.infSlider) { App.infSlider.setPosition(threshold); }
+
     var clusters = [];
     var data = this.filteredData;
 
@@ -298,7 +299,7 @@ ForceDirectedGraph.prototype = {
   },
 
   drawClusters: function() {
-    console.log("drawClusters");
+    // console.log("drawClusters");
     let clusters = this.clusters.filter(c => c.length);
     let filteredData = this.filteredData;
     var radiusScale = d3.scaleLinear()

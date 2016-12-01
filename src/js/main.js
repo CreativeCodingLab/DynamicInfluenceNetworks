@@ -157,16 +157,17 @@ var App = App || {};
       var links = App.panels.forceDirected.sortedLinks;
       var domain = [
                     Math.abs(links[links.length-1].value),
-                    App.panels.forceDirected.maxInfl
-                    // Math.abs(links[0].value)
+                    Math.max(App.panels.forceDirected.maxInfl,
+                      App.panels.forceDirected.threshold
+                      )
                   ];
       App.infSlider = new Slider( '#clusterSlider', {
         title: 'Influence cutoff: ' + App.panels.forceDirected.threshold.toPrecision(3),
         domain: domain
       });
+      App.infSlider.setPosition( App.panels.forceDirected.threshold );
       App.infSlider.onDrag = function(x) {
         var inf = this.sliderScale(x);
-        console.log('influence',inf)
         App.panels.forceDirected.threshold = inf;
         App.panels.forceDirected.defineClusters(inf);
         App.panels.forceDirected.drawClusters();
