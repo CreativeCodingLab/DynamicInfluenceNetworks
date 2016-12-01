@@ -297,8 +297,9 @@ ForceDirectedGraph.prototype = {
   },
 
   drawClusters: function() {
-    var clusters = this.clusters;
-    var filteredData = this.filteredData;
+    console.log("drawClusters");
+    let clusters = this.clusters.filter(c => c.length);
+    let filteredData = this.filteredData;
     var radiusScale = d3.scaleLinear()
       .domain(d3.extent(Object.keys(filteredData), (d) => {
         return filteredData[d].hits;
@@ -307,10 +308,20 @@ ForceDirectedGraph.prototype = {
 
     var self = this;
 
-    this.clusterCircleGroup.selectAll(".clusterCircle").remove();
+    // this.clusterCircleGroup.selectAll(".clusterCircle").remove();
 
-    this.clusterCircleGroup.selectAll(".clusterCircle")
-      .data(clusters)
+    var circles = this.clusterCircleGroup.selectAll(".clusterCircle").data(clusters);
+
+    circles.exit().remove();
+
+    circles.style("fill", (d) => {
+      return self.clusterColor(d[0].cluster);
+    })
+    .style("stroke", (d) => {
+      return self.clusterColor(d[0].cluster);
+    })
+
+    circles
     .enter().append("circle")
       .attr("class", "clusterCircle")
       .style("fill", (d) => {
@@ -518,14 +529,22 @@ ForceDirectedGraph.prototype = {
           })
           .attr('d', createArrowPath);
 
-        cluster
+        self.clusterCircleGroup.selectAll(".clusterCircle")
           .attr("cx", (d) => {
             var ext = d3.extent(d, node => node.x);
-            return (ext[1] + ext[0]) / 2
+            if (isNaN(ext[0])  || isNaN(ext[1])) {
+              console.log(d);
+            }
+
+            return (ext[1] + ext[0]) / 2;
           })
           .attr("cy", (d) => {
             var ext = d3.extent(d, node => node.y);
-            return (ext[1] + ext[0]) / 2
+            if (isNaN(ext[0])  || isNaN(ext[1])) {
+              console.log(d);
+            }
+
+            return (ext[1] + ext[0]) / 2;
           })
           .attr("r", function(d) {
             var x = Number(d3.select(this).attr("cx"));
@@ -537,6 +556,10 @@ ForceDirectedGraph.prototype = {
               return Math.sqrt(Math.pow((node.x - x), 2) + Math.pow((node.y - y), 2))
                 + radiusScale(node.hits);
             });
+
+            if (isNaN(radius)) {
+              console.log(d);
+            }
 
             return radius + circlePadding;
           });

@@ -147,10 +147,10 @@ var App = App || {};
 
       // set up an influence slider
       var links = App.panels.forceDirected.sortedLinks;
-      var domain = [ 
+      var domain = [
                     Math.abs(links[links.length-1].value),
                     App.panels.forceDirected.maxInfl
-                    // Math.abs(links[0].value) 
+                    // Math.abs(links[0].value)
                   ];
       App.infSlider = new Slider( '#clusterSlider', {
         title: 'Influence cutoff',
@@ -161,6 +161,7 @@ var App = App || {};
         console.log('influence',inf)
         App.panels.forceDirected.threshold = inf;
         App.panels.forceDirected.defineClusters(inf);
+        App.panels.forceDirected.drawClusters();
       }
     })();
 
