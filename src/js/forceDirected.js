@@ -13,6 +13,7 @@ function ForceDirectedGraph(args) {
   this.maxInfl = Math.abs(this.links[Math.round(this.links.length/2)].value) * 2;
 
   var threshold = this.links[Math.round(Math.sqrt(this.links.length))].value;
+  App.panels.forceDirected.threshold = threshold;
   this.defineClusters(threshold);
 
   // set up simulation
@@ -318,6 +319,7 @@ ForceDirectedGraph.prototype = {
       .attr("transform", (d, i) => {
         return "translate(" + d.x + ", " + d.y + ")";
       })
+      .attr("cluster", d => d.cluster)
       .attr("r", d => d.radius)
       .style("stroke", "white")
       .style('stroke-opacity',0.5)
@@ -387,6 +389,7 @@ ForceDirectedGraph.prototype = {
     // main line
     linkGroupElement.append('path')
       .attr("class", "link link-1")
+      .attr("value", (d) => { return d.value;})
       .style("stroke-width", (d) => {
         return strokeScale(Math.abs(d.value));
       });
@@ -395,6 +398,7 @@ ForceDirectedGraph.prototype = {
     var self = this;
     linkGroupElement.append('path')
       .attr("class", "link link-2")
+      .attr("value", (d) => { return d.value;})
       .style("stroke-opacity", 0)
       .style("stroke-width", 8)
       .on("mouseover", (d, i) => {

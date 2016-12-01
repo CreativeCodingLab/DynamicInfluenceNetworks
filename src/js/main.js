@@ -11,7 +11,7 @@ var App = App || {};
   };
 
   App.init = function() {
-    App.loadData("flux_0.json", true);
+    App.loadData("Minimal.json", true);
     createSVGs();
   }
 
@@ -159,6 +159,7 @@ var App = App || {};
       App.infSlider.onDrag = function(x) {
         var inf = this.sliderScale(x);
         console.log('influence',inf)
+        App.panels.forceDirected.threshold = inf;
         App.panels.forceDirected.defineClusters(inf);
       }
     })();

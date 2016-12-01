@@ -10,7 +10,6 @@ window.addEventListener('load', function() {
       let key = this.id.split('-').indexOf('positive') > -1 ? 'green' : 'red';
 
       if (this.checked) {
-
         // make links invisible
         d3.selectAll('.link-1')
           .transition()
@@ -27,7 +26,6 @@ window.addEventListener('load', function() {
           });
       }
       else {
-
         // make links visible
         d3.selectAll('.link-1')
           .transition()
@@ -46,6 +44,83 @@ window.addEventListener('load', function() {
       }
 
     };
+    this._toggleinfl = function(e) {
+      let key = this.id.split('-').indexOf('link') > -1 ? 'link' : 'node';
+      let threshold = Math.abs(parseFloat(App.panels.forceDirected.threshold));
+      if(key === 'link') {
+        if (this.checked) {
+          // make links invisible
+          d3.selectAll('.link-1')
+            .transition()
+            .style('stroke-opacity', function() {
+              return Math.abs(parseFloat(this.getAttribute("value"))) < threshold ? 0 :
+                  this.style['stroke-opacity']
+            });
+
+          // remove mouseover functionality
+          d3.selectAll('.link-2')
+            .attr('pointer-events', function() {
+              return Math.abs(parseFloat(this.getAttribute("value"))) < threshold ? 'none' :
+                  this.getAttribute('pointer-events')
+            });
+        }
+        else {
+          // make links visible
+          d3.selectAll('.link-1')
+            .transition()
+            .style('stroke-opacity', function() {
+              return Math.abs(parseFloat(this.getAttribute("value"))) < threshold ? 1 :
+                  this.style['stroke-opacity']
+            });
+
+          // return mouseover functionality
+          d3.selectAll('.link-2')
+            .attr('pointer-events', function() {
+              return Math.abs(parseFloat(this.getAttribute("value"))) < threshold ? 'all' :
+                  this.getAttribute('pointer-events')
+            });
+        }
+      }
+      // make nodes invisible
+      else {
+        if (this.checked) {
+          d3.selectAll('.rule')
+              .transition()
+              .style('stroke-opacity', function() {
+                return parseInt(this.getAttribute("cluster")) === 0 ? 0 :
+                    this.style['stroke-opacity']
+              })
+              .style('opacity', function() {
+                return parseInt(this.getAttribute("cluster")) === 0 ? 0 :
+                    this.style['opacity']
+              })
+              // remove mouseover functionality
+              .attr('pointer-events', function() {
+                return parseInt(this.getAttribute("cluster")) === 0 ? 'none' :
+                    this.getAttribute('pointer-events')
+              });
+          }
+        // make nodes visible
+        else {
+          d3.selectAll('.rule')
+              .transition()
+              .style('stroke-opacity', function() {
+                return parseInt(this.getAttribute("cluster")) === 0 ? 0.5 :
+                    this.style['stroke-opacity']
+              })
+              .style('opacity', function() {
+                return parseInt(this.getAttribute("cluster")) === 0 ? 1 :
+                    this.style['opacity']
+              })
+              // remove mouseover functionality
+              .attr('pointer-events', function() {
+                return parseInt(this.getAttribute("cluster")) === 0 ? 'all' :
+                    this.getAttribute('pointer-events')
+              });
+        }
+      }
+    }
+
 
     this._unpin = function(e) {
         for (var node in App.panels.forceDirected.filteredData) {
@@ -65,7 +140,6 @@ window.addEventListener('load', function() {
           input.value = '';
           input.setAttribute('placeholder', 'Filenames of data series should be in the format "[prefix]_#.json"');
         }
-
     };
 
     // add listeners
