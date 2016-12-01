@@ -52,8 +52,9 @@ html, body, .fluidContainer, .mainCol {
 }
 
 .slider { 
-    display: inline-block; 
-    margin-bottom:5px;
+  vertical-align: top;
+  display: inline-block; 
+  margin-bottom:5px;
 }
 .slider+.slider {
     /*margin-top:15px;*/
