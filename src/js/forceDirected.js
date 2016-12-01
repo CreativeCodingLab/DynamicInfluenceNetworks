@@ -308,27 +308,25 @@ ForceDirectedGraph.prototype = {
 
     var self = this;
 
-    // this.clusterCircleGroup.selectAll(".clusterCircle").remove();
-
     var circles = this.clusterCircleGroup.selectAll(".clusterCircle").data(clusters);
 
     circles.exit().remove();
 
     circles.style("fill", (d) => {
-      return self.clusterColor(d[0].cluster);
+      return d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
     })
     .style("stroke", (d) => {
-      return self.clusterColor(d[0].cluster);
-    })
+      return d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
+    });
 
     circles
     .enter().append("circle")
       .attr("class", "clusterCircle")
       .style("fill", (d) => {
-        return self.clusterColor(d[0].cluster);
+        return d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
       })
       .style("stroke", (d) => {
-        return self.clusterColor(d[0].cluster);
+        return d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
       })
       .style("stroke-dasharray", "2, 2")
       .style("fill-opacity", 0.5);
