@@ -4,6 +4,8 @@ html, body, .fluidContainer, .mainCol {
   /*overflow: hidden;*/
   -webkit-font-smoothing:antialiased;
   -moz-osx-smoothing:grayscale;
+
+  font-size:2.5vmin;
 }
 
 .h-100 {
@@ -30,7 +32,7 @@ html, body, .fluidContainer, .mainCol {
   /*background-color: pink;*/
 }
 .controls {
-    max-width:625px;
+    max-width:33vw;
     margin:auto;
 }
 
@@ -54,7 +56,7 @@ html, body, .fluidContainer, .mainCol {
     margin-bottom:5px;
 }
 .slider+.slider {
-    margin-top:15px;
+    /*margin-top:15px;*/
 }
 
 .col-md-4 {
@@ -69,6 +71,7 @@ html, body, .fluidContainer, .mainCol {
 }
 .columns span {
   display:block;
+  font-size: 2vmin;
 }
 button,input {
     outline:none;
@@ -94,6 +97,11 @@ button:active {
 
 input[type="text"] {
     margin-top:5px;
+}
+input[type="checkbox"] {
+    margin-top:5px;
+    height: 2vmin;
+    width: 2vmin;
 }
 @media (min-width: 992px) {
     html, body, .fluidContainer, .mainCol {

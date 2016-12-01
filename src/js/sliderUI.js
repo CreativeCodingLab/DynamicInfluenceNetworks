@@ -1,8 +1,8 @@
 function Slider(selector, options) {
 
     var svg = d3.select( selector ? selector : 'body' ).append('svg'),
-        width = (options && options.width > 0) ? options.width : 300,
-        height = (options && options.height > 0) ? options.height : 45,
+        width = (options && options.width > 0) ? options.width : d3.select(".controls").node().clientWidth * .45,
+        height = (options && options.height > 0) ? options.height : d3.select(".controls").node().clientHeight * 0.2,
         title = (options && options.title) ? options.title : ''
         domain = (options && options.domain) ? options.domain : [0,1];
 
@@ -36,6 +36,9 @@ function Slider(selector, options) {
         .attr('transform','translate(0,8)')
         .call(axis);
 
+    svg.select(".axis")
+        .style("font-size", '1.2vmin')
+
     svg.append('g')
         .attr('transform','translate(5,0)')
     .append('rect')
@@ -51,7 +54,7 @@ function Slider(selector, options) {
         .attr('class','title')
         .attr('text-anchor','middle')
         .attr('fill','black')
-        .attr('font-size','12px')
+        .attr('font-size','1.25vmin')
         .attr('x',width/2)
         .attr('y',height)
         .text(title);

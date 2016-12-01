@@ -30,6 +30,8 @@ function ForceDirectedGraph(args) {
       (this.height / 2)
     ));
 
+  console.log(this.width, this.height);
+
   // update graph
   this.drawGraph();
 };
@@ -38,10 +40,14 @@ ForceDirectedGraph.prototype = {
   // set up svg elements
   init: function() {
     // allows all work to be done using same coordinates initially used
-
+    this.aspect = this.width / this.height;
+    this.width = 901;
+    this.height = this.width / this.aspect;
 
     // no need to redraw on resize
     this.svg.attr("viewBox", "0 0 " + this.width + " " + this.height);
+
+    console.log(this.svg.attr("viewBox"));
 
     // background color
     this.svg.append("rect")
@@ -143,11 +149,18 @@ ForceDirectedGraph.prototype = {
       this.width = rect.width,
       this.height = rect.height;
     }
-    this.svg.attr("viewBox", "0 0 " + this.width + " " + this.height);
+
     this.svg
       .attr('width', this.width)
       .attr('height', this.height)
-    .select('rect')
+
+    this.aspect = this.width / this.height;
+    this.width = 901;
+    this.height = this.width / this.aspect;
+
+    this.svg.attr("viewBox", "0 0 " + this.width + " " + this.height);
+
+    this.svg.select('rect')
       .attr('width', this.width)
       .attr('height', this.height)
 
