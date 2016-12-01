@@ -17,7 +17,7 @@ function ForceDirectedGraph(args) {
 
   // set up simulation
   this.simulation = d3.forceSimulation()
-    .force("link", 
+    .force("link",
       d3.forceLink()
         .id(d => d.name)
     )
@@ -54,7 +54,7 @@ ForceDirectedGraph.prototype = {
         .scaleExtent([1 / 2, 4])
         .on("zoom", this.zoomed.bind(this)));
 
-    
+
     // stroke gradients
     var defs = this.svg.append('defs');
     var red = defs.append('linearGradient')
@@ -114,6 +114,8 @@ ForceDirectedGraph.prototype = {
         .attr('x1',0)
         .attr('y2',1)
 
+    this.clusterCircleGroup = this.svg.append("g")
+      .attr("class", "clusterGroup");
     this.linkGroup = this.svg.append("g")
       .attr("class", "linkGroup");
     this.nodeGroup = this.svg.append("g")
@@ -139,6 +141,7 @@ ForceDirectedGraph.prototype = {
     var transform = d3.event.transform;
     this.nodeGroup.attr("transform", transform);
     this.linkGroup.attr("transform", transform);
+    this.clusterCircleGroup.attr("transform", transform);
   },
   showTip: function(d, type) {
     this.tip.selectAll('*').remove();
@@ -162,8 +165,8 @@ ForceDirectedGraph.prototype = {
 
       var sp = this.tip.append('span');
       sp.text('Influence: ')
-        .append('span').text(this.svg.sci ? 
-            Number(d.value.toPrecision(3)).toExponential() : 
+        .append('span').text(this.svg.sci ?
+            Number(d.value.toPrecision(3)).toExponential() :
             d.value.toFixed(3) )
           .style('font-weight','bold')
           .style('color', d.value < 0 ? '#f66' : '#4c4');
@@ -287,9 +290,37 @@ ForceDirectedGraph.prototype = {
 
   // update function
   drawGraph: function() {
+    this.drawClusters();
     this.drawNodes();
     this.drawLinks();
     this.createForceLayout();
+  },
+
+  drawClusters: function() {
+    var clusters = this.clusters;
+    var filteredData = this.filteredData;
+    var radiusScale = d3.scaleLinear()
+      .domain(d3.extent(Object.keys(filteredData), (d) => {
+        return filteredData[d].hits;
+      }))
+      .range([4, 14]);
+
+    var self = this;
+
+    this.clusterCircleGroup.selectAll(".clusterCircle").remove();
+
+    this.clusterCircleGroup.selectAll(".clusterCircle")
+      .data(clusters)
+    .enter().append("circle")
+      .attr("class", "clusterCircle")
+      .style("fill", (d) => {
+        return self.clusterColor(d[0].cluster);
+      })
+      .style("stroke", (d) => {
+        return self.clusterColor(d[0].cluster);
+      })
+      .style("stroke-dasharray", "2, 2")
+      .style("fill-opacity", 0.5);
   },
 
   // draw nodes
@@ -305,7 +336,7 @@ ForceDirectedGraph.prototype = {
     for (var key in filteredData) {
       filteredData[key].radius = radiusScale(filteredData[key].hits);
       filteredData[key].x = filteredData[key].x || this.width / 2;
-      filteredData[key].y = filteredData[key].y || this.height / 2; 
+      filteredData[key].y = filteredData[key].y || this.height / 2;
     }
 
     // define dragging behavior
@@ -316,12 +347,12 @@ ForceDirectedGraph.prototype = {
             self.simulation.alphaTarget(0.3).restart();
           }
         })
-        .on('drag', function(d) { 
+        .on('drag', function(d) {
           self._isDragging = true;
           d3.select(this)
             .style("fill", self.clusterColor(d.cluster))
             .style("stroke", "#404040");
-          d.fx = d3.event.x, 
+          d.fx = d3.event.x,
           d.fy = d3.event.y;
         })
         .on('end', function(d) {
@@ -352,7 +383,7 @@ ForceDirectedGraph.prototype = {
           .style('stroke-opacity',1);
         self.showTip(d, 'rule');
       })
-      .on("mouseout", function() { 
+      .on("mouseout", function() {
         d3.select(this).transition()
           .style('stroke-opacity',0.5);
         self.hideTip();
@@ -362,7 +393,7 @@ ForceDirectedGraph.prototype = {
           .style("fill", (d) => self.clusterColor(d.cluster))
           .style("stroke", "white");
 
-        d.fx = d.fy = null; 
+        d.fx = d.fy = null;
       })
       .call(drag);
   },
@@ -424,9 +455,14 @@ ForceDirectedGraph.prototype = {
 
   // the big workhorse of the simulation ???
   createForceLayout: function() {
-
     var data = this.filteredData,
         nodeArr = Object.keys(data).map(n => data[n]);
+
+    var radiusScale = d3.scaleLinear()
+      .domain(d3.extent(Object.keys(data), (d) => {
+        return data[d].hits;
+      }))
+      .range([4, 14]);
 
     var borderNodeMargin = 10;
 
@@ -448,6 +484,9 @@ ForceDirectedGraph.prototype = {
     // modify the appearance of the nodes and links on tick
     var node = this.nodeGroup.selectAll(".rule");
     var link = this.linkGroup.selectAll(".link");
+
+    var cluster = this.clusterCircleGroup.selectAll(".clusterCircle");
+
     function tick() {
         node
           .datum((d) => {
@@ -478,6 +517,29 @@ ForceDirectedGraph.prototype = {
             }
           })
           .attr('d', createArrowPath);
+
+        cluster
+          .attr("cx", (d) => {
+            var ext = d3.extent(d, node => node.x);
+            return (ext[1] + ext[0]) / 2
+          })
+          .attr("cy", (d) => {
+            var ext = d3.extent(d, node => node.y);
+            return (ext[1] + ext[0]) / 2
+          })
+          .attr("r", function(d) {
+            var x = Number(d3.select(this).attr("cx"));
+            var y = Number(d3.select(this).attr("cy"));
+
+            var circlePadding = 15;
+
+            var radius = d3.max(d, (node) => {
+              return Math.sqrt(Math.pow((node.x - x), 2) + Math.pow((node.y - y), 2))
+                + radiusScale(node.hits);
+            });
+
+            return radius + circlePadding;
+          });
     }
 
     function createArrowPath(d) {
@@ -496,23 +558,23 @@ ForceDirectedGraph.prototype = {
       if (dr < 100) { dr /= 2; }
 
       var t = {
-        x: target.x + (target.radius+3)*nx, 
+        x: target.x + (target.radius+3)*nx,
         y: target.y + (target.radius+3)*ny
       };
 
       if (this.classList.contains('link-1')) {
-        return  "M" + source.x + "," + source.y + 
-                "A" + dr + "," + dr + " 0 0,1 " + 
+        return  "M" + source.x + "," + source.y +
+                "A" + dr + "," + dr + " 0 0,1 " +
                 t.x + "," + t.y;
       }
       else {
         nx *= 8, ny *= 8;
         t.x += nx, t.y += ny;
 
-        return  "M" + source.x + "," + source.y + 
-              "A" + dr + "," + dr + " 0 0,1 " + 
+        return  "M" + source.x + "," + source.y +
+              "A" + dr + "," + dr + " 0 0,1 " +
               t.x + "," + t.y+
-              "m" + (2*nx-ny) + ',' + (2*ny+nx) + 
+              "m" + (2*nx-ny) + ',' + (2*ny+nx) +
               "L" + t.x + "," + t.y+
               "l" + (2*nx+ny) + ',' + (2*ny-nx);
       }
@@ -577,7 +639,7 @@ ForceDirectedGraph.prototype = {
         });
     }
 
-      function collide(alpha) {                                                            
+      function collide(alpha) {
         var padding = 1.5;
         var clusterPadding = 6; // separation between different-color circles
         var maxRadius = 20;
