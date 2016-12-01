@@ -1,7 +1,6 @@
 window.addEventListener('load', function() {
 
     var self = this;
-
     this._togglesci = function(e) {
       App.panels.forceDirected.svg.sci = this.checked;
     };
