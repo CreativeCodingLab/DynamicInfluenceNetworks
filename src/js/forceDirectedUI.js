@@ -47,21 +47,21 @@ window.addEventListener('load', function() {
 
     this._toggleinfl = function(e) {
       let key = this.id.split('-').indexOf('link') > -1 ? 'link' : 'node';
-      let threshold = Math.abs(parseFloat(App.panels.forceDirected.threshold));
+      let threshold = Math.abs(App.panels.forceDirected.threshold);
       if(key === 'link') {
         if (this.checked) {
           // make links invisible
           d3.selectAll('.link-1')
             .transition()
-            .style('stroke-opacity', function() {
-              return Math.abs(parseFloat(this.getAttribute("value"))) < threshold ? 0 :
+            .style('stroke-opacity', function(d) {
+              return Math.abs(d.value) < threshold ? 0 :
                   this.style['stroke-opacity']
             });
 
           // remove mouseover functionality
           d3.selectAll('.link-2')
-            .attr('pointer-events', function() {
-              return Math.abs(parseFloat(this.getAttribute("value"))) < threshold ? 'none' :
+            .attr('pointer-events', function(d) {
+              return Math.abs(d.value) < threshold ? 'none' :
                   this.getAttribute('pointer-events')
             });
         }
@@ -85,17 +85,17 @@ window.addEventListener('load', function() {
         if (this.checked) {
           d3.selectAll('.rule')
               .transition()
-              .style('stroke-opacity', function() {
-                return parseInt(this.getAttribute("cluster")) === 0 ? 0 :
+              .style('stroke-opacity', function(d) {
+                return !d.cluster ? 0 : 
                     this.style['stroke-opacity']
               })
-              .style('opacity', function() {
-                return parseInt(this.getAttribute("cluster")) === 0 ? 0 :
+              .style('opacity', function(d) {
+                return !d.cluster ? 0 : 
                     this.style['opacity']
               })
               // remove mouseover functionality
-              .attr('pointer-events', function() {
-                return parseInt(this.getAttribute("cluster")) === 0 ? 'none' :
+              .attr('pointer-events', function(d) {
+                return !d.cluster ? 0 : 
                     this.getAttribute('pointer-events')
               });
           }
@@ -124,8 +124,8 @@ window.addEventListener('load', function() {
             App.panels.forceDirected.filteredData[node].fy = null;
         }
         d3.selectAll('.rule')
-            .style("fill", App.panels.forceDirected.clusterColor(d.cluster))
-            .style("stroke", "white");
+          .style("fill", d => App.panels.forceDirected.clusterColor(d.cluster))
+          .style("stroke", "white");
 
     };
 
