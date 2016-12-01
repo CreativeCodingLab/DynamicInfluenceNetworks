@@ -527,16 +527,6 @@ ForceDirectedGraph.prototype = {
 
     var borderNodeMargin = 10;
 
-    var clampX = d3.scaleLinear()
-      .domain([16 + borderNodeMargin, this.width - 16 - borderNodeMargin])
-      .range([16 + borderNodeMargin, this.width - 16 - borderNodeMargin])
-      .clamp(true);
-
-    var clampY = d3.scaleLinear()
-      .domain([16 + borderNodeMargin, this.height - 16 - borderNodeMargin])
-      .range([16 + borderNodeMargin, this.height - 16 - borderNodeMargin])
-      .clamp(true);
-
     var self = this;
     this.simulation
       .nodes(nodeArr)
@@ -551,6 +541,17 @@ ForceDirectedGraph.prototype = {
     function tick() {
         node
           .datum((d) => {
+
+            var clampX = d3.scaleLinear()
+              .domain([16 + borderNodeMargin, self.width - 16 - borderNodeMargin])
+              .range([16 + borderNodeMargin, self.width - 16 - borderNodeMargin])
+              .clamp(true);
+
+            var clampY = d3.scaleLinear()
+              .domain([16 + borderNodeMargin, self.height - 16 - borderNodeMargin])
+              .range([16 + borderNodeMargin, self.height - 16 - borderNodeMargin])
+              .clamp(true);
+
             d.x = clampX(d.x);
             d.y = clampY(d.y);
             return d;
