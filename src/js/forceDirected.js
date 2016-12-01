@@ -157,6 +157,7 @@ ForceDirectedGraph.prototype = {
           (this.width / 2),
           (this.height / 2)
           ));
+
       this.simulation.alpha(0.001).restart();
     }
   },

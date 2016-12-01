@@ -35,7 +35,7 @@ var App = App || {};
     initSliders();
 
     // topVis
-    App.panels.topVis = new nodeVis('#topVis');
+    App.panels.topVis = new LineGraph('#topVis');
   }
 
   App.loadData = function(file, isSeries) {
