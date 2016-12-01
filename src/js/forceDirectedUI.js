@@ -44,6 +44,7 @@ window.addEventListener('load', function() {
       }
 
     };
+    
     this._toggleinfl = function(e) {
       let key = this.id.split('-').indexOf('link') > -1 ? 'link' : 'node';
       let threshold = Math.abs(parseFloat(App.panels.forceDirected.threshold));
@@ -112,7 +113,7 @@ window.addEventListener('load', function() {
                 return parseInt(this.getAttribute("cluster")) === 0 ? 1 :
                     this.style['opacity']
               })
-              // remove mouseover functionality
+              // return  mouseover functionality
               .attr('pointer-events', function() {
                 return parseInt(this.getAttribute("cluster")) === 0 ? 'all' :
                     this.getAttribute('pointer-events')

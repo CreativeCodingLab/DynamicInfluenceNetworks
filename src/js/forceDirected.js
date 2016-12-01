@@ -424,12 +424,14 @@ ForceDirectedGraph.prototype = {
       .clamp(true);
 
     var mainLink = this.linkGroup.selectAll('.link-1')
-      .data(this.links);
+      .data(this.links)
+
 
     mainLink.exit().remove();
     mainLink.enter().append('path')
         .attr('class', 'link link-1')
         .attr('fill','none')
+        .attr("value", d=>d.value)
       .merge(mainLink)
         .style("stroke-width", (d) => {
           return strokeScale(Math.abs(d.value));
@@ -444,6 +446,7 @@ ForceDirectedGraph.prototype = {
     hoverLink.enter().append('path')
         .attr("class", "link link-2")
         .attr('fill','none')
+        .attr("value", d => d.value)
         .style("stroke-opacity", 0)
         .style("stroke-width", 8)
         .on("mouseover", (d, i) => {
