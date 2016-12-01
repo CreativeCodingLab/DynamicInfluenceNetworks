@@ -375,6 +375,7 @@ ForceDirectedGraph.prototype = {
             self.simulation.alphaTarget(0.3).restart();
           }
           d.forEach((n) => {
+            n._fixed = (n.fx != null);
             n.fx = n.x;
             n.fy = n.y;
           })
@@ -390,7 +391,9 @@ ForceDirectedGraph.prototype = {
             self.simulation.alphaTarget(0);
           }
           d.forEach((n) => {
-            n.fx = n.fy = null;
+            if (!n._fixed) {
+              n.fx = n.fy = null;
+            }
           })
         }) );
   },
