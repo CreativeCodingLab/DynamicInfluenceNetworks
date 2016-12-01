@@ -471,7 +471,8 @@ ForceDirectedGraph.prototype = {
     var strokeScale = d3.scalePow()
       .domain([0, this.maxInfl])
       .range([0.4, this.links.length > 200 ? 1 : 3])
-      .clamp(true);
+      .clamp(true)
+      .exponent(10);
 
     var mainLink = this.linkGroup.selectAll('.link-1')
       .data(this.links)
