@@ -11,7 +11,7 @@ var App = App || {};
   };
 
   App.init = function() {
-    App.loadData("Minimal.json", true);
+    App.loadData("Real.json", true);
     createSVGs();
   }
 
