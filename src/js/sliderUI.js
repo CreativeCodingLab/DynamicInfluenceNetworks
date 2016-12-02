@@ -9,14 +9,35 @@ function Slider(selector, options) {
     var self = this;
     var drag = d3.drag()
         .on('drag', function() { 
-            var x = Math.min(Math.max(d3.event.x - 5, 0), width-20);
+
+            // limit event firing when out of range
+            var x = d3.event.x - 5;
+            if ( x < 0 || x > width-20) {
+                if (x < 0) {
+                    self.max = false;
+                    if (self.min) { return; }
+                    self.min = true;
+                    x = 0;
+                }
+                else {
+                    self.min = false;
+                    if (self.max) { return; }
+                    self.max = true;
+                    x = width - 20;
+                }
+            }
+            else { self.max = self.min = false; }
+
+            // perform event
             d3.select(this).attr('x', x);
-            self.onDrag(x);
+            self.x = x;
+            self.value = self.sliderScale(x);
+            self.onDrag(x, d3.event);
         })
         .on('end', function() {
             var x = Math.round(Math.min(Math.max(d3.event.x - 5, 0), width-20));
             d3.select(this).attr('x', x);
-            self.onDragEnd(x);
+            self.onDragEnd(x, d3.event);
         });
 
     var scale = d3.scaleLinear()

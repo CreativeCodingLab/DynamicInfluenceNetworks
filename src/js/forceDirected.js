@@ -532,8 +532,8 @@ ForceDirectedGraph.prototype = {
         d3.select(this)
           .style('stroke-opacity',1);
         self.showTip(d, 'rule');
-        if (App.panels.topVis) { App.panels.topVis.message(d); }
-        if (App.panels.bottomVis) { App.panels.bottomVis.message(d, true); }
+        if (App.panels.topVis) { App.panels.topVis.updateRule(d); }
+        if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d, true); }
       })
       .on("mouseout", function() {
         d3.select(this).transition()

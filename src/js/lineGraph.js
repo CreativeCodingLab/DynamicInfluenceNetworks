@@ -16,7 +16,7 @@ function LineGraph(selector, options) {
         .attr('font-size','12px')
         .attr('class','title');
 
-    var graph = this.svg.append('g')
+    var graph = this.graph = this.svg.append('g')
         .attr('class', 'graph')
         .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
@@ -51,11 +51,18 @@ LineGraph.prototype = {
             .attr('width', w)
             .attr('height', h);
 
-        this.svg.select('.axis-x')
-            .attr('transform', 'translate(0,' + this.height + ')');
-    },
-    message: function(d, out) {
+        if (this.x && this.y && this.fluxs) {
+            this.y.range([this.height, 0]);
+            this.x.range([0, this.width]);
 
+            this.drawAxes();
+            this.drawPaths();
+            this.drawMarkers();
+        }
+    },
+    updateRule: function(d, out) {
+
+        this.rule = d;
         this.svg.select('.title')
           .text(d.name + (out? ' outgoing influences':' incoming influences'))
           .attr('fill', () => {
@@ -91,7 +98,7 @@ LineGraph.prototype = {
             });
         });
 
-        fluxs = Object.keys(fluxs).filter(i => {
+        this.fluxs = fluxs = Object.keys(fluxs).filter(i => {
             var max = Math.abs(d3.max(fluxs[i], d => d.flux)),
                 min = Math.abs(d3.min(fluxs[i], d => d.flux));
             return max || min;
@@ -101,29 +108,29 @@ LineGraph.prototype = {
         var ymax = d3.max(fluxs, dataset => d3.max(dataset, inf => inf.flux)),
             ymin = d3.min(fluxs, dataset => d3.min(dataset, inf => inf.flux));
 
-        var y = d3.scaleLinear()
+        this.y = d3.scaleLinear()
                 .domain([ymin, ymax])
                 .range([this.height, 0]);
 
-        var x = d3.scaleLinear()
+        this.x = d3.scaleLinear()
                 .domain([0, App.dataset.length - 1])
                 .range([0, this.width]);
 
-        var line = d3.line()
-            .curve(d3.curveCatmullRom)
-            .x((d) => x(d.i))
-            .y(d => y(d.flux));
-
-        var g = this.svg.select('.graph');
-
+        this.drawAxes();
+        this.drawPaths();
+        this.drawMarkers();
+    },
+    drawAxes: function() {
+        if (!this.x || !this.y) { return; }
         this.svg.select('.axis-x')
-            .call(d3.axisBottom(x));
+            .attr('transform', 'translate(0,' + this.height + ')')
+            .call(d3.axisBottom(this.x));
 
         this.svg.select('.axis-x path')
             .style('display','none');
 
         this.svg.select('.axis-y')
-            .call(d3.axisLeft(y)
+            .call(d3.axisLeft(this.y)
                     .ticks(5)
                     .tickFormat(function(d) {
                         if (Math.abs(d) > 999999) {
@@ -133,9 +140,17 @@ LineGraph.prototype = {
                             return d3.format(',')(d);
                         }
                     }) );
+    },
+    // draw lines
+    drawPaths: function() {
+        var self = this;
+        var line = d3.line()
+            .curve(d3.curveCatmullRom)
+            .x((d) => self.x(d.i))
+            .y(d => self.y(d.flux));
 
-        var path = g.selectAll('.flux')
-            .data(fluxs);
+        var path = this.graph.selectAll('.flux')
+            .data(this.fluxs)
 
         path.exit().remove();
         path.enter().append('path')
@@ -143,10 +158,37 @@ LineGraph.prototype = {
             .attr('fill','none')
             .style('stroke-width', 0.5)
         .merge(path)
-            .style('stroke', '#888')
+            .style('stroke', path => {
+                return path[0].name === self.rule.name ? 'red' : '#888';
+            })
         .transition()
             .duration(500)
             .attr('d', (d) => line(d) );
+    },
 
+    // draw markers
+    drawMarkers: function() {
+        if (!(this.fluxs && this.x && this.y)) { return; }
+        var i = App.item || 0;
+        var marker = this.graph.selectAll('.marker')
+            .data(this.fluxs.map(d => d[i]));
+
+        marker.exit().remove();
+
+        marker.enter().append('circle')
+            .attr('class','marker')
+            .attr('stroke-width',1)
+            .attr('stroke','white')
+            .attr('r',0)
+            .style('opacity',0)
+        .merge(marker)
+            .attr('cx', d => this.x(d.i) )
+            .attr('cy', d => this.y(d.flux) )
+            .attr('fill', d => {
+                var rule = App.panels.forceDirected.filteredData[ d.name];
+                return App.panels.forceDirected.clusterColor(rule.cluster);
+            })
+            .attr('r',3)
+            .style('opacity',1);
     }
 }
