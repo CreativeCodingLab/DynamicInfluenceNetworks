@@ -1195,12 +1195,13 @@ ForceDirectedGraph.prototype = {
       .style("text-anchor", "middle");
 
     // positive
-    linkColorGroup.append("path")
+    linkColorGroup.append("rect")
       .attr("class", "legendLinkColor")
-      .attr("d", "M " + (margin.left + 10) + " 30 L " + (183-margin.right) + " 30")
-      .style("stroke", "url(#greenLgd)")
-      // .style("stroke", "#66bd63")
-      .style("stroke-width", 5);
+      .attr("x", (margin.left + 10))
+      .attr("y", 27)
+      .attr("width", (183-margin.right-margin.left-10))
+      .attr("height", 5)
+      .style("fill", "url(#greenLgd)");
 
     linkColorGroup.append("text")
       .attr("class", "legendLinkColor")
@@ -1212,12 +1213,13 @@ ForceDirectedGraph.prototype = {
       .style("text-anchor", "middle");
 
     // negative
-    linkColorGroup.append("path")
+    linkColorGroup.append("rect")
       .attr("class", "legendLinkColor")
-      .attr("d", "M " + (margin.left + 10) + " 42 L " + (183-margin.right) + " 42")
-      .style("stroke", "url(#redLgd)")
-      // .style("stroke", "#f46d43")
-      .style("stroke-width", 5);
+      .attr("x", (margin.left + 10))
+      .attr("y", 39)
+      .attr("width", (183-margin.right-margin.left-10))
+      .attr("height", 5)
+      .style("fill", "url(#redLgd)");
 
     linkColorGroup.append("text")
       .attr("class", "legendLinkColor")
