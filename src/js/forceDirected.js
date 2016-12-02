@@ -1270,7 +1270,7 @@ ForceDirectedGraph.prototype = {
 
     linkSizeGroup.append("text")
       .attr("class", "legendLinkSize")
-      .text("Link Thickness")
+      .text("Link Influence")
       .attr("x", 183/2)
       .attr("y", 20)
       .style("fill", "white")
