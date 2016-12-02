@@ -976,7 +976,8 @@ ForceDirectedGraph.prototype = {
       .append("svg")
       .attr("width", "100%")
       .attr("height", "100%")
-      .style("pointer-events", "none");
+      .style("pointer-events", "none")
+      .style("font-family", "Helvetica, sans-serif");
 
     this.legend.svg
       .attr("viewBox", "0 0 " + 183 + " " + 265);
@@ -1015,6 +1016,127 @@ ForceDirectedGraph.prototype = {
       .style("fill", "white");
 
     // now make legend in this section
+    var margin = {
+      left: peekWidth + 2,
+      right: peekWidth + 2,
+      top: peekWidth + 2,
+      bottom: peekWidth + 2
+    };
+
+    // legend title
+    this.legend.svg.append("text")
+      .attr("class", "legendTitle")
+      .text("Legend")
+      .attr("x", 183/2)
+      .attr("y", 20)
+      .style("font-size", "14px")
+      .style("fill", "white")
+      .style("text-anchor", "middle")
+      .style("font-weight", "bold");
+
+    // node size scale
+    var hitsDomain = this.legend.nodeSizeDomain;
+    var radiusRange = this.legend.nodeSizeRange;
+    var nodeCircleTop = 25 + radiusRange[1];
+
+    var backgroundCoords = [
+      [(margin.left + radiusRange[0]), nodeCircleTop + radiusRange[1]],
+      [183 - margin.right - radiusRange[1], nodeCircleTop + radiusRange[1]],
+      [183 - margin.right - radiusRange[1], nodeCircleTop - radiusRange[1]],
+      [(margin.left + radiusRange[0]), nodeCircleTop + radiusRange[1] - 2*radiusRange[0]]
+    ];
+
+    nodeSizeGroup = this.legend.svg.append("g")
+      .attr("class", "legendNodeSizeG")
+      .attr("transform", "translate(0, 22)");
+
+    nodeSizeGroup.append("text")
+      .attr("class", "legendNodeSize")
+      .text("Rule # Hits")
+      .attr("x", 183/2)
+      .attr("y", 20)
+      .style("fill", "white")
+      .style("font-size", "12px")
+      .style("text-anchor", "middle");
+
+    // background of circles
+    nodeSizeGroup.append("path")
+      .attr("class", "legendNodeSize")
+      .attr("d", "M " + backgroundCoords.map(c => c.join(",")).join("L") + "Z")
+      .style("stroke", "white")
+      .style("fill", self.clusterColor(1))
+      .style("opacity", 0.25);
+
+    // left circle
+    nodeSizeGroup.append("circle")
+      .attr("class", "legendNodeSize")
+      .attr("cx", margin.left + radiusRange[0])
+      .attr("cy", nodeCircleTop + radiusRange[1] - radiusRange[0])
+      .attr("r", radiusRange[0])
+      .style("fill", self.clusterColor(1))
+      .style("stroke", "white");
+
+    // right circle
+    nodeSizeGroup.append("circle")
+      .attr("class", "legendNodeSize")
+      .attr("cx", 183 - margin.right - radiusRange[1])
+      .attr("cy", nodeCircleTop)
+      .attr("r", radiusRange[1])
+      .style("fill", self.clusterColor(1))
+      .style("stroke", "white");
+
+     // left label
+     nodeSizeGroup.append("text")
+      .attr("class", "legendNodeSize")
+      .text(hitsDomain[0])
+      .attr("x", margin.left)
+      .attr("y", nodeCircleTop + radiusRange[1] + 12)
+      .style("fill", "white")
+      .style("font-size", "10px")
+      .style("text-anchor", "start");
+
+     // right label 
+     nodeSizeGroup.append("text")
+      .attr("class", "legendNodeSize")
+      .text(hitsDomain[1])
+      .attr("x", 183 - margin.right)
+      .attr("y", nodeCircleTop + radiusRange[1] + 12)
+      .style("fill", "white")
+      .style("font-size", "10px")
+      .style("text-anchor", "end");
+
+
+    // node coloring
+    var numNodeCircles = 6;
+    var nodeCircleMargin = 7;
+    var nodeCircleSpacing = (183 - margin.left - margin.right) / numNodeCircles;
+    var nodeCircleRadius = (183 - margin.left - margin.right - (nodeCircleMargin * (numNodeCircles - 1))) / (2 * numNodeCircles);
+
+    var nodeColorGroup = this.legend.svg.append("g")
+      .attr("class", "legendNodeColorG")
+      .attr("transform", "translate(0, 80)");
+
+    nodeColorGroup.append("text")
+      .text("Rule Cluster")
+      .attr("x", 183/2)
+      .attr("y", 20)
+      .style("fill", "white")
+      .style("font-size", "12px")
+      .style("text-anchor", "middle");
+
+    nodeColorGroup.selectAll(".legendNodeColor")
+      .data(d3.range(numNodeCircles))
+    .enter().append("circle")
+      .attr("class", "legendNodeColor")
+      .attr("cx", (d, i) => margin.left + (i * nodeCircleSpacing) + nodeCircleRadius)
+      .attr("cy", nodeCircleTop)
+      .attr("r", nodeCircleRadius)
+      .style("fill", (d, i) => self.clusterColor(i + 1))
+      .style("stroke", "white");
+
+    // link color
+
+    // link width
 
   }
 }
