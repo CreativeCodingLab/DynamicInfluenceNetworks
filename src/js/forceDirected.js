@@ -572,7 +572,7 @@ ForceDirectedGraph.prototype = {
 
    mainLink
       .style('stroke-opacity', (d) => {
-        if(inflToggle.property("checked") && d.value < threshold ) {
+        if(inflToggle.property("checked") && Math.abs(d.value) < threshold ) {
           return 0;
         }
         else return 1;
@@ -595,7 +595,7 @@ ForceDirectedGraph.prototype = {
 
    hoverLink
       .attr('pointer-events', (d) => {
-        if(inflToggle.property("checked") && d.value < threshold ) {
+        if(inflToggle.property("checked") && Math.abs(d.value) < threshold ) {
           return 'none';
         }
         else return 'all';
