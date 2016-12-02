@@ -1160,7 +1160,7 @@ ForceDirectedGraph.prototype = {
 
     var nodeColorGroup = this.legend.svg.append("g")
       .attr("class", "legendNodeColorG")
-      .attr("transform", "translate(0, 80)");
+      .attr("transform", "translate(0, 88)");
 
     nodeColorGroup.append("text")
       .text("Rule Cluster")
@@ -1183,7 +1183,7 @@ ForceDirectedGraph.prototype = {
     // link color/direction
     var linkColorGroup = this.legend.svg.append("g")
       .attr("class", "legendLinkColorG")
-      .attr("transform", "translate(0, 130)");
+      .attr("transform", "translate(0, 146)");
     
     linkColorGroup.append("text")
       .attr("class", "legendLinkColor")
@@ -1258,17 +1258,18 @@ ForceDirectedGraph.prototype = {
     // link width
     var linkSizeDomain = this.legend.linkSizeDomain;
     var linkSizeRange = this.legend.linkSizeRange;
+    var linkTop = 25 + linkSizeRange[1];
 
     var linkSizeCoords = [
-      [(margin.left + linkSizeRange[0]), nodeCircleTop + linkSizeRange[1]],
-      [183 - margin.right - linkSizeRange[1], nodeCircleTop + linkSizeRange[1]],
-      [183 - margin.right - linkSizeRange[1], nodeCircleTop - linkSizeRange[1]],
-      [(margin.left + linkSizeRange[0]), nodeCircleTop + linkSizeRange[1] - 2*linkSizeRange[0]]
+      [(margin.left + linkSizeRange[0]), linkTop + linkSizeRange[1]],
+      [183 - margin.right - linkSizeRange[1], linkTop + linkSizeRange[1]],
+      [183 - margin.right - linkSizeRange[1], linkTop - linkSizeRange[1]],
+      [(margin.left + linkSizeRange[0]), linkTop + linkSizeRange[1] - 2*linkSizeRange[0]]
     ];
 
     var linkSizeGroup = this.legend.svg.append("g")
       .attr("class", "legendLinkSizeG")
-      .attr("transform", "translate(0, 185)");
+      .attr("transform", "translate(0, 204)");
 
     linkSizeGroup.append("text")
       .attr("class", "legendLinkSize")
@@ -1292,7 +1293,7 @@ ForceDirectedGraph.prototype = {
       .attr("class", "legendNodeSize")
       .text(linkSizeDomain[0])
       .attr("x", margin.left)
-      .attr("y", nodeCircleTop + linkSizeRange[1] + 12)
+      .attr("y", linkTop + linkSizeRange[1] + 12)
       .style("fill", "white")
       .style("font-size", "10px")
       .style("text-anchor", "start");
@@ -1302,7 +1303,7 @@ ForceDirectedGraph.prototype = {
       .attr("class", "legendNodeSize")
       .text(linkSizeDomain[1])
       .attr("x", 183 - margin.right)
-      .attr("y", nodeCircleTop + linkSizeRange[1] + 12)
+      .attr("y", linkTop + linkSizeRange[1] + 12)
       .style("fill", "white")
       .style("font-size", "10px")
       .style("text-anchor", "end");
