@@ -21,7 +21,7 @@ function ForceDirectedGraph(args) {
       d3.forceLink()
         .id(d => d.name)
     )
-    .force("collision", d3.forceCollide(15))
+    .force("collision", d3.forceCollide(22))
     .force("charge", d3.forceManyBody()
       .strength(-Math.pow(150, Object.keys(this.filteredData).length > 30 ? 1 : 1.2))
       .distanceMax(Math.min(this.width, this.height)/4))
@@ -60,21 +60,49 @@ ForceDirectedGraph.prototype = {
         .scaleExtent([1 / 2, 4])
         .on("zoom", this.zoomed.bind(this)));
 
+    // colors from 
+    // http://colorbrewer2.org/#type=diverging&scheme=RdYlGn&n=9
+
 
     // stroke gradients
     var defs = this.svg.append('defs');
+
+    // #fee08b
+    // #fdae61
+    // #f46d43
+    // #d73027
+
     var red = defs.append('linearGradient')
         .attr('id','redLeft')
         .attr('x1',1)
         .attr('y1',0)
         .attr('x2',0)
         .attr('y2',0)
+    // red.append('stop')
+    //     .attr('offset','0%')
+    //     .attr('stop-color','gold');
+    // red.append('stop')
+    //     .attr('offset','100%')
+    //     .attr('stop-color', "#e31a1c");
+    
     red.append('stop')
         .attr('offset','0%')
-        .attr('stop-color','gold');
+        .attr('stop-color','#fee08b');
+    red.append('stop')
+        .attr('offset','33%')
+        .attr('stop-color', "#fdae61");
+    red.append('stop')
+        .attr('offset','66%')
+        .attr('stop-color','#f46d43');
     red.append('stop')
         .attr('offset','100%')
-        .attr('stop-color', "#e31a1c");
+        .attr('stop-color', "#d73027");
+
+
+    // #d9ef8b
+    // #a6d96a
+    // #66bd63
+    // #1a9850
 
     var green = defs.append('linearGradient')
         .attr('id','greenLeft')
@@ -82,12 +110,26 @@ ForceDirectedGraph.prototype = {
         .attr('y1',0)
         .attr('x2',0)
         .attr('y2',0)
+    // green.append('stop')
+    //     .attr('offset','0%')
+    //     .attr('stop-color', '#09d');
+    // green.append('stop')
+    //     .attr('offset','100%')
+    //     .attr('stop-color', '#3ad01a');
+
     green.append('stop')
         .attr('offset','0%')
-        .attr('stop-color', '#09d');
+        .attr('stop-color','#d9ef8b');
+    green.append('stop')
+        .attr('offset','33%')
+        .attr('stop-color', "#a6d96a");
+    green.append('stop')
+        .attr('offset','66%')
+        .attr('stop-color','#66bd63');
     green.append('stop')
         .attr('offset','100%')
-        .attr('stop-color', '#3ad01a');
+        .attr('stop-color', "#1a9850");
+
 
     defs.append('linearGradient')
         .attr('id','redRight')
