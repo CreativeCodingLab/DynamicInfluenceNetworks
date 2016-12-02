@@ -29,7 +29,12 @@ var App = App || {};
 
   App.draw = function() {
     // put function calls here to draw
-    ForceDirectedGraph.call(App.panels.forceDirected);
+    var fd = App.panels.forceDirected;
+    App.panels.forceDirected = new ForceDirectedGraph( { 
+      svg: fd.svg,
+      width: fd.width,
+      height: fd.height
+    })
 
     // instantiate sliders
     initSliders();
