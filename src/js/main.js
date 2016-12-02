@@ -159,6 +159,8 @@ var App = App || {};
           this.setTitle('Time: item ' + minIndex);
           App.data = App.dataset[minIndex].data;
           App.panels.forceDirected.updateData(App.data);
+          App.panels.topVis.drawMarkers();
+          App.panels.bottomVis.drawMarkers();
         }
       }
       App.timeSlider.onDragEnd = function() {
