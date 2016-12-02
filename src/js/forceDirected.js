@@ -30,7 +30,7 @@ function ForceDirectedGraph(args) {
       (this.height / 2)
     ));
 
-  console.log(this.width, this.height);
+  // console.log(this.width, this.height);
 
   // update graph
   this.drawGraph();
@@ -47,7 +47,7 @@ ForceDirectedGraph.prototype = {
     // no need to redraw on resize
     this.svg.attr("viewBox", "0 0 " + this.width + " " + this.height);
 
-    console.log(this.svg.attr("viewBox"));
+    // console.log(this.svg.attr("viewBox"));
 
     // background color
     this.svg.append("rect")
@@ -336,7 +336,7 @@ ForceDirectedGraph.prototype = {
   },
 
   drawClusters: function() {
-    console.log("drawClusters");
+    // console.log("drawClusters");
     let clusters = this.clusters.filter(c => c.length);
     let filteredData = this.filteredData;
     var radiusScale = d3.scaleLinear()
@@ -506,11 +506,9 @@ ForceDirectedGraph.prototype = {
   },
 
   drawLinks: function() {
-    var strokeScale = d3.scalePow()
-      .domain([0, this.maxInfl])
-      .range([0.4, this.links.length > 200 ? 1 : 3])
-      .clamp(true)
-      .exponent(2);
+    var strokeScale = d3.scaleQuantile()
+      .domain(this.links.map(d => Math.abs(d.value)))
+      .range(d3.range(0.4, this.links.length > 200 ? 1 : 4, 0.05));
 
     var inflToggle = d3.selectAll("#infl-link");
     var threshold = Math.abs(App.panels.forceDirected.threshold);

@@ -13,7 +13,7 @@ function LineGraph(selector, options) {
     this.svg.append('text')
         .attr('transform','translate(' + 10 + ',' + (this.margin.top/2+5) + ')')
         .style('font-weight','bold')
-        .attr('font-size','14px')
+        .attr('font-size','12px')
         .attr('class','title');
 
     var graph = this.svg.append('g')
@@ -57,7 +57,7 @@ LineGraph.prototype = {
     message: function(d, out) {
 
         this.svg.select('.title')
-          .text(d.name)
+          .text(d.name + (out? ' outgoing influences':' incoming influences'))
           .attr('fill', () => {
               var c = d3.hsl(App.panels.forceDirected.clusterColor(d.cluster));
 
@@ -96,7 +96,7 @@ LineGraph.prototype = {
                 min = Math.abs(d3.min(fluxs[i], d => d.flux));
             return max || min;
         }).map(i => fluxs[i]);
-        console.log('fluxs', fluxs)
+        // console.log('fluxs', fluxs)
 
         var ymax = d3.max(fluxs, dataset => d3.max(dataset, inf => inf.flux)),
             ymin = d3.min(fluxs, dataset => d3.min(dataset, inf => inf.flux));
