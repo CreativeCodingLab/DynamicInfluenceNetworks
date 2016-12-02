@@ -134,6 +134,7 @@ LineGraph.prototype = {
                         }
                     }) );
 
+        // draw lines
         var path = g.selectAll('.flux')
             .data(fluxs);
 
@@ -143,10 +144,37 @@ LineGraph.prototype = {
             .attr('fill','none')
             .style('stroke-width', 0.5)
         .merge(path)
-            .style('stroke', '#888')
+            .style('stroke', path => {
+                return path[0].name === d.name ? 'red' : '#888';
+            })
         .transition()
             .duration(500)
             .attr('d', (d) => line(d) );
+
+
+        // draw markers
+        var i = App.item || 0;
+        var marker = g.selectAll('.marker')
+            .data(fluxs.map(d => d[i]));
+
+        marker.exit().remove();
+
+        marker.enter().append('circle')
+            .attr('class','marker')
+            .attr('stroke-width',1)
+            .attr('stroke','white')
+            .attr('r',0)
+            .style('opacity',0)
+        .merge(marker)
+        .transition()
+            .attr('cx', d => x(d.i) )
+            .attr('cy', d => y(d.flux) )
+            .attr('fill', d => {
+                var rule = App.panels.forceDirected.filteredData[ d.name];
+                return App.panels.forceDirected.clusterColor(rule.cluster);
+            })
+            .attr('r',3)
+            .style('opacity',1);
 
     }
 }

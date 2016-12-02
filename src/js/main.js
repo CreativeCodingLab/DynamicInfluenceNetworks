@@ -135,7 +135,7 @@ var App = App || {};
 
   function initSliders() {
     // set up a time slider
-    if (App.dataset.length > 0) {
+    if (App.dataset.length > 1) {
       var start = App.dataset[0].timeWindow[0] || 0,
           end   = App.dataset[App.dataset.length-1].timeWindow[1] || start + 1;
       App.timeSlider = new Slider( '#timeSlider', {
@@ -143,7 +143,7 @@ var App = App || {};
         domain: [ start.toFixed(3), end.toFixed(3) ]
       } );
       App.timeSlider.onDrag = function(x) {
-        var t = this.sliderScale(x);
+        var t = this.value;
         var min = Math.abs(App.dataset[0].timeMean - t),
             minIndex = 0;
 
@@ -154,7 +154,7 @@ var App = App || {};
             minIndex = i;
           }
         })
-
+        App.item = minIndex;
         if (App.data != App.dataset[minIndex].data) {
           this.setTitle('Time: item ' + minIndex);
           App.data = App.dataset[minIndex].data;
@@ -185,8 +185,8 @@ var App = App || {};
       domain: domain
     });
     App.infSlider.setPosition( App.panels.forceDirected.threshold );
-    App.infSlider.onDrag = function(x) {
-      var inf = this.sliderScale(x);
+    App.infSlider.onDrag = function(x, evt) {
+      var inf = this.value;
       this.setTitle('Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3));
       App.panels.forceDirected.threshold = inf;
       App.panels.forceDirected.defineClusters(inf);
