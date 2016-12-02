@@ -49,6 +49,7 @@ function ForceDirectedGraph(args) {
 };
 
 ForceDirectedGraph.prototype = {
+  constructor:ForceDirectedGraph,
   // set up svg elements
   init: function() {
     // allows all work to be done using same coordinates initially used
