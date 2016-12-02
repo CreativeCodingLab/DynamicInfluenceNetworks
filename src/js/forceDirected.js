@@ -12,6 +12,17 @@ function ForceDirectedGraph(args) {
 
   this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
 
+  this.legend = {};
+
+  this.legend.nodeSizeDomain = 
+    d3.extent(Object.keys(this.filteredData), (d) => {
+        return this.filteredData[d].hits;
+      });
+  this.legend.nodeSizeRange = [4, 14];
+
+  this.legend.linkSizeDomain = d3.extent(this.links.map(d => Math.abs(d.value)));
+  this.legend.linkSizeRange = d3.extent(d3.range(0.4, this.links.length > 200 ? 1 : 4, 0.05));
+
   var threshold = this.sortedLinks[Math.round(Math.sqrt(this.links.length))].value;
   this.defineClusters(Math.abs(threshold));
 
@@ -34,6 +45,7 @@ function ForceDirectedGraph(args) {
 
   // update graph
   this.drawGraph();
+  this.createLegend();
 };
 
 ForceDirectedGraph.prototype = {
@@ -870,5 +882,103 @@ ForceDirectedGraph.prototype = {
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
     this.simulation.alpha(0.001).restart();
+  },
+
+  createLegend:function() {
+    var self = this;
+
+    var containerWidth = d3.select("#forceDirectedDiv").node().clientWidth - 15;
+
+    this.legend.container = d3.select("#forceDirectedDiv")
+      .append("div")
+        .attr("id", "legendContainer")
+        .style("width", containerWidth + "px");
+
+    this.legend.aspect = 183 / 265;
+    this.legend.height = this.legend.container.node().clientHeight * 0.4;
+    this.legend.width = this.legend.height * this.legend.aspect;
+    
+    this.legend.div = this.legend.container
+      .append("div")
+      .attr("id", "legend")
+      .style("width", this.legend.width + "px")
+      .style("height", this.legend.height + "px") 
+      .style("right", (this.legend.width / 8) - this.legend.width + "px")
+      .on("mouseover", function() {
+        d3.select(this).transition().duration(500)
+          .style("right", "0px")
+          .style("background-color", "rgba(25,25,25,0.75)");
+
+        self.legend.svg.select(".peekBar")
+          .style("opacity", 0);
+
+        self.legend.svg.select(".arrow1").transition().duration(500)
+          .attr("transform", "translate(" + peekWidth/3 + "," + peekWidth / 4 + ")");
+
+        self.legend.svg.select(".arrow2").transition().duration(500)
+          .attr("transform", "translate(" + (peekWidth/3) + "," + (265 - 3 * peekWidth/4) + ")");
+      })
+      .on("mouseout", function() {
+        d3.select(this).transition().duration(250)
+          .style("right", "-160px")
+          .style("background-color", "rgba(25,25,25,0)");
+
+        self.legend.svg.select(".peekBar").transition().delay(250)
+        .style("opacity", 0.25);
+
+        self.legend.svg.select(".arrow1").transition().duration(500)
+          .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (3 * peekWidth / 4) + ") rotate(180)");
+
+        self.legend.svg.select(".arrow2").transition().duration(500)
+          .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (265 - peekWidth/4) + ") rotate(180)");
+      });
+
+    this.legend.width = this.legend.div.node().clientWidth;
+    this.legend.height = this.legend.div.node().clientHeight;
+
+    this.legend.svg = this.legend.div
+      .append("svg")
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .style("pointer-events", "none");
+
+    this.legend.svg
+      .attr("viewBox", "0 0 " + 183 + " " + 265);
+
+    var peekWidth = (this.legend.width / 8);
+    var peekCoords = [
+      [0, 0],
+      [0, peekWidth],
+      [3 * peekWidth/4, peekWidth],
+      [3 * peekWidth/4, 265 - peekWidth],
+      [0, 265 - peekWidth],
+      [0, 265],
+      [peekWidth, 265],
+      [peekWidth, 0]
+    ];
+
+    // draw arrow background
+    this.legend.svg
+      .append("path")
+      .attr("class", "peekBar")
+      .attr("d", "M " + peekCoords.map(el => el.join(",")).join("L") + "Z")
+      .style("opacity", 0.25);
+
+    // draw arrows to pull out and push in
+    this.legend.svg
+      .append("path")
+      .attr("class", "arrow1")
+      .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (3 * peekWidth / 4) + ") rotate(180)")
+      .attr("d", "M 0 0 L " + (peekWidth/3) + " " + (peekWidth/4) + " L 0 " + (peekWidth/2) + " Z")
+      .style("fill", "white");
+
+    this.legend.svg
+      .append("path")
+      .attr("class", "arrow2")
+      .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (265 - peekWidth/4) + ") rotate(180)")
+      .attr("d", "M 0 0 L " + (peekWidth/3) + " " + (peekWidth/4) + " L 0 " + (peekWidth/2) + " Z")
+      .style("fill", "white");
+
+    // now make legend in this section
   }
 }

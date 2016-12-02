@@ -26,6 +26,31 @@ html, body, .fluidContainer, .mainCol {
     pointer-events:none !important;
 }
 
+#legendContainer {
+  overflow: hidden;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+
+  margin-right: 15px;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+}
+
+
+#legend {
+  position: absolute;
+
+  top: 0px;
+
+  background-color: rgba(25,25,25,0);
+
+  pointer-events: all;
+}
+
 .content {
   margin-top:  15px;
   margin-bottom:   15px;
