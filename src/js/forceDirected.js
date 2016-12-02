@@ -10,7 +10,8 @@ function ForceDirectedGraph(args) {
     return Math.abs(b.value) - Math.abs(a.value);
   });
 
-  this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
+  // this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
+  this.maxInfl = Math.abs(this.sortedLinks[0].value)*2;
 
   this.legend = {};
 
@@ -879,7 +880,8 @@ ForceDirectedGraph.prototype = {
     this.sortedLinks = this.links.concat().sort((a, b) => {
       return Math.abs(b.value) - Math.abs(a.value);
     });
-    this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
+    this.maxInfl = Math.abs(this.sortedLinks[0].value);
+    // this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
     this.simulation.alpha(0.001).restart();
