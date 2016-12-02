@@ -40,7 +40,8 @@ function Slider(selector, options) {
             self.onDragEnd(x, d3.event);
         });
 
-    var scale = d3.scaleLinear()
+    var scale = (options && options.log === true ? 
+                    d3.scaleLog() : d3.scaleLinear())
         .range([10, width-10])
         .domain(domain)
         .clamp(true);
@@ -94,9 +95,14 @@ function Slider(selector, options) {
         svg.select('.axis').call(axis);
     }
 
-    this.sliderScale = d3.scaleLinear()
-        .domain([0, width-20])
-        .range(domain);
+    if (options && options.log === true) {
+        this.sliderScale = scale.copy().range([0, width-20]).invert;
+    }
+    else {
+        this.sliderScale = d3.scaleLinear()
+            .range(domain)
+            .domain([0, width-20]);
+    }
 
     this.onDrag = function(x) {
         // console.log('dragging',x);
