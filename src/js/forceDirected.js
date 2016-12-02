@@ -924,13 +924,13 @@ ForceDirectedGraph.prototype = {
           .style("right", "-160px")
           .style("background-color", "rgba(25,25,25,0)");
 
-        self.legend.svg.select(".peekBar").transition().delay(250)
+        self.legend.svg.select(".peekBar").transition().duration(10).delay(250)
         .style("opacity", 0.25);
 
-        self.legend.svg.select(".arrow1").transition().duration(500)
+        self.legend.svg.select(".arrow1").transition().duration(250)
           .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (3 * peekWidth / 4) + ") rotate(180)");
 
-        self.legend.svg.select(".arrow2").transition().duration(500)
+        self.legend.svg.select(".arrow2").transition().duration(250)
           .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (265 - peekWidth/4) + ") rotate(180)");
       });
 
@@ -981,5 +981,6 @@ ForceDirectedGraph.prototype = {
       .style("fill", "white");
 
     // now make legend in this section
+
   }
 }
