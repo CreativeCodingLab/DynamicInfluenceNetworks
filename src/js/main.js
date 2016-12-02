@@ -136,28 +136,18 @@ var App = App || {};
   function initSliders() {
     // set up a time slider
     if (App.dataset.length > 1) {
-      var start = App.dataset[0].timeWindow[0] || 0,
-          end   = App.dataset[App.dataset.length-1].timeWindow[1] || start + 1;
       App.timeSlider = new Slider( '#timeSlider', {
         title: 'Time',
-        domain: [ start.toFixed(3), end.toFixed(3) ]
+        domain: [ 0, App.dataset.length-1 ]
       } );
       App.timeSlider.onDrag = function(x) {
-        var t = this.value;
-        var min = Math.abs(App.dataset[0].timeMean - t),
-            minIndex = 0;
-
-        App.dataset.forEach((d,i) => {
-          var diff = Math.abs(d.timeMean - t);
-          if (diff < min) {
-            min = diff,
-            minIndex = i;
-          }
-        })
-        App.item = minIndex;
-        if (App.data != App.dataset[minIndex].data) {
-          this.setTitle('Time: item ' + minIndex);
-          App.data = App.dataset[minIndex].data;
+        var t = Math.round(this.value);
+        if (t != App.item) {
+          App.item = t;
+          this.setPosition(t);
+          var tw = App.dataset[t].timeWindow.map(n => Number(n.toFixed(2)));
+          this.setTitle( 'Time: ' + tw[0] + '-' + tw[1]);
+          App.data = App.dataset[t].data;
           App.panels.forceDirected.updateData(App.data);
           App.panels.topVis.drawMarkers();
           App.panels.bottomVis.drawMarkers();

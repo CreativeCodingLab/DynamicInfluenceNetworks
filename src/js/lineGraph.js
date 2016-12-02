@@ -168,6 +168,7 @@ LineGraph.prototype = {
 
     // draw markers
     drawMarkers: function() {
+        if (!(this.fluxs && this.x && this.y)) { return; }
         var i = App.item || 0;
         var marker = this.graph.selectAll('.marker')
             .data(this.fluxs.map(d => d[i]));
@@ -181,7 +182,6 @@ LineGraph.prototype = {
             .attr('r',0)
             .style('opacity',0)
         .merge(marker)
-        .transition()
             .attr('cx', d => this.x(d.i) )
             .attr('cy', d => this.y(d.flux) )
             .attr('fill', d => {
