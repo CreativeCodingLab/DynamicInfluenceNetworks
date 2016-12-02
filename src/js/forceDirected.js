@@ -899,6 +899,9 @@ ForceDirectedGraph.prototype = {
     this.legend.height = this.legend.container.node().clientHeight * 0.4;
     this.legend.width = this.legend.height * this.legend.aspect;
 
+    // var divPeekWidth = (this.legend.width / 8);
+    var peekWidth = (183 / 8);
+
     this.legend.pinned = false;
     
     this.legend.div = this.legend.container
@@ -952,7 +955,7 @@ ForceDirectedGraph.prototype = {
       .on("mouseout", function() {
         if (!self.legend.pinned){
           d3.select(this).transition().duration(250)
-            .style("right", "-160px")
+            .style("right", (self.legend.width / 8) - self.legend.width + "px")
             .style("background-color", "rgba(25,25,25,0)");
 
           self.legend.svg.select(".peekBar").transition().duration(10).delay(250)
@@ -978,7 +981,6 @@ ForceDirectedGraph.prototype = {
     this.legend.svg
       .attr("viewBox", "0 0 " + 183 + " " + 265);
 
-    var peekWidth = (this.legend.width / 8);
     var peekCoords = [
       [0, 0],
       [0, peekWidth],
