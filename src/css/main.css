@@ -44,7 +44,7 @@ html, body, .fluidContainer, .mainCol {
 #legend {
   position: absolute;
 
-  top: 0px;
+  top: 5px;
 
   background-color: rgba(25,25,25,0);
 

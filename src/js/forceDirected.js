@@ -939,7 +939,7 @@ ForceDirectedGraph.prototype = {
       .on("mouseover", function() {
         if (!self.legend.pinned){
           d3.select(this).transition().duration(500)
-          .style("right", "0px")
+          .style("right", "5px")
           .style("background-color", "rgba(25,25,25,0.75)");
 
           self.legend.svg.select(".peekBar")
