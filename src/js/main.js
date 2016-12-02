@@ -34,8 +34,9 @@ var App = App || {};
     // instantiate sliders
     initSliders();
 
-    // topVis
+    // line graphs
     App.panels.topVis = new LineGraph('#topVis');
+    App.panels.bottomVis = new LineGraph('#bottomVis');
   }
 
   App.loadData = function(file, isSeries) {

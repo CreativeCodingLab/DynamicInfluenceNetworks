@@ -30,7 +30,7 @@ function ForceDirectedGraph(args) {
       (this.height / 2)
     ));
 
-  console.log(this.width, this.height);
+  // console.log(this.width, this.height);
 
   // update graph
   this.drawGraph();
@@ -47,7 +47,7 @@ ForceDirectedGraph.prototype = {
     // no need to redraw on resize
     this.svg.attr("viewBox", "0 0 " + this.width + " " + this.height);
 
-    console.log(this.svg.attr("viewBox"));
+    // console.log(this.svg.attr("viewBox"));
 
     // background color
     this.svg.append("rect")
@@ -378,7 +378,7 @@ ForceDirectedGraph.prototype = {
   },
 
   drawClusters: function() {
-    console.log("drawClusters");
+    // console.log("drawClusters");
     let clusters = this.clusters.filter(c => c.length);
     let filteredData = this.filteredData;
     var radiusScale = d3.scaleLinear()
@@ -417,6 +417,7 @@ ForceDirectedGraph.prototype = {
             self.simulation.alphaTarget(0.3).restart();
           }
           d.forEach((n) => {
+            n._fixed = (n.fx != null);
             n.fx = n.x;
             n.fy = n.y;
           })
@@ -432,7 +433,9 @@ ForceDirectedGraph.prototype = {
             self.simulation.alphaTarget(0);
           }
           d.forEach((n) => {
-            n.fx = n.fy = null;
+            if (!n._fixed) {
+              n.fx = n.fy = null;
+            }
           })
         }) );
   },
@@ -507,15 +510,17 @@ ForceDirectedGraph.prototype = {
         return "translate(" + d.x + ", " + d.y + ")";
       })
       .style("stroke", "white")
+      .style("stroke-opacity", 0.5)
       .style("stroke-width", 1.5)
     .merge(rule)
       .attr("cluster", d => d.cluster)
       .attr("r", d => d.radius)
       .on('mouseover', this._isDragging ? null : function(d) {
-        if (App.panels.topVis) { App.panels.topVis.message(d); }
         d3.select(this)
           .style('stroke-opacity',1);
         self.showTip(d, 'rule');
+        if (App.panels.topVis) { App.panels.topVis.message(d); }
+        if (App.panels.bottomVis) { App.panels.bottomVis.message(d, true); }
       })
       .on("mouseout", function() {
         d3.select(this).transition()
@@ -543,11 +548,9 @@ ForceDirectedGraph.prototype = {
   },
 
   drawLinks: function() {
-    var strokeScale = d3.scalePow()
-      .domain([0, this.maxInfl])
-      .range([0.4, this.links.length > 200 ? 1 : 3])
-      .clamp(true)
-      .exponent(2);
+    var strokeScale = d3.scaleQuantile()
+      .domain(this.links.map(d => Math.abs(d.value)))
+      .range(d3.range(0.4, this.links.length > 200 ? 1 : 4, 0.05));
 
     var inflToggle = d3.selectAll("#infl-link");
     var threshold = Math.abs(App.panels.forceDirected.threshold);
