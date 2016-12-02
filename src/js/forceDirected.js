@@ -898,6 +898,8 @@ ForceDirectedGraph.prototype = {
     this.legend.aspect = 183 / 265;
     this.legend.height = this.legend.container.node().clientHeight * 0.4;
     this.legend.width = this.legend.height * this.legend.aspect;
+
+    this.legend.pinned = false;
     
     this.legend.div = this.legend.container
       .append("div")
@@ -905,33 +907,63 @@ ForceDirectedGraph.prototype = {
       .style("width", this.legend.width + "px")
       .style("height", this.legend.height + "px") 
       .style("right", (this.legend.width / 8) - this.legend.width + "px")
+      .on("click", function() {
+        self.legend.pinned = !self.legend.pinned;
+
+        if(self.legend.pinned) {
+          d3.select(this)
+            .style("border", "2px solid #74add1")
+            .style("background-color", "rgba(25,25,25,0.9)");
+
+          self.legend.svg.select(".arrow1").transition().duration(250)
+            .style("opacity", 0);
+
+          self.legend.svg.select(".arrow2").transition().duration(250)
+            .style("opacity", 0);
+        } else {
+          d3.select(this)
+            .style("border", "none")
+            .style("background-color", "rgba(25,25,25,0.75)");
+
+          self.legend.svg.select(".arrow1").transition().duration(250)
+            .style("opacity", 1);
+
+          self.legend.svg.select(".arrow2").transition().duration(250)
+            .style("opacity", 1);
+        }
+        
+      })
       .on("mouseover", function() {
-        d3.select(this).transition().duration(500)
+        if (!self.legend.pinned){
+          d3.select(this).transition().duration(500)
           .style("right", "0px")
           .style("background-color", "rgba(25,25,25,0.75)");
 
-        self.legend.svg.select(".peekBar")
-          .style("opacity", 0);
+          self.legend.svg.select(".peekBar")
+            .style("opacity", 0);
 
-        self.legend.svg.select(".arrow1").transition().duration(500)
-          .attr("transform", "translate(" + peekWidth/3 + "," + peekWidth / 4 + ")");
+          self.legend.svg.select(".arrow1").transition().duration(500)
+            .attr("transform", "translate(" + peekWidth/3 + "," + peekWidth / 4 + ")");
 
-        self.legend.svg.select(".arrow2").transition().duration(500)
-          .attr("transform", "translate(" + (peekWidth/3) + "," + (265 - 3 * peekWidth/4) + ")");
+          self.legend.svg.select(".arrow2").transition().duration(500)
+            .attr("transform", "translate(" + (peekWidth/3) + "," + (265 - 3 * peekWidth/4) + ")");
+        }
       })
       .on("mouseout", function() {
-        d3.select(this).transition().duration(250)
-          .style("right", "-160px")
-          .style("background-color", "rgba(25,25,25,0)");
+        if (!self.legend.pinned){
+          d3.select(this).transition().duration(250)
+            .style("right", "-160px")
+            .style("background-color", "rgba(25,25,25,0)");
 
-        self.legend.svg.select(".peekBar").transition().duration(10).delay(250)
-        .style("opacity", 0.25);
+          self.legend.svg.select(".peekBar").transition().duration(10).delay(250)
+          .style("opacity", 0.25);
 
-        self.legend.svg.select(".arrow1").transition().duration(250)
-          .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (3 * peekWidth / 4) + ") rotate(180)");
+          self.legend.svg.select(".arrow1").transition().duration(250)
+            .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (3 * peekWidth / 4) + ") rotate(180)");
 
-        self.legend.svg.select(".arrow2").transition().duration(250)
-          .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (265 - peekWidth/4) + ") rotate(180)");
+          self.legend.svg.select(".arrow2").transition().duration(250)
+            .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (265 - peekWidth/4) + ") rotate(180)");
+        }
       });
 
     this.legend.width = this.legend.div.node().clientWidth;
