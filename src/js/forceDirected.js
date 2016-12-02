@@ -969,6 +969,7 @@ ForceDirectedGraph.prototype = {
         }
       });
 
+
     this.legend.width = this.legend.div.node().clientWidth;
     this.legend.height = this.legend.div.node().clientHeight;
 
@@ -981,6 +982,51 @@ ForceDirectedGraph.prototype = {
 
     this.legend.svg
       .attr("viewBox", "0 0 " + 183 + " " + 265);
+
+
+    var defs = this.legend.svg.append("defs"); 
+
+    var red = defs.append('linearGradient')
+        .attr('id','redLgd')
+        .attr('x1',0)
+        .attr('y1',0)
+        .attr('x2',1)
+        .attr('y2',0);
+
+    red.append('stop')
+      .attr('offset','0%')
+      .attr('stop-color','#fee08b');
+    red.append('stop')
+      .attr('offset','33%')
+      .attr('stop-color', "#fdae61");
+    red.append('stop')
+      .attr('offset','66%')
+      .attr('stop-color','#f46d43');
+    red.append('stop')
+      .attr('offset','100%')
+      .attr('stop-color', "#d73027");
+
+
+    var green = defs.append('linearGradient')
+        .attr('id','greenLgd')
+        .attr('x1',0)
+        .attr('y1',0)
+        .attr('x2',1)
+        .attr('y2',0);
+
+    green.append('stop')
+      .attr('offset','0%')
+      .attr('stop-color','#d9ef8b');
+    green.append('stop')
+      .attr('offset','33%')
+      .attr('stop-color', "#a6d96a");
+    green.append('stop')
+      .attr('offset','66%')
+      .attr('stop-color','#66bd63');
+    green.append('stop')
+      .attr('offset','100%')
+      .attr('stop-color', "#1a9850");
+
 
     var peekCoords = [
       [0, 0],
@@ -1134,9 +1180,129 @@ ForceDirectedGraph.prototype = {
       .style("fill", (d, i) => self.clusterColor(i + 1))
       .style("stroke", "white");
 
-    // link color
+    // link color/direction
+    var linkColorGroup = this.legend.svg.append("g")
+      .attr("class", "legendLinkColorG")
+      .attr("transform", "translate(0, 130)");
+    
+    linkColorGroup.append("text")
+      .attr("class", "legendLinkColor")
+      .text("Link Color")
+      .attr("x", 183/2)
+      .attr("y", 20)
+      .style("fill", "white")
+      .style("font-size", "12px")
+      .style("text-anchor", "middle");
+
+    // positive
+    linkColorGroup.append("path")
+      .attr("class", "legendLinkColor")
+      .attr("d", "M " + (margin.left + 10) + " 30 L " + (183-margin.right) + " 30")
+      .style("stroke", "url(#greenLgd)")
+      // .style("stroke", "#66bd63")
+      .style("stroke-width", 5);
+
+    linkColorGroup.append("text")
+      .attr("class", "legendLinkColor")
+      .text("+")
+      .attr("x", margin.left + 5)
+      .attr("y", 35)
+      .style("fill", "white")
+      .style("font-size", "12px")
+      .style("text-anchor", "middle");
+
+    // negative
+    linkColorGroup.append("path")
+      .attr("class", "legendLinkColor")
+      .attr("d", "M " + (margin.left + 10) + " 42 L " + (183-margin.right) + " 42")
+      .style("stroke", "url(#redLgd)")
+      // .style("stroke", "#f46d43")
+      .style("stroke-width", 5);
+
+    linkColorGroup.append("text")
+      .attr("class", "legendLinkColor")
+      .text("-")
+      .attr("x", margin.left + 5)
+      .attr("y", 47)
+      .style("fill", "white")
+      .style("font-size", "12px")
+      .style("text-anchor", "middle");
+
+    // direction arrow
+    linkColorGroup.append("line")
+      .attr("class", "legendLinkDir")
+      .attr("x1", (margin.left + 10))
+      .attr("x2", (183-margin.right))
+      .attr("y1", 55)
+      .attr("y2", 55)
+      .style("stroke", "lightgray");
+
+    linkColorGroup.append("line")
+      .attr("class", "legendLinkDir")
+      .attr("x1", (183-margin.right - 5))
+      .attr("x2", (183-margin.right))
+      .attr("y1", 60)
+      .attr("y2", 55)
+      .style("stroke", "lightgray");
+
+    linkColorGroup.append("line")
+      .attr("class", "legendLinkDir")
+      .attr("x1", (183-margin.right - 5))
+      .attr("x2", (183-margin.right))
+      .attr("y1", 50)
+      .attr("y2", 55)
+      .style("stroke", "lightgray");
 
     // link width
+    var linkSizeDomain = this.legend.linkSizeDomain;
+    var linkSizeRange = this.legend.linkSizeRange;
 
+    var linkSizeCoords = [
+      [(margin.left + linkSizeRange[0]), nodeCircleTop + linkSizeRange[1]],
+      [183 - margin.right - linkSizeRange[1], nodeCircleTop + linkSizeRange[1]],
+      [183 - margin.right - linkSizeRange[1], nodeCircleTop - linkSizeRange[1]],
+      [(margin.left + linkSizeRange[0]), nodeCircleTop + linkSizeRange[1] - 2*linkSizeRange[0]]
+    ];
+
+    var linkSizeGroup = this.legend.svg.append("g")
+      .attr("class", "legendLinkSizeG")
+      .attr("transform", "translate(0, 185)");
+
+    linkSizeGroup.append("text")
+      .attr("class", "legendLinkSize")
+      .text("Link Thickness")
+      .attr("x", 183/2)
+      .attr("y", 20)
+      .style("fill", "white")
+      .style("font-size", "12px")
+      .style("text-anchor", "middle");
+
+
+    linkSizeGroup.append("path")
+      .attr("class", "legendLinkSize")
+      .attr("d", "M " + linkSizeCoords.map(c => c.join(",")).join("L") + "Z")
+      .style("fill", "url(#greenLgd)")
+      // .style("fill", "#66bd63");
+
+
+    // left label
+     linkSizeGroup.append("text")
+      .attr("class", "legendNodeSize")
+      .text(linkSizeDomain[0])
+      .attr("x", margin.left)
+      .attr("y", nodeCircleTop + linkSizeRange[1] + 12)
+      .style("fill", "white")
+      .style("font-size", "10px")
+      .style("text-anchor", "start");
+
+     // right label 
+     linkSizeGroup.append("text")
+      .attr("class", "legendNodeSize")
+      .text(linkSizeDomain[1])
+      .attr("x", 183 - margin.right)
+      .attr("y", nodeCircleTop + linkSizeRange[1] + 12)
+      .style("fill", "white")
+      .style("font-size", "10px")
+      .style("text-anchor", "end");
   }
 }
