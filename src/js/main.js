@@ -174,7 +174,8 @@ var App = App || {};
                 ];
     App.infSlider = new Slider( '#clusterSlider', {
       title: 'Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3),
-      domain: domain
+      domain: domain,
+      log: true
     });
     App.infSlider.setPosition( App.panels.forceDirected.threshold );
     App.infSlider.onDrag = function(x, evt) {
