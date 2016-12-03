@@ -11,7 +11,8 @@ var App = App || {};
   };
 
   App.init = function() {
-    App.loadData("flux_0.json", true);
+    var url = document.URL.split('?')[1] || "flux_0.json";
+    App.loadData(url, true);
     createSVGs();
   }
 
@@ -55,6 +56,8 @@ var App = App || {};
         var prefix =  fformat[1],
             num    = +fformat[2],
             suffix =  fformat[3];
+
+        App.format = {prefix: prefix, start:num, suffix:suffix}
 
         var datasets = [];
 
