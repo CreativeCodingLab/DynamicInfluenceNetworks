@@ -124,7 +124,9 @@ LineGraph.prototype = {
         if (!this.x || !this.y) { return; }
         this.svg.select('.axis-x')
             .attr('transform', 'translate(0,' + this.height + ')')
-            .call(d3.axisBottom(this.x));
+            .call(d3.axisBottom(this.x)
+                    .tickFormat(d => parseInt(App.format.start + d) )
+                );
 
         this.svg.select('.axis-x path')
             .style('display','none');

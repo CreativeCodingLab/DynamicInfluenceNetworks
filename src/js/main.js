@@ -41,8 +41,10 @@ var App = App || {};
     initSliders();
 
     // line graphs
-    App.panels.topVis = new LineGraph('#topVis');
-    App.panels.bottomVis = new LineGraph('#bottomVis');
+    if (App.dataset.length > 1) {
+      App.panels.topVis = new LineGraph('#topVis');
+      App.panels.bottomVis = new LineGraph('#bottomVis');
+    }
   }
 
   App.loadData = function(file, isSeries) {
