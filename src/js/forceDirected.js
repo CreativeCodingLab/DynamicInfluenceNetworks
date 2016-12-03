@@ -219,6 +219,12 @@ ForceDirectedGraph.prototype = {
       .attr('width', this.width)
       .attr('height', this.height)
 
+    var containerWidth = this.svg.node().parentNode.getBoundingClientRect().width-15;
+
+    this.legend.container
+        .style("width", containerWidth + "px");
+
+    // reheat simulation
     if (this.simulation) {
       this.simulation
         .force("center", d3.forceCenter(
@@ -226,7 +232,7 @@ ForceDirectedGraph.prototype = {
           (this.height / 2)
           ));
 
-      this.simulation.alpha(0.001).restart();
+      this.simulation.alpha(0.3).restart();
     }
   },
   zoomed: function() {
@@ -550,17 +556,17 @@ ForceDirectedGraph.prototype = {
       .call(drag);
 
     // also add text
-    // rule.enter().append('text')
-    //   .attr('class','rule rule-text')
-    //   .attr('pointer-events','none')
-    //   .attr('opacity',0.75)
-    //   .attr("transform", (d, i) => {
-    //     return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
-    //   })
-    //   .attr('font-size','0.75em')
-    //   .style('text-shadow','1px 1px 2px black')
-    // .merge(rule)
-    //   .text(d => d.name)
+    rule.enter().append('text')
+      .attr('class','rule rule-text')
+      .attr('pointer-events','none')
+      .attr('opacity',0.75)
+      .attr("transform", (d, i) => {
+        return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
+      })
+      .attr('font-size','0.75em')
+      .style('text-shadow','1px 1px 2px black')
+    .merge(rule)
+      .text(d => d.name)
 
   },
 

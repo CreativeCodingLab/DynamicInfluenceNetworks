@@ -112,9 +112,9 @@ window.addEventListener('load', function() {
               .attr('pointer-events', function() {
                 return 'all'
               });
-          // d3.selectAll('.rule-text')
-          //     .transition()
-          //     .style('opacity',0.75)
+          d3.selectAll('.rule-text')
+              .transition()
+              .style('opacity',0.75)
         }
       }
     }

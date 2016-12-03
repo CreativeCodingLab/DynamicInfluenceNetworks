@@ -163,6 +163,8 @@ var App = App || {};
           .alpha(0.3)
           .restart();
       }
+
+      // append slider to force directed
     }
 
     // set up an influence slider
