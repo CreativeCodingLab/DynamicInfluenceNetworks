@@ -504,6 +504,8 @@ ForceDirectedGraph.prototype = {
     var text = this.nodeGroup.selectAll(".rule-text")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
 
+    rule.exit().remove();
+
     rule = rule.enter().append("circle")
               .attr("class", "rule rule-node")
               .attr("transform", (d, i) => {
@@ -555,7 +557,6 @@ ForceDirectedGraph.prototype = {
       })
       .call(drag);
       // remove as needed
-    rule.exit().remove();
 
 
     // also add text
