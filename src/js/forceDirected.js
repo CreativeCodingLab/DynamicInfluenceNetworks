@@ -558,7 +558,7 @@ ForceDirectedGraph.prototype = {
     rule.enter().append('text')
       .attr('class','rule rule-text')
       .attr('pointer-events','none')
-      .attr('opacity',0.75)
+      .attr('opacity',0)
       .attr("transform", (d, i) => {
         return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
       })

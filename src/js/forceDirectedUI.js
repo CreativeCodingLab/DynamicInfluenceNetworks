@@ -146,12 +146,32 @@ window.addEventListener('load', function() {
               .attr('pointer-events', function() {
                 return 'all'
               });
-          d3.selectAll('.rule-text')
+          if (typeof App.property.label === 'undefined' || App.property.label) {
+            d3.selectAll('.rule-text')
               .transition()
               .style('opacity',0.75)
+          }
         }
       }
-    }
+    };
+
+    this._toggleshow = function(e) {
+        if(this.checked) {
+          App.property.label = true;
+          d3.selectAll('.rule-text')
+            .transition()
+            .style('opacity', function(d) {
+              return typeof App.property.node !== 'undefined' && App.property.node && d.cluster === 0 ?  0:
+              0.75
+            })
+        }
+        else {
+         App.property.label = false; 
+         d3.selectAll('.rule-text')
+            .transition()
+            .style('opacity', 0)
+        }
+    };
 
 
     this._unpin = function(e) {
