@@ -569,11 +569,11 @@ ForceDirectedGraph.prototype = {
       .style('font-size','0.75em')
       .style('letter-spacing','0.03em')
       .style('text-shadow','1px 1px 2px black')
-    .merge(rule.selectAll('.rule-text'))
+    .merge(text)
       .text(d => d.name)
-      .attr('opacity', function(d) {
-        if ( App.property.label == true) {
-          if (App.property.rule == true && d.cluster ===0) {
+      .style('opacity', function(d) {
+        if (App.property.label == true) {
+          if (App.property.node == true && d.cluster === 0) {
             return 0;
           }
           return 0.75;
