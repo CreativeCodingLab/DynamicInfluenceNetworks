@@ -10,7 +10,7 @@ window.addEventListener('load', function() {
       let key = this.id.split('-').indexOf('positive') > -1 ? 'green' : 'red';
 
       if (this.checked) {
-        App.property[key] = true
+        App.property[key] = true;
         // make links invisible
         d3.selectAll('.link-1')
           .transition()
@@ -63,7 +63,7 @@ window.addEventListener('load', function() {
       let threshold = Math.abs(App.panels.forceDirected.threshold);
       if(key === 'link') {
         if (this.checked) {
-          App.property[key] = true
+          App.property[key] = true;
           // make links invisible
           d3.selectAll('.link-1')
             .transition()
@@ -81,7 +81,7 @@ window.addEventListener('load', function() {
         }
         else {
           // make links visible
-          App.property[key] = false
+          App.property[key] = false;
           d3.selectAll('.link-1')
             .transition()
             .style('stroke-opacity', function(d) {
@@ -114,6 +114,7 @@ window.addEventListener('load', function() {
       // make nodes invisible
       else {
         if (this.checked) {
+          App.property.node = true;
           d3.selectAll('.rule')
               .transition()
               .style('stroke-opacity', function(d) {
@@ -132,6 +133,7 @@ window.addEventListener('load', function() {
           }
         // make nodes visible
         else {
+          App.property.node = false;
           d3.selectAll('.rule-node')
               .transition()
               .style('stroke-opacity', function() {

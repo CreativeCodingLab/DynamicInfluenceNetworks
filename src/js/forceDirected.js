@@ -497,7 +497,6 @@ ForceDirectedGraph.prototype = {
             self.simulation.alphaTarget(0);
           }
         });
-    var ruleToggle = d3.selectAll("#infl-node");
 
     var rule = this.nodeGroup.selectAll(".rule")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
@@ -505,19 +504,19 @@ ForceDirectedGraph.prototype = {
     rule.exit().remove();
     rule
       .attr("pointer-events", (d) => {
-        if(ruleToggle.property("checked") && d.cluster === 0) {
+        if(typeof App.property.node !==  'undefined' && App.property.node && d.cluster === 0) {
           return 'none';
         }
         else return 'all';
       })
       .style("opacity", (d) => {
-        if(ruleToggle.property("checked") && d.cluster === 0) {
+        if(typeof App.property.node !==  'undefined' && App.property.node && d.cluster === 0) {
           return 0;
         }
         else return 1;
       })
       .style('stroke-opacity', (d) => {
-        if(ruleToggle.property("checked") && d.cluster === 0) {
+        if(typeof App.property.node !==  'undefined' && App.property.node && d.cluster === 0) {
           return 0;
         }
         else return 0.5;
@@ -586,17 +585,29 @@ ForceDirectedGraph.prototype = {
       .domain(this.links.map(d => Math.abs(d.value)))
       .range(d3.range(0.4, this.links.length > 200 ? 1 : 4, 0.05));
 
-    var inflToggle = d3.selectAll("#infl-link");
+   // var inflToggle = d3.selectAll("#infl-link");
     var threshold = Math.abs(App.panels.forceDirected.threshold);
     var mainLink = this.linkGroup.selectAll('.link-1')
       .data(this.links)
 
    mainLink
       .style('stroke-opacity', (d) => {
-        if(inflToggle.property("checked") && Math.abs(d.value) < threshold ) {
+        if(typeof App.property.green !== 'undefined' && App.property.green && 
+           typeof App.property.red !== 'undefined' && App.property.red) {
           return 0;
         }
-        else return 1;
+        else if(typeof App.property.green !== 'undefined' && App.property.green && d.value > 0) {
+          return 0;
+        }
+        else if(typeof App.property.red !== 'undefined' && App.property.red && d.value < 0) {
+          return 0;
+        }
+        else if(typeof App.property.link !== 'undefined' && App.property.link && Math.abs(d.value) < threshold) {
+          return 0;
+        }
+        else { 
+          return 1;
+        }
       });
 
     mainLink.exit().remove();
@@ -616,10 +627,22 @@ ForceDirectedGraph.prototype = {
 
    hoverLink
       .attr('pointer-events', (d) => {
-        if(inflToggle.property("checked") && Math.abs(d.value) < threshold ) {
+        if(typeof App.property.green !== 'undefined' && App.property.green && 
+           typeof App.property.red !== 'undefined' && App.property.red) {
           return 'none';
         }
-        else return 'all';
+        else if(typeof App.property.green !== 'undefined' && App.property.green && d.value > 0) {
+          return 'none';
+        }
+        else if(typeof App.property.red !== 'undefined' && App.property.red && d.value < 0) {
+          return 'none';
+        }
+        else if(typeof App.property.link !== 'undefined' && App.property.link && Math.abs(d.value) < threshold) {
+          return 'none';
+        }
+        else { 
+          return 'all';
+        }
       });
 
     hoverLink.exit().remove();
