@@ -188,7 +188,7 @@ ForceDirectedGraph.prototype = {
     this.tip = d3.select('#forceDirectedDiv').append('div')
         .style('opacity',0)
         .style('position','absolute')
-        .style('left','15px')
+        .style('left',0)
         .style('top',0)
         .style('font-size', '0.85em')
         .style('padding','10px 15px')
@@ -219,7 +219,7 @@ ForceDirectedGraph.prototype = {
       .attr('width', this.width)
       .attr('height', this.height)
 
-    var containerWidth = this.svg.node().parentNode.getBoundingClientRect().width-15;
+    var containerWidth = this.svg.node().parentNode.getBoundingClientRect().width;
 
     this.legend.container
         .style("width", containerWidth + "px");
@@ -911,7 +911,7 @@ ForceDirectedGraph.prototype = {
   createLegend:function() {
     var self = this;
 
-    var containerWidth = d3.select("#forceDirectedDiv").node().clientWidth - 15;
+    var containerWidth = d3.select("#forceDirectedDiv").node().clientWidth;
 
     this.legend.container = d3.select("#forceDirectedDiv")
       .append("div")
