@@ -168,16 +168,16 @@ var App = App || {};
     }
 
     // set up an influence slider
-    var links = App.panels.forceDirected.sortedLinks;
+    // get min of max inf
+    var data = App.panels.forceDirected.filteredData;
+    var maxs = Object.keys(data).map(k => {
+      var infMax = d3.max(data[k].inf, d => Math.abs(d.flux)) || 0;
+      var outfMax = d3.max(data[k].outf, d => Math.abs(d.flux)) || 0;
+      return Math.max(infMax, outfMax);
+    });
     var domain = [
-                  Math.min(
-                      Math.abs(links[links.length-1].value),
-                      App.panels.forceDirected.threshold
-                    ),
-                  Math.max(
-                    App.panels.forceDirected.maxInfl,
-                    App.panels.forceDirected.threshold
-                    )
+                    d3.min(maxs),
+                    App.panels.forceDirected.maxInfl
                 ];
     App.infSlider = new Slider( '#clusterSlider', {
       title: 'Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3),

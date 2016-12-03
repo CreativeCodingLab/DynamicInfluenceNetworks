@@ -6,11 +6,11 @@ function ForceDirectedGraph(args) {
   this.init();
   this.filterData(App.data);
 
-  this.sortedLinks = this.links.concat().sort((a, b) => {
+  var sortedLinks = this.links.concat().sort((a, b) => {
     return Math.abs(b.value) - Math.abs(a.value);
   });
 
-  this.maxInfl = Math.abs(this.sortedLinks[0].value);
+  this.maxInfl = Math.abs(sortedLinks[0].value);
 
   this.legend = {};
 
@@ -23,7 +23,7 @@ function ForceDirectedGraph(args) {
   this.legend.linkSizeDomain = d3.extent(this.links.map(d => Math.abs(d.value)));
   this.legend.linkSizeRange = d3.extent(d3.range(0.4, this.links.length > 200 ? 1 : 4, 0.05));
 
-  var threshold = this.sortedLinks[Math.round(Math.sqrt(this.links.length))].value;
+  var threshold = sortedLinks[Math.round(Math.sqrt(this.links.length))].value;
   this.defineClusters(Math.abs(threshold));
 
   // set up simulation
@@ -563,7 +563,8 @@ ForceDirectedGraph.prototype = {
       .attr("transform", (d, i) => {
         return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
       })
-      .attr('font-size','0.75em')
+      .style('font-size','0.75em')
+      .style('letter-spacing','0.03em')
       .style('text-shadow','1px 1px 2px black')
     .merge(rule)
       .text(d => d.name)
@@ -901,10 +902,7 @@ ForceDirectedGraph.prototype = {
       }
     }
 
-    this.sortedLinks = this.links.concat().sort((a, b) => {
-      return Math.abs(b.value) - Math.abs(a.value);
-    });
-    this.maxInfl = Math.abs(this.sortedLinks[0].value);
+    this.maxInfl = d3.max(this.links, d => Math.abs(d.value));
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
     this.simulation.alpha(0.001).restart();
