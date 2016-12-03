@@ -504,7 +504,18 @@ ForceDirectedGraph.prototype = {
     var text = this.nodeGroup.selectAll(".rule-text")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
 
+    rule = rule.enter().append("circle")
+              .attr("class", "rule rule-node")
+              .attr("transform", (d, i) => {
+                return "translate(" + d.x + ", " + d.y + ")";
+              })
+              .style("stroke", "white")
+              .style("stroke-opacity", 0.5)
+              .style("stroke-width", 1.5)
+            .merge(rule);
     rule
+      .attr("cluster", d => d.cluster)
+      .attr("r", d => d.radius)
       .attr("pointer-events", (d) => {
         if(App.property.node == true && d.cluster === 0) {
           return 'none';
@@ -522,19 +533,7 @@ ForceDirectedGraph.prototype = {
           return 0;
         }
         else return 0.5;
-      });
-
-    rule.enter().append("circle")
-      .attr("class", "rule rule-node")
-      .attr("transform", (d, i) => {
-        return "translate(" + d.x + ", " + d.y + ")";
       })
-      .style("stroke", "white")
-      .style("stroke-opacity", 0.5)
-      .style("stroke-width", 1.5)
-    .merge(rule)
-      .attr("cluster", d => d.cluster)
-      .attr("r", d => d.radius)
       .on('mouseover', this._isDragging ? null : function(d) {
         d3.select(this)
           .style('stroke-opacity',1);
