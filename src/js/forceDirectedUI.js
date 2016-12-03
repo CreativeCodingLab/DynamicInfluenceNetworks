@@ -85,7 +85,11 @@ window.addEventListener('load', function() {
           d3.selectAll('.link-1')
             .transition()
             .style('stroke-opacity', function(d) {
-              if(typeof App.property.red !== 'undefined' && App.property.red) {
+              if(typeof App.property.red !== 'undefined' && App.property.red &&
+                 typeof App.property.green !== 'undefined' && App.property.green) {
+                return this.style['stroke-opacity']
+              }
+              else if(typeof App.property.red !== 'undefined' && App.property.red) {
                 return Math.abs(d.value) < threshold && this.style.stroke.indexOf('green') > -1? 1 :
                   this.style['stroke-opacity']
               }
