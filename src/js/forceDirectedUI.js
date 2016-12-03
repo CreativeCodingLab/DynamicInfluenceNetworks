@@ -1,6 +1,7 @@
 window.addEventListener('load', function() {
-
+    App.property = {};
     var self = this;
+
     this._togglesci = function(e) {
       App.panels.forceDirected.svg.sci = this.checked;
     };
@@ -9,6 +10,7 @@ window.addEventListener('load', function() {
       let key = this.id.split('-').indexOf('positive') > -1 ? 'green' : 'red';
 
       if (this.checked) {
+        App.property[key] = true
         // make links invisible
         d3.selectAll('.link-1')
           .transition()
@@ -25,23 +27,35 @@ window.addEventListener('load', function() {
           });
       }
       else {
+        App.property[key] = false;
+        let threshold = Math.abs(App.panels.forceDirected.threshold);
         // make links visible
         d3.selectAll('.link-1')
           .transition()
-          .style('stroke-opacity', function() {
-            return this.style.stroke.indexOf(key) > -1 ? 1 :
+          .style('stroke-opacity', function(d) {
+            if(typeof App.property.link !== 'undefined' && App.property.link) {
+              return Math.abs(d.value) >= threshold && this.style.stroke.indexOf(key) > -1 ? 1 :
                 this.style['stroke-opacity']
+            }
+            else {
+              return this.style.stroke.indexOf(key) > -1 ? 1 :
+                this.style['stroke-opacity']  
+            }
           });
 
         // return mouseover functionality
         d3.selectAll('.link-2')
-          .attr('pointer-events', function() {
-            return this.style.stroke.indexOf(key) > -1 ? 'all' :
+          .attr('pointer-events', function(d) {
+            if(typeof App.property.link !== 'undefined' && App.property.link) {
+              return Math.abs(d.value) > threshold && this.style.stroke.indexOf(key) > -1? 'all' :
                 this.getAttribute('pointer-events')
+            }
+            else {
+              return this.style.stroke.indexOf(key) > -1 ? 'all' :
+                this.getAttribute('pointer-events')
+            }
           });
-
       }
-
     };
 
     this._toggleinfl = function(e) {
@@ -49,6 +63,7 @@ window.addEventListener('load', function() {
       let threshold = Math.abs(App.panels.forceDirected.threshold);
       if(key === 'link') {
         if (this.checked) {
+          App.property[key] = true
           // make links invisible
           d3.selectAll('.link-1')
             .transition()
@@ -66,16 +81,29 @@ window.addEventListener('load', function() {
         }
         else {
           // make links visible
+          App.property[key] = false
           d3.selectAll('.link-1')
             .transition()
-            .style('stroke-opacity', function() {
-              return 1           
+            .style('stroke-opacity', function(d) {
+              if(typeof App.property.red !== 'undefined' && App.property.red) {
+                return Math.abs(d.value) < threshold && this.style.stroke.indexOf('green') > -1? 1 :
+                  this.style['stroke-opacity']
+              }
+              else if(typeof App.property.green !== 'undefined' && App.property.green) {
+                return Math.abs(d.value) < threshold && this.style.stroke.indexOf('red') > -1? 1 :
+                  this.style['stroke-opacity']
+              }
+              else {
+                return Math.abs(d.value) < threshold ? 1 :
+                  this.style['stroke-opacity']  
+              }                     
             });
 
           // return mouseover functionality
           d3.selectAll('.link-2')
-            .attr('pointer-events', function() {
-              return 'all'
+            .attr('pointer-events', function(d) {
+              return Math.abs(d.value) < threshold ? 'all' :
+                  this.getAttribute('pointer-events')
             });
         }
       }
