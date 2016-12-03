@@ -625,6 +625,7 @@ ForceDirectedGraph.prototype = {
     mainLink.enter().append('path')
         .attr('class', 'link link-1')
         .attr('fill','none')
+        .attr('pointer-events','none')
       .merge(mainLink)
         .attr("value", d => d.value)
         .style("stroke-width", (d) => {

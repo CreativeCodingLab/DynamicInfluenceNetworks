@@ -127,7 +127,7 @@ window.addEventListener('load', function() {
               })
               // remove mouseover functionality
               .attr('pointer-events', function(d) {
-                return !d.cluster ? 0 : 
+                return !d.cluster ? 'none' : 
                     this.getAttribute('pointer-events')
               });
           }

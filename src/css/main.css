@@ -26,11 +26,6 @@ body {
     cursor:pointer;
 }
 
-
-.d3-tip {
-    pointer-events:none !important;
-}
-
 #legendContainer {
   overflow: hidden;
   position: absolute;

@@ -5,7 +5,7 @@ function LineGraph(selector, options) {
                             .append('svg');
 
     this.svg.append('rect')
-        .attr('fill','#eee');
+        .attr('fill','transparent');
 
 
     this.margin = {top: 40, right: 20, bottom: 30, left: 60};
