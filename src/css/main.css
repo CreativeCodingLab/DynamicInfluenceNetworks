@@ -22,9 +22,10 @@ body {
   min-height: 30%;
 }
 
-.rule,.link {
+.rule,.link,.text {
     cursor:pointer;
 }
+
 
 .d3-tip {
     pointer-events:none !important;

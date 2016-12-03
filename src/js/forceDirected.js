@@ -501,7 +501,9 @@ ForceDirectedGraph.prototype = {
     var rule = this.nodeGroup.selectAll(".rule")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
 
-    rule.exit().remove();
+    var text = this.nodeGroup.selectAll(".text")
+        .data(Object.keys(filteredData).map(d => filteredData[d]));
+
     rule
       .attr("pointer-events", (d) => {
         if(typeof App.property.node !==  'undefined' && App.property.node && d.cluster === 0) {
@@ -553,21 +555,30 @@ ForceDirectedGraph.prototype = {
         d.fx = d.fy = null;
       })
       .call(drag);
-
+      // remove as needed
+    rule.exit().remove();
     // also add text
-    rule.enter().append('text')
+    text.enter().append('text')
       .attr('class','rule rule-text')
       .attr('pointer-events','none')
-      .attr('opacity',0)
+      .attr('opacity', function(d) {
+        if (typeof App.property.label !== 'undefined' && App.property.label) {
+          return typeof App.property.node !== 'undefined' && App.property.node && d.cluster === 0 ? 0: 0.75
+        }
+        else {
+          return 0;
+        }
+      })
       .attr("transform", (d, i) => {
         return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
       })
       .style('font-size','0.75em')
       .style('letter-spacing','0.03em')
       .style('text-shadow','1px 1px 2px black')
-    .merge(rule)
-      .text(d => d.name)
+    .merge(rule.selectAll('.rule-text'))
+      .text(d => d.name);
 
+    text.exit().remove();
   },
 
   clusterColor: function(cluster) {
