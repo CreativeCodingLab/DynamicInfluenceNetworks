@@ -3,8 +3,9 @@ function Slider(selector, options) {
     var svg = d3.select( selector ? selector : 'body' ).append('svg'),
         width = (options && options.width > 0) ? options.width : d3.select(".controls").node().clientWidth * .45,
         height = (options && options.height > 0) ? options.height : d3.select(".controls").node().clientHeight * 0.2,
-        title = (options && options.title) ? options.title : ''
-        domain = (options && options.domain) ? options.domain : [0,1];
+        title = (options && options.title) ? options.title : '',
+        domain = (options && options.domain) ? options.domain : [0,1],
+        log = (options && options.log === true);
 
     var self = this;
     var drag = d3.drag()
@@ -40,8 +41,7 @@ function Slider(selector, options) {
             self.onDragEnd(x, d3.event);
         });
 
-    var scale = (options && options.log === true ? 
-                    d3.scaleLog() : d3.scaleLinear())
+    var scale = (log ? d3.scaleLog() : d3.scaleLinear())
         .range([10, width-10])
         .domain(domain)
         .clamp(true);
@@ -50,6 +50,8 @@ function Slider(selector, options) {
         .scale(scale)
         .ticks(4)
         .tickSize(10);
+
+    if (!log) { axis.tickFormat(d => parseInt(App.format.start+d)); }
 
     svg.attr('height', height)
         .attr('width',width);
@@ -95,7 +97,7 @@ function Slider(selector, options) {
         svg.select('.axis').call(axis);
     }
 
-    if (options && options.log === true) {
+    if (log) {
         this.sliderScale = scale.copy().range([0, width-20]).invert;
     }
     else {

@@ -10,8 +10,7 @@ function ForceDirectedGraph(args) {
     return Math.abs(b.value) - Math.abs(a.value);
   });
 
-  // this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
-  this.maxInfl = Math.abs(this.sortedLinks[0].value)*2;
+  this.maxInfl = Math.abs(this.sortedLinks[0].value);
 
   this.legend = {};
 
@@ -220,6 +219,12 @@ ForceDirectedGraph.prototype = {
       .attr('width', this.width)
       .attr('height', this.height)
 
+    var containerWidth = this.svg.node().parentNode.getBoundingClientRect().width-15;
+
+    this.legend.container
+        .style("width", containerWidth + "px");
+
+    // reheat simulation
     if (this.simulation) {
       this.simulation
         .force("center", d3.forceCenter(
@@ -227,7 +232,7 @@ ForceDirectedGraph.prototype = {
           (this.height / 2)
           ));
 
-      this.simulation.alpha(0.001).restart();
+      this.simulation.alpha(0.3).restart();
     }
   },
   zoomed: function() {
@@ -499,7 +504,7 @@ ForceDirectedGraph.prototype = {
 
     rule.exit().remove();
     rule
-      .attr("pointer-event", (d) => {
+      .attr("pointer-events", (d) => {
         if(ruleToggle.property("checked") && d.cluster === 0) {
           return 'none';
         }
@@ -519,7 +524,7 @@ ForceDirectedGraph.prototype = {
       });
 
     rule.enter().append("circle")
-      .attr("class", "rule")
+      .attr("class", "rule rule-node")
       .attr("transform", (d, i) => {
         return "translate(" + d.x + ", " + d.y + ")";
       })
@@ -549,6 +554,20 @@ ForceDirectedGraph.prototype = {
         d.fx = d.fy = null;
       })
       .call(drag);
+
+    // also add text
+    rule.enter().append('text')
+      .attr('class','rule rule-text')
+      .attr('pointer-events','none')
+      .attr('opacity',0.75)
+      .attr("transform", (d, i) => {
+        return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
+      })
+      .attr('font-size','0.75em')
+      .style('text-shadow','1px 1px 2px black')
+    .merge(rule)
+      .text(d => d.name)
+
   },
 
   clusterColor: function(cluster) {
@@ -666,9 +685,14 @@ ForceDirectedGraph.prototype = {
             d.y = clampY(d.y);
             return d;
           })
-          .style("fill", (d) => self.clusterColor(d.cluster))
-          .attr("transform", (d) => {
-            return "translate(" + d.x + "," + d.y + ")";
+          .style("fill", (d,i,el) => {
+            return (d3.select(el[i]).classed('rule-text')) ?
+              'white' : self.clusterColor(d.cluster);
+          })
+          .attr("transform", (d,i,el) => {
+            return (d3.select(el[i]).classed('rule-text')) ?
+              "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")" :
+              "translate(" + d.x + "," + d.y + ")";
           });
 
         link
@@ -788,7 +812,7 @@ ForceDirectedGraph.prototype = {
             .range([0.3,1])
             .clamp(true);
 
-          var multiplier = strengthScale(/*Math.abs*/(d.value));
+          var multiplier = strengthScale(Math.abs(d.value));
 
           var cs = d.source.inf.length + d.source.outf.length,
               ct = d.target.inf.length + d.target.outf.length;
@@ -881,7 +905,6 @@ ForceDirectedGraph.prototype = {
       return Math.abs(b.value) - Math.abs(a.value);
     });
     this.maxInfl = Math.abs(this.sortedLinks[0].value);
-    // this.maxInfl = Math.abs(this.sortedLinks[Math.round(this.links.length/2)].value) * 2;
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
     this.simulation.alpha(0.001).restart();

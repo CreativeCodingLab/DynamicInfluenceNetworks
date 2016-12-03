@@ -128,7 +128,7 @@ window.addEventListener('load', function() {
           }
         // make nodes visible
         else {
-          d3.selectAll('.rule')
+          d3.selectAll('.rule-node')
               .transition()
               .style('stroke-opacity', function() {
                 return 0.5;
@@ -140,6 +140,9 @@ window.addEventListener('load', function() {
               .attr('pointer-events', function() {
                 return 'all'
               });
+          d3.selectAll('.rule-text')
+              .transition()
+              .style('opacity',0.75)
         }
       }
     }

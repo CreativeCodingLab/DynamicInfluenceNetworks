@@ -41,8 +41,10 @@ var App = App || {};
     initSliders();
 
     // line graphs
-    App.panels.topVis = new LineGraph('#topVis');
-    App.panels.bottomVis = new LineGraph('#bottomVis');
+    if (App.dataset.length > 1) {
+      App.panels.topVis = new LineGraph('#topVis');
+      App.panels.bottomVis = new LineGraph('#bottomVis');
+    }
   }
 
   App.loadData = function(file, isSeries) {
@@ -161,6 +163,8 @@ var App = App || {};
           .alpha(0.3)
           .restart();
       }
+
+      // append slider to force directed
     }
 
     // set up an influence slider
