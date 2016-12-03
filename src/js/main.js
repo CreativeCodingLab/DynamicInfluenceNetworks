@@ -156,6 +156,7 @@ var App = App || {};
           App.panels.forceDirected.updateData(App.data);
           App.panels.topVis.drawMarkers();
           App.panels.bottomVis.drawMarkers();
+          App.infSlider.setDomain(infDomain());
         }
       }
       App.timeSlider.onDragEnd = function() {
@@ -169,19 +170,18 @@ var App = App || {};
 
     // set up an influence slider
     // get min of max inf
-    var data = App.panels.forceDirected.filteredData;
-    var maxs = Object.keys(data).map(k => {
-      var infMax = d3.max(data[k].inf, d => Math.abs(d.flux)) || 0;
-      var outfMax = d3.max(data[k].outf, d => Math.abs(d.flux)) || 0;
-      return Math.max(infMax, outfMax);
-    });
-    var domain = [
-                    d3.min(maxs),
-                    App.panels.forceDirected.maxInfl
-                ];
+    function infDomain() {
+      var data = App.panels.forceDirected.filteredData;
+      var maxs = Object.keys(data).map(k => {
+        var infMax = d3.max(data[k].inf, d => Math.abs(d.flux)) || 0;
+        var outfMax = d3.max(data[k].outf, d => Math.abs(d.flux)) || 0;
+        return Math.max(infMax, outfMax);
+      });
+      return [d3.min(maxs), App.panels.forceDirected.maxInfl];
+    }
     App.infSlider = new Slider( '#clusterSlider', {
       title: 'Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3),
-      domain: domain,
+      domain: infDomain(),
       log: true
     });
     App.infSlider.setPosition( App.panels.forceDirected.threshold );

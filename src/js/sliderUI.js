@@ -92,7 +92,12 @@ function Slider(selector, options) {
     this.setDomain = function(arr) {
         domain = arr;
         scale.domain(domain);
-        sliderScale.range(domain);
+        if (log) {
+            this.sliderScale = scale.copy().range([0, width-20]).invert;
+        }
+        else {
+            this.sliderScale.range(domain);
+        }
         axis.scale = scale;
         svg.select('.axis').call(axis);
     }
