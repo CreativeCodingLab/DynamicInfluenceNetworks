@@ -263,7 +263,7 @@ ForceDirectedGraph.prototype = {
 
       var sp = this.tip.append('span');
       sp.text('Influence: ')
-        .append('span').text(this.svg.sci ?
+        .append('span').text(App.property.sci ?
             Number(d.value.toPrecision(3)).toExponential() :
             d.value.toFixed(3) )
           .style('font-weight','bold')
@@ -498,27 +498,27 @@ ForceDirectedGraph.prototype = {
           }
         });
 
-    var rule = this.nodeGroup.selectAll(".rule")
+    var rule = this.nodeGroup.selectAll(".rule-node")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
 
-    var text = this.nodeGroup.selectAll(".text")
+    var text = this.nodeGroup.selectAll(".rule-text")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
 
     rule
       .attr("pointer-events", (d) => {
-        if(typeof App.property.node !==  'undefined' && App.property.node && d.cluster === 0) {
+        if(App.property.node == true && d.cluster === 0) {
           return 'none';
         }
         else return 'all';
       })
       .style("opacity", (d) => {
-        if(typeof App.property.node !==  'undefined' && App.property.node && d.cluster === 0) {
+        if( App.property.node == true && d.cluster === 0) {
           return 0;
         }
         else return 1;
       })
       .style('stroke-opacity', (d) => {
-        if(typeof App.property.node !==  'undefined' && App.property.node && d.cluster === 0) {
+        if( App.property.node == true && d.cluster === 0) {
           return 0;
         }
         else return 0.5;
@@ -557,18 +557,12 @@ ForceDirectedGraph.prototype = {
       .call(drag);
       // remove as needed
     rule.exit().remove();
+
+
     // also add text
     text.enter().append('text')
       .attr('class','rule rule-text')
       .attr('pointer-events','none')
-      .attr('opacity', function(d) {
-        if (typeof App.property.label !== 'undefined' && App.property.label) {
-          return typeof App.property.node !== 'undefined' && App.property.node && d.cluster === 0 ? 0: 0.75
-        }
-        else {
-          return 0;
-        }
-      })
       .attr("transform", (d, i) => {
         return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
       })
@@ -576,7 +570,19 @@ ForceDirectedGraph.prototype = {
       .style('letter-spacing','0.03em')
       .style('text-shadow','1px 1px 2px black')
     .merge(rule.selectAll('.rule-text'))
-      .text(d => d.name);
+      .text(d => d.name)
+      .attr('opacity', function(d) {
+        if ( App.property.label == true) {
+          if (App.property.rule == true && d.cluster ===0) {
+            return 0;
+          }
+          return 0.75;
+        }
+        else {
+          return 0;
+        }
+      })
+
 
     text.exit().remove();
   },
@@ -603,17 +609,16 @@ ForceDirectedGraph.prototype = {
 
    mainLink
       .style('stroke-opacity', (d) => {
-        if(typeof App.property.green !== 'undefined' && App.property.green && 
-           typeof App.property.red !== 'undefined' && App.property.red) {
+        if(App.property.green == true && App.property.red == true) {
           return 0;
         }
-        else if(typeof App.property.green !== 'undefined' && App.property.green && d.value > 0) {
+        else if( App.property.green == true && d.value > 0 ) {
           return 0;
         }
-        else if(typeof App.property.red !== 'undefined' && App.property.red && d.value < 0) {
+        else if( App.property.red == true && d.value < 0) {
           return 0;
         }
-        else if(typeof App.property.link !== 'undefined' && App.property.link && Math.abs(d.value) < threshold) {
+        else if( App.property.link == true && Math.abs(d.value) < threshold) {
           return 0;
         }
         else { 
@@ -639,17 +644,17 @@ ForceDirectedGraph.prototype = {
 
    hoverLink
       .attr('pointer-events', (d) => {
-        if(typeof App.property.green !== 'undefined' && App.property.green && 
-           typeof App.property.red !== 'undefined' && App.property.red) {
+        if(App.property.green == true && 
+           App.property.red == true) {
           return 'none';
         }
-        else if(typeof App.property.green !== 'undefined' && App.property.green && d.value > 0) {
+        else if(App.property.green == true && d.value > 0) {
           return 'none';
         }
-        else if(typeof App.property.red !== 'undefined' && App.property.red && d.value < 0) {
+        else if( App.property.red == true && d.value < 0) {
           return 'none';
         }
-        else if(typeof App.property.link !== 'undefined' && App.property.link && Math.abs(d.value) < threshold) {
+        else if( App.property.link == true && Math.abs(d.value) < threshold) {
           return 'none';
         }
         else { 

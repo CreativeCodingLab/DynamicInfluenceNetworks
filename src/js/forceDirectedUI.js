@@ -3,7 +3,7 @@ window.addEventListener('load', function() {
     var self = this;
 
     this._togglesci = function(e) {
-      App.panels.forceDirected.svg.sci = this.checked;
+      App.property.sci = this.checked;
     };
 
     this._togglehide = function(e) {
@@ -33,7 +33,7 @@ window.addEventListener('load', function() {
         d3.selectAll('.link-1')
           .transition()
           .style('stroke-opacity', function(d) {
-            if(typeof App.property.link !== 'undefined' && App.property.link) {
+            if(App.property.link == true) {
               return Math.abs(d.value) >= threshold && this.style.stroke.indexOf(key) > -1 ? 1 :
                 this.style['stroke-opacity']
             }
@@ -46,7 +46,7 @@ window.addEventListener('load', function() {
         // return mouseover functionality
         d3.selectAll('.link-2')
           .attr('pointer-events', function(d) {
-            if(typeof App.property.link !== 'undefined' && App.property.link) {
+            if(App.property.link == true) {
               return Math.abs(d.value) > threshold && this.style.stroke.indexOf(key) > -1? 'all' :
                 this.getAttribute('pointer-events')
             }
@@ -85,15 +85,15 @@ window.addEventListener('load', function() {
           d3.selectAll('.link-1')
             .transition()
             .style('stroke-opacity', function(d) {
-              if(typeof App.property.red !== 'undefined' && App.property.red &&
-                 typeof App.property.green !== 'undefined' && App.property.green) {
+              if(App.property.red == true &&
+                 App.property.green == true) {
                 return this.style['stroke-opacity']
               }
-              else if(typeof App.property.red !== 'undefined' && App.property.red) {
+              else if(App.property.red == true) {
                 return Math.abs(d.value) < threshold && this.style.stroke.indexOf('green') > -1? 1 :
                   this.style['stroke-opacity']
               }
-              else if(typeof App.property.green !== 'undefined' && App.property.green) {
+              else if(App.property.green == true) {
                 return Math.abs(d.value) < threshold && this.style.stroke.indexOf('red') > -1? 1 :
                   this.style['stroke-opacity']
               }
@@ -146,7 +146,7 @@ window.addEventListener('load', function() {
               .attr('pointer-events', function() {
                 return 'all'
               });
-          if (typeof App.property.label === 'undefined' || App.property.label) {
+          if (App.property.label == true) {
             d3.selectAll('.rule-text')
               .transition()
               .style('opacity',0.75)
@@ -161,8 +161,10 @@ window.addEventListener('load', function() {
           d3.selectAll('.rule-text')
             .transition()
             .style('opacity', function(d) {
-              return typeof App.property.node !== 'undefined' && App.property.node && d.cluster === 0 ?  0:
-              0.75
+              if (App.property.node == true && d.cluster === 0) {
+                return 0;
+              }
+              return 0.75;
             })
         }
         else {
