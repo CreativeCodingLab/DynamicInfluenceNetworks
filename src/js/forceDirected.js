@@ -504,18 +504,15 @@ ForceDirectedGraph.prototype = {
     var text = this.nodeGroup.selectAll(".rule-text")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
 
-    rule.exit().remove();
-
-    rule = rule.enter().append("circle")
-              .attr("class", "rule rule-node")
-              .attr("transform", (d, i) => {
-                return "translate(" + d.x + ", " + d.y + ")";
-              })
-              .style("stroke", "white")
-              .style("stroke-opacity", 0.5)
-              .style("stroke-width", 1.5)
-            .merge(rule);
-    rule
+    rule.enter().append("circle")
+      .attr("class", "rule rule-node")
+      .attr("transform", (d, i) => {
+        return "translate(" + d.x + ", " + d.y + ")";
+      })
+      .style("stroke", "white")
+      .style("stroke-opacity", 0.5)
+      .style("stroke-width", 1.5)
+    .merge(rule)
       .attr("cluster", d => d.cluster)
       .attr("r", d => d.radius)
       .attr("pointer-events", (d) => {
@@ -556,7 +553,9 @@ ForceDirectedGraph.prototype = {
         d.fx = d.fy = null;
       })
       .call(drag);
-      // remove as needed
+
+    // remove as needed
+    rule.exit().remove();
 
 
     // also add text
