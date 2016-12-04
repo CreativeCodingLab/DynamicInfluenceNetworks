@@ -26,6 +26,12 @@ var App = App || {};
         App.panels[key].resize();
       }
     }
+    if (App.timeSlider) {
+      App.timeSlider.resize();
+    }
+    if (App.infSlider) {
+      App.infSlider.resize();
+    }
   }
 
   App.draw = function() {

@@ -58,8 +58,6 @@ ForceDirectedGraph.prototype = {
     // no need to redraw on resize
     this.svg.attr("viewBox", "0 0 " + this.width + " " + this.height);
 
-    // console.log(this.svg.attr("viewBox"));
-
     // background color
     this.svg.append("rect")
       .attr("width", this.width)
@@ -186,11 +184,11 @@ ForceDirectedGraph.prototype = {
         .style('left',0)
         .style('top',0)
         .style('font-size', '0.85em')
-        .style('padding','10px 15px')
+        .style('padding','1vmin 1.5vmin')
         .style('border-radius','0 0 8px 0')
         .style('background', 'rgba(30,30,30,0.8)')
         .style('color','white')
-        .style('letter-spacing','0.3px')
+        .style('letter-spacing','0.1vmin')
         .style('pointer-events','none');
   },
   resize:function() {

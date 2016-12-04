@@ -1,14 +1,17 @@
 function Slider(selector, options) {
 
     var svg = d3.select( selector ? selector : 'body' ).append('svg'),
-        width = 300,
-        height = 50,
         color = (options && options.color) ? options.color : '#eee',
         title = (options && options.title) ? options.title : '',
         domain = (options && options.domain) ? options.domain : [0,1],
         log = (options && options.log === true);
 
-    svg.attr("viewBox", "0 0 " + width + " " + height);
+
+    var containerWidth = App.panels.forceDirected.svg.node().clientWidth;
+    var width = 300;
+    var height = 50;
+    svg.attr("viewBox", "0 0 " + 300 + " " + 50);
+
     var self = this;
     var drag = d3.drag()
         .on('drag', function() { 
@@ -143,5 +146,12 @@ function Slider(selector, options) {
         this.x = (absolute ? x : scale(x)) -10;
         svg.select('.slider')
             .attr('x', this.x);
+    }
+
+    this.resize = function( ) {
+
+        var cw = App.panels.forceDirected.svg.node().clientWidth;
+        svg.attr('width', cw/containerWidth*300)
+            .attr('height',cw/containerWidth*50);
     }
 };
