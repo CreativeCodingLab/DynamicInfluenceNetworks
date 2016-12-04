@@ -261,9 +261,9 @@ ForceDirectedGraph.prototype = {
 
       var selfInf = d.inf.filter(inf => inf.name === d.name);
       var inf = d.inf.filter(inf => inf.name !== d.name)
-                  .sort((a,b) => b.flux - a.flux );
+                  .sort((a,b) => Math.abs(b.flux) - Math.abs(a.flux) );
       var outf = d.outf.filter(outf => outf.name !== d.name)
-                  .sort((a,b) => b.flux - a.flux );
+                  .sort((a,b) => Math.abs(b.flux) - Math.abs(a.flux) );
 
       var num;
       if (selfInf.length > 0) {
