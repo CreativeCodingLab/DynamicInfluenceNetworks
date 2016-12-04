@@ -10,7 +10,7 @@ html, body, .fluidContainer, .mainCol {
 }
 body { 
   margin: 0; 
-  font-family: 'helvetica neue', helvetica, arial, sans-serif;
+  font-family: 'source sans pro','helvetica neue', helvetica, arial, sans-serif;
 }
 
 .h-100 {
@@ -21,6 +21,11 @@ body {
 .h-30 {
   height: 30%;
   min-height: 30%;
+}
+
+.col-md-4 {
+  -webkit-font-smoothing:auto;
+  -moz-osx-smoothing:auto;
 }
 
 .rule,.link,.text {
@@ -63,65 +68,44 @@ body {
   right:0;
 }
 
-.content {
-  margin-top:  15px;
-  margin-bottom:   15px;
-  /*background-color: pink;*/
-}
-.controls {
-    max-width:33vw;
-    margin:auto;
-}
-
 .control {
   padding:2vw;
-  margin-top:  15px;
-  margin-bottom:   15px; 
-}
-.control:first-of-type{ 
-    font-weight:bold;
-}
-.control:first-of-type p{ 
-    display:inline-block;
-    vertical-align: top;
-    /*margin-right:30px;*/
 }
 
 rect.slider { 
   cursor:pointer;
 }
 
-.col-md-4 {
-    margin:0 30px;
-}
-
 .columns {
+  max-width:50vw;
   column-count:2;
   -webkit-column-count:2;
-  column-gap:5px;
-  -webkit-column-gap:5px;
+  column-gap:3vw;
+  -webkit-column-gap:3vw;
+  margin-left:2vw;
 }
 .columns span {
   display:block;
-  font-size: 2vmin;
+  font-size: 2.2vmin;
+  line-height:3.5vmin;
 }
 button,input {
     outline:none;
     border-radius:0.4vmin;
     border:0.4vmin solid #ccc;
-    /*padding:5px 12px;*/
 }
 
 
 button {
-    font-size:2vmin;
-    padding:0.5vmin 1vmin;
-    font-weight:bold;
-    cursor:pointer;
-    background-color:#fff;
-    transition:background-color 100ms ease;
-    -webkit-transition:background-color 100ms ease, color 100ms ease;
-    color:#777;
+  font-family: 'source sans pro','helvetica neue', helvetica, arial, sans-serif;
+  font-size:2.2vmin;
+  padding:0.5vmin 1vmin;
+  font-weight:bold;
+  cursor:pointer;
+  background-color:#fff;
+  transition:background-color 100ms ease;
+  -webkit-transition:background-color 100ms ease, color 100ms ease;
+  color:#777;
 }
 button:hover {
     color:#555;
@@ -145,13 +129,16 @@ input[type="checkbox"] {
 
 input[type="checkbox"] + label:before {
   font-family: FontAwesome;
-  letter-spacing: 5px;
   content: "\f10c"; 
+  color:#7fcdbb;
   cursor:pointer;
+  position:absolute;
   font-size: 2vmin;
+  margin-left:-3vmin;
 }
 
 input[type="checkbox"]:checked + label:before { 
+  color:#2c7fb8;
   content: "\f058"; 
 }
 
