@@ -20,10 +20,11 @@ function Slider(selector, options) {
     var self = this;
     var drag = d3.drag()
         .on('drag', function() { 
+            if (d3.event.dx === 0) { return; }
 
             // limit event firing when out of range
             var x = d3.event.x - 5;
-            if ( x < 0 || x > width-20) {
+            if ( x < 0 || (!log && x > width-20) || (log && x > width)) {
                 if (x < 0) {
                     self.max = false;
                     if (self.min) { return; }
@@ -34,7 +35,7 @@ function Slider(selector, options) {
                     self.min = false;
                     if (self.max) { return; }
                     self.max = true;
-                    x = width - 20;
+                    x = log ? width : width - 20;
                 }
             }
             else { self.max = self.min = false; }
@@ -98,7 +99,7 @@ function Slider(selector, options) {
         .attr('pointer-events','none')
         .attr('text-anchor','middle')
         .attr('fill',color)
-        .attr('font-size','14px')
+        .attr('font-size','12px')
         .attr('text-anchor','start')
         .attr('x',8)
         .style('font-weight','bold')
@@ -115,7 +116,7 @@ function Slider(selector, options) {
         domain = arr;
         scale.domain(domain);
         if (log) {
-            this.sliderScale = scale.copy().range([0, width-20]).invert;
+            this.sliderScale = scale.copy().range([0, width]).invert;
         }
         else {
             this.sliderScale.range(domain);
@@ -132,7 +133,7 @@ function Slider(selector, options) {
     }
 
     if (log) {
-        this.sliderScale = scale.copy().range([0, width-20]).invert;
+        this.sliderScale = scale.copy().range([0, width]).invert;
     }
     else {
         this.sliderScale = d3.scaleLinear()
