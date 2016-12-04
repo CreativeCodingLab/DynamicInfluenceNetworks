@@ -1,3 +1,5 @@
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
 html, body, .fluidContainer, .mainCol {
   /*width: 100%;*/
   height: 92%;
@@ -137,9 +139,25 @@ input[type="text"] {
 }
 input[type="checkbox"] {
     margin-top:5px;
-    height: 2vmin;
-    width: 2vmin;
+    height: 3vmin;
+    width: 3vmin;
+    display: none;
 }
+
+
+input[type="checkbox"] + label:before {
+  font-family: FontAwesome;
+  letter-spacing: 5px;
+}
+
+input[type="checkbox"] + label:before { 
+  content: "\f10c"; 
+}
+
+input[type="checkbox"]:checked + label:before { 
+  content: "\f05d"; 
+}
+
 @media (min-width: 992px) {
     html, body, .fluidContainer, .mainCol {
       height:100%;
