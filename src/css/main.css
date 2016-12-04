@@ -137,9 +137,17 @@ input[type="checkbox"] + label:before {
   margin-left:-3vmin;
 }
 
+label {
+  color:#7fcdbb;
+}
+
 input[type="checkbox"]:checked + label:before { 
   color:#2c7fb8;
   content: "\f058"; 
+}
+
+input[type="checkbox"]:checked + label { 
+  color:#2c7fb8;
 }
 
 @media (min-width: 992px) {
