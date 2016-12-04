@@ -272,6 +272,13 @@ ForceDirectedGraph.prototype = {
                   .sort((a,b) => Math.abs(b.flux) - Math.abs(a.flux) );
       var selfCluster = d.cluster;
       var num;
+
+      function adjustedClusterColor(cluster) {
+        var color = d3.hsl(self.clusterColor(cluster))
+        if (color.l < 0.65) { color.l = 0.65 }
+        return color;
+      }
+
       var self = this;
       if (selfInf.length > 0) {
         num = App.property.sci ?
@@ -279,7 +286,10 @@ ForceDirectedGraph.prototype = {
             Number(selfInf[0].flux.toFixed(3))
         sp.append('br');
         sp.append('span')
-          .text('Self-influence: ');
+          .text('Self-influence: ')
+          .style('color', function() {
+            return adjustedClusterColor(selfCluster);
+          })       
       sp.append('span')
           .text(num)
           .style('color', function() {
