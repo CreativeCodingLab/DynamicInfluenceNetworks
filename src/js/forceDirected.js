@@ -41,8 +41,6 @@ function ForceDirectedGraph(args) {
       (this.height / 2)
     ));
 
-  // console.log(this.width, this.height);
-
   // update graph
   this.drawGraph();
   this.createLegend();
@@ -73,6 +71,15 @@ ForceDirectedGraph.prototype = {
         .scaleExtent([1 / 2, 4])
         .on("zoom", this.zoomed.bind(this)));
 
+    // init containers for legend and slider
+    var container = d3.select("#forceDirectedDiv").append("div")
+        .attr("id", "legendContainer");
+
+    container.append("div")
+        .attr("id", "clusterSlider");
+    container.append("div")
+        .attr("id", "timeSlider");
+
     // colors from 
     // http://colorbrewer2.org/#type=diverging&scheme=RdYlGn&n=9
 
@@ -91,12 +98,6 @@ ForceDirectedGraph.prototype = {
         .attr('y1',0)
         .attr('x2',0)
         .attr('y2',0)
-    // red.append('stop')
-    //     .attr('offset','0%')
-    //     .attr('stop-color','gold');
-    // red.append('stop')
-    //     .attr('offset','100%')
-    //     .attr('stop-color', "#e31a1c");
     
     red.append('stop')
         .attr('offset','0%')
@@ -123,12 +124,6 @@ ForceDirectedGraph.prototype = {
         .attr('y1',0)
         .attr('x2',0)
         .attr('y2',0)
-    // green.append('stop')
-    //     .attr('offset','0%')
-    //     .attr('stop-color', '#09d');
-    // green.append('stop')
-    //     .attr('offset','100%')
-    //     .attr('stop-color', '#3ad01a');
 
     green.append('stop')
         .attr('offset','0%')
@@ -712,13 +707,13 @@ ForceDirectedGraph.prototype = {
           .datum((d) => {
 
             var clampX = d3.scaleLinear()
-              .domain([16 + borderNodeMargin, self.width - 16 - borderNodeMargin])
-              .range([16 + borderNodeMargin, self.width - 16 - borderNodeMargin])
+              .domain([16 + borderNodeMargin, self.width - 36 - borderNodeMargin])
+              .range([16 + borderNodeMargin, self.width - 36 - borderNodeMargin])
               .clamp(true);
 
             var clampY = d3.scaleLinear()
-              .domain([16 + borderNodeMargin, self.height - 16 - borderNodeMargin])
-              .range([16 + borderNodeMargin, self.height - 16 - borderNodeMargin])
+              .domain([16 + borderNodeMargin, self.height - 56 - borderNodeMargin])
+              .range([16 + borderNodeMargin, self.height - 56 - borderNodeMargin])
               .clamp(true);
 
             d.x = clampX(d.x);
@@ -952,9 +947,7 @@ ForceDirectedGraph.prototype = {
 
     var containerWidth = d3.select("#forceDirectedDiv").node().clientWidth;
 
-    this.legend.container = d3.select("#forceDirectedDiv")
-      .append("div")
-        .attr("id", "legendContainer")
+    this.legend.container = d3.select("#legendContainer")
         .style("width", containerWidth + "px");
 
     this.legend.aspect = 183 / 265;
@@ -1043,7 +1036,7 @@ ForceDirectedGraph.prototype = {
       .style("font-family", "Helvetica, sans-serif");
 
     this.legend.svg
-      .attr("viewBox", "0 0 " + 183 + " " + 265);
+      .attr("viewBox", "0 0 183 265");
 
 
     var defs = this.legend.svg.append("defs"); 

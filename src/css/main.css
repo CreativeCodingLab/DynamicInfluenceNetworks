@@ -26,6 +26,9 @@ body {
     cursor:pointer;
 }
 
+.mainCol {
+  position:relative;
+}
 #legendContainer {
   overflow: hidden;
   position: absolute;
@@ -40,15 +43,23 @@ body {
   pointer-events: none;
 }
 
+#legendContainer > div {
+  position:absolute;
+}
 
 #legend {
-  position: absolute;
-
   top: 5px;
-
   background-color: rgba(25,25,25,0);
-
   pointer-events: all;
+}
+
+#clusterSlider {
+  bottom: 5px;
+}
+
+#timeSlider {
+  bottom:5px;
+  right:0;
 }
 
 .content {

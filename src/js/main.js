@@ -37,14 +37,13 @@ var App = App || {};
       height: fd.height
     })
 
+
     // instantiate sliders
     initSliders();
 
     // line graphs
-    if (App.dataset.length > 1) {
-      App.panels.topVis = new LineGraph('#topVis');
-      App.panels.bottomVis = new LineGraph('#bottomVis');
-    }
+    App.panels.topVis = new LineGraph('#topVis');
+    App.panels.bottomVis = new LineGraph('#bottomVis');
   }
 
   App.loadData = function(file, isSeries) {

@@ -1,12 +1,14 @@
 function Slider(selector, options) {
 
     var svg = d3.select( selector ? selector : 'body' ).append('svg'),
-        width = (options && options.width > 0) ? options.width : d3.select(".controls").node().clientWidth * .45,
-        height = (options && options.height > 0) ? options.height : d3.select(".controls").node().clientHeight * 0.2,
+        width = 300,
+        height = 50,
+        color = (options && options.color) ? options.color : '#eee',
         title = (options && options.title) ? options.title : '',
         domain = (options && options.domain) ? options.domain : [0,1],
         log = (options && options.log === true);
 
+    svg.attr("viewBox", "0 0 " + width + " " + height);
     var self = this;
     var drag = d3.drag()
         .on('drag', function() { 
@@ -49,7 +51,7 @@ function Slider(selector, options) {
     var axis = d3.axisBottom()
         .scale(scale)
         .ticks(4)
-        .tickSize(10);
+        .tickSize(8);
 
     if (!log) { axis.tickFormat(d => parseInt(App.format.start+d)); }
 
@@ -57,19 +59,28 @@ function Slider(selector, options) {
         .attr('width',width);
     svg.append('g')
         .attr('class','axis')
-        .attr('transform','translate(0,8)')
+        .attr('transform','translate(0,25)')
+        .style("font-size", '12px')
         .call(axis);
 
-    svg.select(".axis")
-        .style("font-size", '1.2vmin')
+    svg.select('.axis path')
+        .attr('stroke-width',2)
+        .attr('stroke',color);
+    svg.selectAll('.axis line')
+        .attr('stroke-width',2)
+        .attr('stroke',color);
+    svg.selectAll('.axis text')
+        .attr('fill',color);
 
     svg.append('g')
-        .attr('transform','translate(5,0)')
+        .attr('transform','translate(5,17)')
     .append('rect')
         .attr('class','slider')
-        .attr('rx',3)
-        .attr('ry',3)
-        .attr('fill','#aaa')
+        .attr('stroke','#444')
+        .style('pointer-events','all')
+        .attr('rx',2)
+        .attr('ry',2)
+        .attr('fill','#bbb')
         .attr('width',10)
         .attr('height',16)
         .call(drag);
@@ -78,11 +89,14 @@ function Slider(selector, options) {
         .attr('class','title')
         .attr('pointer-events','none')
         .attr('text-anchor','middle')
-        .attr('fill','black')
-        .attr('font-size','1.25vmin')
-        .attr('x',width/2)
-        .attr('y',height)
+        .attr('fill',color)
+        .attr('font-size','12px')
+        .attr('text-anchor','start')
+        .attr('x',8)
+        .style('font-weight','bold')
+        .attr('y',12)
         .text(title);
+
 
     this.setTitle = function(title) {
         svg.select('.title')
@@ -99,7 +113,14 @@ function Slider(selector, options) {
             this.sliderScale.range(domain);
         }
         axis.scale = scale;
-        svg.select('.axis').call(axis);
+        svg.select('.axis')
+            .call(axis);
+
+        svg.selectAll('.axis line')
+            .attr('stroke-width',2)
+            .attr('stroke',color);
+        svg.selectAll('.axis text')
+            .attr('fill',color);
     }
 
     if (log) {
