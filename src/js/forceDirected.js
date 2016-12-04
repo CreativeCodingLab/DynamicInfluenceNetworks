@@ -237,16 +237,22 @@ ForceDirectedGraph.prototype = {
   showTip: function(d, type) {
     this.tip.selectAll('*').remove();
     this.tip.transition().style('opacity',1);
-    if (type === 'rule') {
-      var color = d3.hsl(this.clusterColor(d.cluster));
+
+    var self = this;
+    function adjustedClusterColor(cluster) {
+      var color = d3.hsl(self.clusterColor(cluster))
       if (color.l < 0.65) { color.l = 0.65 }
+      return color.toString();
+    }
+
+    if (type === 'rule') {
       var sp = this.tip.append('span')
           .text('Rule: ');
 
       sp.append('span')
           .style('letter-spacing',0)
           .style('font-weight','bold')
-          .style('color', color.toString())
+          .style('color', adjustedClusterColor(d.cluster))
           .text(d.name);
       sp.append('br');
 
@@ -273,10 +279,7 @@ ForceDirectedGraph.prototype = {
             Number(selfInf[0].flux.toFixed(3))
         sp.append('br');
         sp.append('span')
-          .text('Self-influence: ')
-          .style('color', function() {
-            return selfCluster > 0 ? self.clusterColor(selfCluster): 0;
-          });
+          .text('Self-influence: ');
       sp.append('span')
           .text(num)
           .style('color', function() {
@@ -296,9 +299,10 @@ ForceDirectedGraph.prototype = {
           sp.append('span')
             .text(flux.name + ': ')
             .style('margin-left','0.75vw')
+            .style('font-weight','bold')
             .style('color', function() {
               var cluster = self.findCluster(flux.name);
-              return cluster > 0 ?  self.clusterColor(cluster): 0;
+              return adjustedClusterColor(cluster);
             });
           sp.append('span')
           .text(num)
@@ -328,9 +332,10 @@ ForceDirectedGraph.prototype = {
           sp.append('span')
             .text(flux.name + ': ')
             .style('margin-left','0.75vw')
+            .style('font-weight','bold')
             .style('color', function() {
               var cluster = self.findCluster(flux.name);
-              return cluster > 0 ?  self.clusterColor(cluster): 0 ;
+              return adjustedClusterColor(cluster);
             });
           sp.append('span')
           .text(num)
