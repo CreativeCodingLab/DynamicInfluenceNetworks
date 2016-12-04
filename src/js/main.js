@@ -148,7 +148,8 @@ var App = App || {};
     if (App.dataset.length > 1) {
       App.timeSlider = new Slider( '#timeSlider', {
         title: 'Time',
-        domain: [ 0, App.dataset.length-1 ]
+        domain: [ 0, App.dataset.length-1 ],
+        right: true
       } );
       App.timeSlider.onDrag = function(x) {
         var t = Math.round(this.value);

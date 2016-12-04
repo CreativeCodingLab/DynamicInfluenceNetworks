@@ -4,13 +4,18 @@ function Slider(selector, options) {
         color = (options && options.color) ? options.color : '#eee',
         title = (options && options.title) ? options.title : '',
         domain = (options && options.domain) ? options.domain : [0,1],
+        right = (options && options.right === true),
         log = (options && options.log === true);
 
 
     var containerWidth = App.panels.forceDirected.svg.node().clientWidth;
     var width = 300;
     var height = 50;
-    svg.attr("viewBox", "0 0 " + 300 + " " + 50);
+    var scaleX = containerWidth*0.33/width;
+
+    svg.attr("viewBox", "0 0 " + 300 + " " + 50)
+        .style('transform-origin','bottom ' + (right ? 'right' : 'left'))
+        .style('transform','scale(' + scaleX + ')');
 
     var self = this;
     var drag = d3.drag()
