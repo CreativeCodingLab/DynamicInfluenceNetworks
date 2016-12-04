@@ -298,8 +298,7 @@ ForceDirectedGraph.prototype = {
               return num < 0 ? '#f66' : '#4c4';
             });
         })
-        sp.append('span')
-          .tex
+  
         if (inf.length > 10) {
           sp.append('br');
           sp.append('span')
