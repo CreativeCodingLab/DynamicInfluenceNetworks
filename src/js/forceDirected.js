@@ -272,7 +272,12 @@ ForceDirectedGraph.prototype = {
             Number(selfInf[0].flux.toFixed(3))
         sp.append('br');
         sp.append('span')
-          .text('Self-influence: ' + num);
+          .text('Self-influence: ');
+      sp.append('span')
+          .text(num)
+          .style('color', function() {
+              return num < 0 ? '#f66' : '#4c4';
+            });
       }
       if (inf.length > 0) {
         sp.append('br');
@@ -285,9 +290,16 @@ ForceDirectedGraph.prototype = {
 
           sp.append('br');
           sp.append('span')
-            .text(flux.name + ': ' + num)
+            .text(flux.name + ': ')
             .style('margin-left','0.75vw');
+          sp.append('span')
+          .text(num)
+          .style('color', function() {
+              return num < 0 ? '#f66' : '#4c4';
+            });
         })
+        sp.append('span')
+          .tex
         if (inf.length > 10) {
           sp.append('br');
           sp.append('span')
@@ -307,8 +319,13 @@ ForceDirectedGraph.prototype = {
 
           sp.append('br');
           sp.append('span')
-            .text(flux.name + ': ' + num)
+            .text(flux.name + ': ')
             .style('margin-left','0.75vw');
+          sp.append('span')
+          .text(num)
+          .style('color', function() {
+              return num < 0 ? '#f66' : '#4c4';
+            });
         })
 
         if (outf.length > 10) {
