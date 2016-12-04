@@ -240,13 +240,84 @@ ForceDirectedGraph.prototype = {
     if (type === 'rule') {
       var color = d3.hsl(this.clusterColor(d.cluster));
       if (color.l < 0.65) { color.l = 0.65 }
-      this.tip.append('span')
-          .text('Rule: ')
-        .append('span')
+      var sp = this.tip.append('span')
+          .text('Rule: ');
+
+      sp.append('span')
           .style('letter-spacing',0)
           .style('font-weight','bold')
           .style('color', color.toString())
           .text(d.name);
+      sp.append('br');
+
+      sp = sp.append('div')
+        .style('font-size','0.85em')
+        .style('line-height','1.4em')
+        .style('padding-left','0.5vw')
+        .style('border-left','0.1vw dotted #ccc');
+
+      sp.append('span')
+        .text('Hits: ' + d.hits);
+
+      var selfInf = d.inf.filter(inf => inf.name === d.name);
+      var inf = d.inf.filter(inf => inf.name !== d.name)
+                  .sort((a,b) => b.flux - a.flux );
+      var outf = d.outf.filter(outf => outf.name !== d.name)
+                  .sort((a,b) => b.flux - a.flux );
+
+      var num;
+      if (selfInf.length > 0) {
+        num = App.property.sci ?
+            Number(selfInf[0].flux.toPrecision(3)).toExponential() :
+            Number(selfInf[0].flux.toFixed(3))
+        sp.append('br');
+        sp.append('span')
+          .text('Self-influence: ' + num);
+      }
+      if (inf.length > 0) {
+        sp.append('br');
+        sp.append('span')
+          .text('Influence on...');
+        inf.slice(0,10).forEach(flux => {
+          num = App.property.sci ?
+            Number(flux.flux.toPrecision(3)).toExponential() :
+            Number(flux.flux.toFixed(3))
+
+          sp.append('br');
+          sp.append('span')
+            .text(flux.name + ': ' + num)
+            .style('margin-left','0.75vw');
+        })
+        if (inf.length > 10) {
+          sp.append('br');
+          sp.append('span')
+            .text('...and ' + (inf.length-10) + ' more')
+            .style('margin-left','0.75vw');
+        }
+      }
+      if (outf.length > 0) {
+        sp.append('br');
+        sp.append('span')
+          .text('Influenced by...');
+
+        outf.slice(0,10).forEach(flux => {
+          num = App.property.sci ?
+            Number(flux.flux.toPrecision(3)).toExponential() :
+            Number(flux.flux.toFixed(3))
+
+          sp.append('br');
+          sp.append('span')
+            .text(flux.name + ': ' + num)
+            .style('margin-left','0.75vw');
+        })
+
+        if (outf.length > 10) {
+          sp.append('br');
+          sp.append('span')
+            .text('...and ' + (outf.length-10) + ' more')
+            .style('margin-left','0.75vw');
+        }
+      }
     }
     else {
       var cs = d3.hsl(this.clusterColor(d.source.cluster));
@@ -258,7 +329,7 @@ ForceDirectedGraph.prototype = {
       sp.text('Influence: ')
         .append('span').text(App.property.sci ?
             Number(d.value.toPrecision(3)).toExponential() :
-            d.value.toFixed(3) )
+            Number(d.value.toFixed(3)) )
           .style('font-weight','bold')
           .style('color', d.value < 0 ? '#f66' : '#4c4');
       sp.append('br');
