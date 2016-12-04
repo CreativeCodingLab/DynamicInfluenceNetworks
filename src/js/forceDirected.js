@@ -279,7 +279,12 @@ ForceDirectedGraph.prototype = {
             Number(selfInf[0].flux.toFixed(3))
         sp.append('br');
         sp.append('span')
-          .text('Self-influence: ');
+          .text('Self-influence: ')
+          .style('color', function() {
+            var color = d3.hsl(self.clusterColor(selfCluster));
+            if (color.l < 0.65) { color.l = 0.65 }
+            return color;
+          })       
       sp.append('span')
           .text(num)
           .style('color', function() {
@@ -302,7 +307,9 @@ ForceDirectedGraph.prototype = {
             .style('font-weight','bold')
             .style('color', function() {
               var cluster = self.findCluster(flux.name);
-              return adjustedClusterColor(cluster);
+              var color = d3.hsl(self.clusterColor(cluster));
+              if (color.l < 0.65) { color.l = 0.65 }
+              return color;
             });
           sp.append('span')
           .text(num)
@@ -335,7 +342,9 @@ ForceDirectedGraph.prototype = {
             .style('font-weight','bold')
             .style('color', function() {
               var cluster = self.findCluster(flux.name);
-              return adjustedClusterColor(cluster);
+              var color = d3.hsl(self.clusterColor(cluster));
+              if (color.l < 0.65) { color.l = 0.65 }
+              return color;
             });
           sp.append('span')
           .text(num)
