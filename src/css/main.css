@@ -136,8 +136,8 @@ input[type="text"] {
 }
 input[type="checkbox"] {
     margin-top:5px;
-    height: 3vmin;
-    width: 3vmin;
+    height: 2vmin;
+    width: 2vmin;
     display: none;
     cursor:pointer;
 }
@@ -148,10 +148,11 @@ input[type="checkbox"] + label:before {
   letter-spacing: 5px;
   content: "\f10c"; 
   cursor:pointer;
+  font-size: 2vmin;
 }
 
 input[type="checkbox"]:checked + label:before { 
-  content: "\f05d"; 
+  content: "\f058"; 
 }
 
 @media (min-width: 992px) {
