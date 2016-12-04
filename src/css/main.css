@@ -1,13 +1,12 @@
 @import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
 
 html, body, .fluidContainer, .mainCol {
-  /*width: 100%;*/
   height: 92%;
-  /*overflow: hidden;*/
   -webkit-font-smoothing:antialiased;
   -moz-osx-smoothing:grayscale;
 
   font-size:2.5vmin;
+  line-height:2.75vmin;
 }
 body { 
   margin: 0; 
@@ -75,13 +74,12 @@ body {
 }
 
 .control {
-  padding:8px;
+  padding:2vw;
   margin-top:  15px;
   margin-bottom:   15px; 
 }
 .control:first-of-type{ 
     font-weight:bold;
-    font-size:0.85em;
 }
 .control:first-of-type p{ 
     display:inline-block;
@@ -89,13 +87,8 @@ body {
     /*margin-right:30px;*/
 }
 
-.slider { 
-  vertical-align: top;
-  display: inline-block; 
-  margin-bottom:5px;
-}
-.slider+.slider {
-    /*margin-top:15px;*/
+rect.slider { 
+  cursor:pointer;
 }
 
 .col-md-4 {
@@ -114,13 +107,17 @@ body {
 }
 button,input {
     outline:none;
-    border-radius:5px;
-    border:1px solid #ccc;
+    border-radius:0.4vmin;
+    border:0.4vmin solid #ccc;
     /*padding:5px 12px;*/
 }
 
 
 button {
+    font-size:2vmin;
+    padding:0.5vmin 1vmin;
+    font-weight:bold;
+    cursor:pointer;
     background-color:#fff;
     transition:background-color 100ms ease;
     -webkit-transition:background-color 100ms ease, color 100ms ease;
@@ -142,16 +139,15 @@ input[type="checkbox"] {
     height: 3vmin;
     width: 3vmin;
     display: none;
+    cursor:pointer;
 }
 
 
 input[type="checkbox"] + label:before {
   font-family: FontAwesome;
   letter-spacing: 5px;
-}
-
-input[type="checkbox"] + label:before { 
   content: "\f10c"; 
+  cursor:pointer;
 }
 
 input[type="checkbox"]:checked + label:before { 

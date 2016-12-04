@@ -560,8 +560,8 @@ ForceDirectedGraph.prototype = {
       .attr("transform", (d, i) => {
         return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
       })
-      .style('font-size','0.75em')
-      .style('letter-spacing','0.03em')
+      .style('font-size','14px')
+      .style('letter-spacing','0.5px')
       .style('text-shadow','1px 1px 2px black')
     .merge(text)
       .text(d => d.name)
