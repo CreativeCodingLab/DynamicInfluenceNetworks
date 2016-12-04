@@ -68,7 +68,7 @@ function Slider(selector, options) {
     svg.append('g')
         .attr('class','axis')
         .attr('transform','translate(0,25)')
-        .style("font-size", '12px')
+        .style("font-size", '11px')
         .call(axis);
 
     svg.select('.axis path')
@@ -98,7 +98,7 @@ function Slider(selector, options) {
         .attr('pointer-events','none')
         .attr('text-anchor','middle')
         .attr('fill',color)
-        .attr('font-size','12px')
+        .attr('font-size','14px')
         .attr('text-anchor','start')
         .attr('x',8)
         .style('font-weight','bold')

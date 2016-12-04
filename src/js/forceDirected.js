@@ -559,8 +559,8 @@ ForceDirectedGraph.prototype = {
         return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
       })
       .style('font-size','14px')
-      .style('letter-spacing','0.5px')
-      .style('text-shadow','1px 1px 2px black')
+      .style('letter-spacing','0.25px')
+      .style('text-shadow','2px 2px 4px black')
     .merge(text)
       .text(d => d.name)
       .style('opacity', function(d) {
