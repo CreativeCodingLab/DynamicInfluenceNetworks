@@ -264,15 +264,19 @@ ForceDirectedGraph.prototype = {
                   .sort((a,b) => Math.abs(b.flux) - Math.abs(a.flux) );
       var outf = d.outf.filter(outf => outf.name !== d.name)
                   .sort((a,b) => Math.abs(b.flux) - Math.abs(a.flux) );
-
+      var selfCluster = d.cluster;
       var num;
+      var self = this;
       if (selfInf.length > 0) {
         num = App.property.sci ?
             Number(selfInf[0].flux.toPrecision(3)).toExponential() :
             Number(selfInf[0].flux.toFixed(3))
         sp.append('br');
         sp.append('span')
-          .text('Self-influence: ');
+          .text('Self-influence: ')
+          .style('color', function() {
+            return selfCluster > 0 ? self.clusterColor(selfCluster): 0;
+          });
       sp.append('span')
           .text(num)
           .style('color', function() {
@@ -291,7 +295,11 @@ ForceDirectedGraph.prototype = {
           sp.append('br');
           sp.append('span')
             .text(flux.name + ': ')
-            .style('margin-left','0.75vw');
+            .style('margin-left','0.75vw')
+            .style('color', function() {
+              var cluster = self.findCluster(flux.name);
+              return cluster > 0 ?  self.clusterColor(cluster): 0;
+            });
           sp.append('span')
           .text(num)
           .style('color', function() {
@@ -319,7 +327,11 @@ ForceDirectedGraph.prototype = {
           sp.append('br');
           sp.append('span')
             .text(flux.name + ': ')
-            .style('margin-left','0.75vw');
+            .style('margin-left','0.75vw')
+            .style('color', function() {
+              var cluster = self.findCluster(flux.name);
+              return cluster > 0 ?  self.clusterColor(cluster): 0 ;
+            });
           sp.append('span')
           .text(num)
           .style('color', function() {
@@ -674,6 +686,16 @@ ForceDirectedGraph.prototype = {
     return d3.scaleOrdinal(d3.schemeCategory20)
       .domain(d3.range(1,20))
       (cluster);
+  },
+
+  findCluster: function(name) {
+    var filteredData = App.panels.forceDirected.filteredData;
+    for (var key in filteredData) {
+      if (filteredData[key].name === name) {
+        return filteredData[key].cluster;
+      }
+    }
+    return 0;
   },
 
   drawLinks: function() {
