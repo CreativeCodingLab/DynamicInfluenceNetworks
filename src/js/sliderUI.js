@@ -117,7 +117,7 @@ function Slider(selector, options) {
         domain = arr;
         scale.domain(domain);
         if (log) {
-            this.sliderScale = scale.copy().range([0, width]).invert;
+            this.sliderScale = scale.copy().range([0, width-20]).invert;
         }
         else {
             this.sliderScale.range(domain);
@@ -134,7 +134,7 @@ function Slider(selector, options) {
     }
 
     if (log) {
-        this.sliderScale = scale.copy().range([0, width]).invert;
+        this.sliderScale = scale.copy().range([0, width-20]).invert;
     }
     else {
         this.sliderScale = d3.scaleLinear()

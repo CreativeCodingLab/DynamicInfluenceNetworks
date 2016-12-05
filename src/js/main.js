@@ -155,7 +155,6 @@ var App = App || {};
         var t = Math.round(this.value);
         if (t != App.item) {
           App.item = t;
-          this.setPosition(t);
           var tw = App.dataset[t].timeWindow.map(n => Number(n.toFixed(2)));
           this.setTitle( 'Time: ' + tw[0] + '-' + tw[1]);
           App.data = App.dataset[t].data;
