@@ -64,13 +64,7 @@ LineGraph.prototype = {
 
         this.rule = d;
         this.svg.select('.title')
-          .text(d.name + (out? ' outgoing influences':' incoming influences'))
-          .attr('fill', () => {
-              var c = d3.hsl(App.panels.forceDirected.clusterColor(d.cluster));
-
-              if (c.l > 0.65) c.l = 0.65;
-              return c.toString();
-          });
+          .text(d.name + (out? ' outgoing influences':' incoming influences'));
 
 
         var infMap = out ?
@@ -172,6 +166,17 @@ LineGraph.prototype = {
     drawMarkers: function() {
         if (!(this.fluxs && this.x && this.y)) { return; }
         var i = App.item || 0;
+
+        // update title color
+        var rule = App.panels.forceDirected.filteredData[this.rule.name];
+        this.svg.select('.title')
+          .attr('fill', () => {
+              var c = d3.hsl(App.panels.forceDirected.clusterColor(rule.cluster));
+
+              if (c.l > 0.65) c.l = 0.65;
+              return c.toString();
+          });
+
         var marker = this.graph.selectAll('.marker')
             .data(this.fluxs.map(d => d[i]));
 

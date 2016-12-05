@@ -196,6 +196,8 @@ var App = App || {};
       App.panels.forceDirected.threshold = inf;
       App.panels.forceDirected.defineClusters(inf);
       App.panels.forceDirected.drawGraph();
+      App.panels.topVis.drawMarkers();
+      App.panels.bottomVis.drawMarkers();
     }
   }
 
