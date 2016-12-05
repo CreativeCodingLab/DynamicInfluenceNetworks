@@ -47,7 +47,8 @@ function Slider(selector, options) {
             self.onDrag(x, d3.event);
         })
         .on('end', function() {
-            var x = Math.round(Math.min(Math.max(d3.event.x - 5, 0), width-20));
+            var x = d3.event.x-5;
+            x = scale(self.sliderScale(x)) - 10;
             d3.select(this).attr('x', x);
             self.onDragEnd(x, d3.event);
         });
