@@ -1,21 +1,18 @@
 function Slider(selector, options) {
 
-    var svg = d3.select( selector ? selector : 'body' ).append('svg'),
-        color = (options && options.color) ? options.color : '#eee',
+    var svg = App.panels.forceDirected.svg.append('g');
+    var color = (options && options.color) ? options.color : '#eee',
         title = (options && options.title) ? options.title : '',
         domain = (options && options.domain) ? options.domain : [0,1],
         right = (options && options.right === true),
         log = (options && options.log === true);
 
-
-    var containerWidth = App.panels.forceDirected.svg.node().clientWidth;
     var width = 300;
     var height = 50;
-    var scaleX = containerWidth*0.33/width;
 
-    svg.attr("viewBox", "0 0 " + 300 + " " + 50)
-        .style('transform-origin','bottom ' + (right ? 'right' : 'left'))
-        .style('transform','scale(' + scaleX + ')');
+    var containerWidth = right ? App.panels.forceDirected.width - width - 5 : 5;
+        containerHeight = App.panels.forceDirected.height-50;
+    svg.attr('transform','translate('+containerWidth+','+containerHeight+')');
 
     var self = this;
     var drag = d3.drag()
@@ -65,8 +62,6 @@ function Slider(selector, options) {
 
     if (!log) { axis.tickFormat(d => parseInt(App.format.start+d)); }
 
-    svg.attr('height', height)
-        .attr('width',width);
     svg.append('g')
         .attr('class','axis')
         .attr('transform','translate(0,25)')
@@ -156,9 +151,8 @@ function Slider(selector, options) {
     }
 
     this.resize = function( ) {
-
-        var cw = App.panels.forceDirected.svg.node().clientWidth;
-        svg.attr('width', cw/containerWidth*300)
-            .attr('height',cw/containerWidth*50);
+    var containerWidth = right ? App.panels.forceDirected.width - 300 : 0;
+        containerHeight = App.panels.forceDirected.height-50;
+    svg.attr('transform','translate('+containerWidth+','+containerHeight+')');
     }
 };
