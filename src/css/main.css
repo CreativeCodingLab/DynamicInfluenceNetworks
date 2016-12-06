@@ -1,9 +1,10 @@
 @import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
 
 html, body, .fluidContainer, .mainCol {
-  height: 92%;
+  height:100%;
+  overflow: hidden;
   -webkit-font-smoothing:antialiased;
-  -moz-osx-smoothing:grayscale;
+  -moz-osx-font-smoothing:grayscale;
 
   font-size:2.5vmin;
   line-height:2.75vmin;
@@ -23,18 +24,26 @@ body {
   min-height: 30%;
 }
 
+
+.col-md-8 {
+  width:70%;
+  position:relative;
+}
 .col-md-4 {
   -webkit-font-smoothing:auto;
-  -moz-osx-smoothing:auto;
+  -moz-osx-font-smoothing:auto;
+  position:absolute;
+  top:0;
+  left:70%;
+  margin:0;
+  width:30%;
+  overflow:auto;
 }
 
 .rule,.link,.text {
     cursor:pointer;
 }
 
-.mainCol {
-  position:relative;
-}
 #legendContainer {
   overflow: hidden;
   position: absolute;
@@ -148,25 +157,4 @@ input[type="checkbox"]:checked + label:before {
 
 input[type="checkbox"]:checked + label { 
   color:#2c7fb8;
-}
-
-@media (min-width: 992px) {
-    html, body, .fluidContainer, .mainCol {
-      height:100%;
-      overflow: hidden;
-    }
-    .col-md-8 {
-      width:70%;
-    }
-    .col-md-4 {
-      position:absolute;
-      top:0;
-      left:70%;
-      margin:0;
-      width:30%;
-      overflow:auto;
-    }
-    .control:first-of-type p{ 
-        display:block;
-    }
 }

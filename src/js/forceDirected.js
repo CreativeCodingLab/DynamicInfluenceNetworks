@@ -787,12 +787,12 @@ ForceDirectedGraph.prototype = {
         .style("stroke-width", 8)
         .on("mouseover", (d, i) => {
           if (self._isDragging) return;
-          d3.select(event.target)
+          d3.select(d3.event.target)
             .style('stroke-opacity',0.5);
           self.showTip(d, 'path');
         })
         .on("mouseout", (d, i) => {
-          d3.select(event.target)
+          d3.select(d3.event.target)
             .transition()
             .style('stroke-opacity',0);
           self.hideTip();
@@ -1067,13 +1067,13 @@ ForceDirectedGraph.prototype = {
   createLegend:function() {
     var self = this;
 
-    var containerWidth = d3.select("#forceDirectedDiv").node().clientWidth;
+    var containerWidth = d3.select("#forceDirectedDiv").node().getBoundingClientRect().width;
 
     this.legend.container = d3.select("#legendContainer")
         .style("width", containerWidth + "px");
 
     this.legend.aspect = 183 / 265;
-    this.legend.height = this.legend.container.node().clientHeight * 0.4;
+    this.legend.height = this.legend.container.node().getBoundingClientRect().height * 0.4;
     this.legend.width = this.legend.height * this.legend.aspect;
 
     // var divPeekWidth = (this.legend.width / 8);
@@ -1147,8 +1147,8 @@ ForceDirectedGraph.prototype = {
       });
 
 
-    this.legend.width = this.legend.div.node().clientWidth;
-    this.legend.height = this.legend.div.node().clientHeight;
+    this.legend.width = this.legend.div.node().getBoundingClientRect().width;
+    this.legend.height = this.legend.div.node().getBoundingClientRect().height;
 
     this.legend.svg = this.legend.div
       .append("svg")

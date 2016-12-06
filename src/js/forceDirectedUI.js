@@ -1,3 +1,5 @@
+var App = App || {};
+
 window.addEventListener('load', function() {
     App.property = {};
     var self = this;

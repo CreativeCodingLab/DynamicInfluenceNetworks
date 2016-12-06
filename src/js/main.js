@@ -12,8 +12,8 @@ var App = App || {};
 
   App.init = function() {
     var url = document.URL.split('?')[1] || "flux_0.json";
-    App.loadData(url, true);
     createSVGs();
+    App.loadData(url, true);
   }
 
   App.resize = function() {
@@ -42,7 +42,6 @@ var App = App || {};
       width: fd.width,
       height: fd.height
     })
-
 
     // instantiate sliders
     initSliders();
@@ -222,8 +221,9 @@ var App = App || {};
     for(key in App.panels) {
       if (App.panels[key].svg) {
         // create svg
-        App.panels[key].width = App.panels[key].svg.node().clientWidth;
-        App.panels[key].height = App.panels[key].svg.node().clientHeight;
+        var rect = App.panels[key].svg.node().getBoundingClientRect();
+        App.panels[key].width = rect.width;
+        App.panels[key].height = rect.height;
       }
     }
   }
