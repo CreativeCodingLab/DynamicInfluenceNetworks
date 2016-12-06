@@ -73,11 +73,6 @@ ForceDirectedGraph.prototype = {
     var container = d3.select("#forceDirectedDiv").append("div")
         .attr("id", "legendContainer");
 
-    container.append("div")
-        .attr("id", "clusterSlider");
-    container.append("div")
-        .attr("id", "timeSlider");
-
     // colors from 
     // http://colorbrewer2.org/#type=diverging&scheme=RdYlGn&n=9
 

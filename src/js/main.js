@@ -12,7 +12,6 @@ var App = App || {};
 
   App.init = function() {
     var url = document.URL.split('?')[1] || "flux_0.json";
-    createSVGs();
     App.loadData(url, true);
   }
 
@@ -35,6 +34,8 @@ var App = App || {};
   }
 
   App.draw = function() {
+    createSVGs();
+
     // put function calls here to draw
     var fd = App.panels.forceDirected;
     App.panels.forceDirected = new ForceDirectedGraph( { 
@@ -140,7 +141,22 @@ var App = App || {};
     // init data to first dataset in series
     App.data = App.dataset[0].data;
     App.draw();
-  }
+  };
+
+  App.resetData = function(dataset) {
+
+    // remove all children of svg
+    App.panels.forceDirected.simulation.stop();
+    App.panels.forceDirected.svg.selectAll('*').remove();
+    App.panels.forceDirected.tip.remove();
+    App.panels.forceDirected.legend.container.remove();
+
+    // remove line graphs
+    d3.select('#topVis').selectAll('*').remove();
+    d3.select('#bottomVis').selectAll('*').remove();
+
+    App.handleData(dataset);
+  };
 
   function initSliders() {
     // set up a time slider

@@ -123,6 +123,7 @@ button:active {
     background-color:#eee;
     color: #333;
 }
+button label { cursor:pointer;}
 
 input[type="text"] {
     margin-top:5px;
@@ -146,7 +147,7 @@ input[type="checkbox"] + label:before {
   margin-left:-3vmin;
 }
 
-label {
+input[type="checkbox"] + label {
   color:#7fcdbb;
 }
 

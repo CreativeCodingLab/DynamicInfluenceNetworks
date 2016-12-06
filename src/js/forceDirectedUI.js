@@ -211,4 +211,47 @@ window.addEventListener('load', function() {
             button.addEventListener('click', self['_'+button.id]);
         });
 
+    // add drag/drop handler
+    // assume input is an <input> html element
+    document.body.addEventListener('dragover', handleDragOver, false);
+    document.body.addEventListener('drop', handleDrop, false);
+    document.getElementById('input').addEventListener('change', handleInput, false);
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        handleFile(e.dataTransfer.files);
+    }
+
+    // this just changes the cursor hover effect
+    function handleDragOver(e) { 
+        e.stopPropagation();
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    }
+
+    function handleInput(evt) {
+      handleFile(evt.target.files);
+    }
+
+    function handleFile(files) {
+      if (!(files && files.length > 0)) { return; }
+
+      var file = files[0];
+      if (file) {
+        var fr = new FileReader();
+        fr.onload = function(e) {
+          try {
+            var parsedJson = JSON.parse(e.target.result);
+            App.resetData([parsedJson]);
+          }
+          catch (err) {
+            console.log('error parsing file', err)
+          }
+        }
+        fr.readAsText(file);
+      }
+    }
+
+
 });
