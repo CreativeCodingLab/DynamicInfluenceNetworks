@@ -606,6 +606,7 @@ ForceDirectedGraph.prototype = {
     var text = this.nodeGroup.selectAll(".rule-text")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
 
+    
     rule.enter().append("circle")
       .attr("class", "rule rule-node")
       .attr("transform", (d, i) => {
@@ -636,22 +637,33 @@ ForceDirectedGraph.prototype = {
         else return 0.5;
       })
       .on('mouseover', this._isDragging ? null : function(d) {
+
         d3.select(this)
           .style('stroke-opacity',1);
         self.showTip(d, 'rule');
+
         if (App.panels.topVis) { App.panels.topVis.updateRule(d); }
         if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d, true); }
+
+        self.linkGroup.selectAll(".link-2").filter(function(target) {
+          return target.source.name === d.name;
+        })
+          .transition()
+          .style('stroke-opacity', 0.5).interrupt();
+    
       })
       .on("mouseout", function() {
         d3.select(this).transition()
           .style('stroke-opacity',0.5);
+        self.linkGroup.selectAll(".link-2")
+          .style('stroke-opacity', 0).;
         self.hideTip();
+
       })
       .on('click', function(d) {
         d3.select(this)
           .style("fill", (d) => self.clusterColor(d.cluster))
           .style("stroke", "white");
-
         d.fx = d.fy = null;
       })
       .call(drag);
@@ -787,6 +799,7 @@ ForceDirectedGraph.prototype = {
           self.showTip(d, 'path');
         })
         .on("mouseout", (d, i) => {
+
           d3.select(d3.event.target)
             .transition()
             .style('stroke-opacity',0);
