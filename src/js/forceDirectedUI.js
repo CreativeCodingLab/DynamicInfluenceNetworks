@@ -190,15 +190,6 @@ window.addEventListener('load', function() {
         App.panels.forceDirected.simulation.alpha(0.1).restart();
     };
 
-    this._filename = function(e) {
-        var input = document.getElementById('filename-input');
-        console.log(input.value);
-        if (!input.value.match(/.*#.json/)) {
-          input.value = '';
-          input.setAttribute('placeholder', 'Filenames of data series should be in the format "[prefix]_#.json"');
-        }
-    };
-
     // add listeners
     [].slice.call(document.querySelectorAll('.control input[type="checkbox"]'))
         .forEach((checkbox) => {
@@ -211,8 +202,18 @@ window.addEventListener('load', function() {
             button.addEventListener('click', self['_'+button.id]);
         });
 
+
+    //-------------- file handler -------------------//
+    
+    // from global zip-js
+    zip.workerScriptsPath = './lib/WebContent/';
+
     // add drag/drop handler
     // assume input is an <input> html element
+    this._changeFile = function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    };
     document.body.addEventListener('dragover', handleDragOver, false);
     document.body.addEventListener('drop', handleDrop, false);
     document.getElementById('input').addEventListener('change', handleInput, false);
@@ -232,6 +233,7 @@ window.addEventListener('load', function() {
 
     function handleInput(evt) {
       handleFile(evt.target.files);
+      document.getElementById('form').reset();
     }
 
     function handleFile(files) {
@@ -239,19 +241,102 @@ window.addEventListener('load', function() {
 
       var file = files[0];
       if (file) {
-        var fr = new FileReader();
-        fr.onload = function(e) {
-          try {
-            var parsedJson = JSON.parse(e.target.result);
-            App.resetData([parsedJson]);
-          }
-          catch (err) {
-            console.log('error parsing file', err)
-          }
+
+        // check if file is zip or json
+        if (file.type === 'application/zip') {
+          readZipFile(file);
         }
-        fr.readAsText(file);
+        else if (file.type === 'application/json') {
+          readJsonFile(file);
+        }
       }
     }
 
+    function readJsonFile(file) {
+      var fr = new FileReader();
+      fr.onload = function(e) {
+        try {
+          var parsedJson = JSON.parse(e.target.result);
+          App.resetData([parsedJson]);
+        }
+        catch (err) {
+          console.log('error parsing file', err)
+        }
+      }
+      fr.readAsText(file);
+    }
 
+    function readZipFile(blob) {
+        var fs = new zip.fs.FS();
+        fs.importBlob(blob, function() {
+            // BFS for a json file
+            var parent = null;
+
+            function findJson(root) {
+                if ( root.children.some(entry => {
+                    return entry.name.endsWith('.json') && 
+                        !entry.directory;
+                }) ) {
+                    parent = root;
+                    return;
+                }
+
+                root.children.filter(entry => entry.directory)
+                    .forEach(child => findJson(child));
+            }
+
+            findJson(fs.root);
+
+            if (parent) {
+                var children = parent.children.filter( file => file.name.endsWith(".json") );
+                parseFiles(children);
+            }
+            else {
+                console.log('no json files found');
+            }
+
+        }, function(err) {
+            console.log('error',err);
+        });
+    }
+
+    function parseFiles(files) {
+        var series = files.filter(f => f.name.match(/\d+/));
+        if (series.length < 1) {
+            // read single file
+            series = [files[0]];
+        }
+        else {
+            // read a series of files
+            series.sort( (a,b) => {
+                return +(a.name.match(/\d+/)[0]) - (b.name.match(/\d+/)[0]);
+            });
+        }
+
+        var datasets = [];
+
+        function getDatasets(i) {
+          if (i >= series.length) {
+            // stop
+            App.resetData(datasets);
+            return;
+          }
+          series[i].getText(function(text) {
+            try {
+              var parsedJSON = JSON.parse(text);
+              if (parsedJSON) {
+                datasets.push(parsedJSON);
+              }
+              getDatasets(i+1);
+            }
+            catch (e) {
+              console.log('error',e);
+              App.resetData(datasets);
+            }
+          })
+        };
+
+        getDatasets(0);
+    }
+ 
 });
