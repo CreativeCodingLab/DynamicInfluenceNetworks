@@ -650,13 +650,12 @@ ForceDirectedGraph.prototype = {
         })
           .transition()
           .style('stroke-opacity', 0.5).interrupt();
-    
       })
       .on("mouseout", function() {
         d3.select(this).transition()
           .style('stroke-opacity',0.5);
         self.linkGroup.selectAll(".link-2")
-          .style('stroke-opacity', 0).;
+          .style('stroke-opacity', 0).interrupt();
         self.hideTip();
 
       })

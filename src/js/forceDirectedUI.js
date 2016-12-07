@@ -208,8 +208,7 @@ window.addEventListener('load', function() {
     // from global zip-js
     zip.workerScriptsPath = './lib/WebContent/';
 
-    // add drag/drop handler
-    // assume input is an <input> html element
+    // prevent form submission on click
     this._changeFile = function(e) {
       e.stopPropagation();
       e.preventDefault();
@@ -218,6 +217,7 @@ window.addEventListener('load', function() {
     document.body.addEventListener('drop', handleDrop, false);
     document.getElementById('input').addEventListener('change', handleInput, false);
 
+    // add drag/drop handler
     function handleDrop(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -269,7 +269,7 @@ window.addEventListener('load', function() {
     function readZipFile(blob) {
         var fs = new zip.fs.FS();
         fs.importBlob(blob, function() {
-            // BFS for a json file
+            // DFS for a json file, reading files before directories
             var parent = null;
 
             function findJson(root) {
@@ -278,11 +278,11 @@ window.addEventListener('load', function() {
                         !entry.directory;
                 }) ) {
                     parent = root;
-                    return;
+                    return true;
                 }
 
-                root.children.filter(entry => entry.directory)
-                    .forEach(child => findJson(child));
+                return root.children.filter(entry => entry.directory)
+                    .some(child => findJson(child));
             }
 
             findJson(fs.root);
