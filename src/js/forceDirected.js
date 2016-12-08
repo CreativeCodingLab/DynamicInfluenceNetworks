@@ -1014,9 +1014,10 @@ ForceDirectedGraph.prototype = {
     }
 
       function collide(alpha) {
-        var padding = 1.5;
-        var clusterPadding = 6; // separation between different-color circles
-        var maxRadius = 20;
+        var padding = 30;
+        var clusterPadding = 50; // separation between different-color circles
+        var repulsion = 5;
+        var maxRadius = 100;
         var quadtree = d3.quadtree()
             .x((d) => d.x)
             .y((d) => d.y)
@@ -1030,13 +1031,24 @@ ForceDirectedGraph.prototype = {
               ny1 = d.y - r,
               ny2 = d.y + r;
           quadtree.visit(function(quad, x1, y1, x2, y2) {
-
             if (quad.data && (quad.data !== d)) {
+
               var x = d.x - quad.data.x,
                   y = d.y - quad.data.y,
                   l = Math.sqrt(x * x + y * y),
-                  r = d.r + quad.data.radius + (d.cluster === quad.data.cluster ? padding : clusterPadding);
-              if (l < r) {
+                  r = d.radius + quad.data.radius;
+
+              if (d.cluster === quad.data.cluster) {
+                var link = self.links.find(link => link.target == quad.data && link.source == d);
+
+                if (link && link.value < 0) { r += padding*repulsion; }
+                else { r += padding; }
+              }
+              else {
+                r += clusterPadding;
+              }
+
+              if (l < r && l > 0) {
                 l = (l - r) / l * alpha;
                 d.x -= x *= l;
                 d.y -= y *= l;
