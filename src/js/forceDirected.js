@@ -224,10 +224,10 @@ ForceDirectedGraph.prototype = {
     }
   },
   zoomed: function() {
-    var transform = d3.event.transform;
-    this.nodeGroup.attr("transform", transform);
-    this.linkGroup.attr("transform", transform);
-    this.clusterCircleGroup.attr("transform", transform);
+    this.transform = d3.event.transform;
+    this.nodeGroup.attr("transform", this.transform);
+    this.linkGroup.attr("transform", this.transform);
+    this.clusterCircleGroup.attr("transform", this.transform);
   },
   showTip: function(d, type) {
     this.tip.selectAll('*').remove();
@@ -645,8 +645,8 @@ ForceDirectedGraph.prototype = {
         if (App.panels.topVis) { App.panels.topVis.updateRule(d); }
         if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d, true); }
 
-        self.linkGroup.selectAll(".link-2").filter(function(target) {
-          return target.source.name === d.name;
+        self.linkGroup.selectAll(".link-2").filter(function(link) {
+          return link.source.name === d.name;
         })
           .transition()
           .style('stroke-opacity', 0.5);
@@ -832,24 +832,27 @@ ForceDirectedGraph.prototype = {
     var cluster = this.clusterCircleGroup.selectAll(".clusterCircle");
 
     function tick() {
+      if (self.simulation.alpha() < 0.3 && self.transform && self.transform.k < 1) { this.flagAlpha = true; }
+      if (!this.flagAlpha) {
         node
           .datum((d) => {
-
             var clampX = d3.scaleLinear()
               .domain([16 + borderNodeMargin, self.width - 36 - borderNodeMargin])
               .range([16 + borderNodeMargin, self.width - 36 - borderNodeMargin])
               .clamp(true);
 
             var clampY = d3.scaleLinear()
-              .domain([16 + borderNodeMargin, self.height - 56 - borderNodeMargin])
-              .range([16 + borderNodeMargin, self.height - 56 - borderNodeMargin])
+              .domain([16 + borderNodeMargin, self.height - 36 - borderNodeMargin])
+              .range([16 + borderNodeMargin, self.height - 36 - borderNodeMargin])
               .clamp(true);
 
             d.x = clampX(d.x);
             d.y = clampY(d.y);
             return d;
           })
-          .style("fill", (d,i,el) => {
+      }
+
+      node.style("fill", (d,i,el) => {
             return (d3.select(el[i]).classed('rule-text')) ?
               'white' : self.clusterColor(d.cluster);
           })
@@ -859,59 +862,59 @@ ForceDirectedGraph.prototype = {
               "translate(" + d.x + "," + d.y + ")";
           });
 
-        link
-          .style("stroke", (d) => {
-            var dx = d.target.x - d.source.x,
-                dy = d.target.y - d.source.y;
-            if (d.value > 0) {
-              if (Math.abs(dy/dx) > 3) {
-                return dy < 0 ? "url(#greenUp)" : "url(#greenDown)";
-              }
-              return dx < 0 ? "url(#greenLeft)" : "url(#greenRight)";
+      link
+        .style("stroke", (d) => {
+          var dx = d.target.x - d.source.x,
+              dy = d.target.y - d.source.y;
+          if (d.value > 0) {
+            if (Math.abs(dy/dx) > 3) {
+              return dy < 0 ? "url(#greenUp)" : "url(#greenDown)";
             }
-            else {
-              if (Math.abs(dy/dx) > 3) {
-                return dy < 0 ? "url(#redUp)" : "url(#redDown)";
-              }
-              return dx < 0 ? "url(#redLeft)" : "url(#redRight)";
+            return dx < 0 ? "url(#greenLeft)" : "url(#greenRight)";
+          }
+          else {
+            if (Math.abs(dy/dx) > 3) {
+              return dy < 0 ? "url(#redUp)" : "url(#redDown)";
             }
-          })
-          .attr('d', createArrowPath);
+            return dx < 0 ? "url(#redLeft)" : "url(#redRight)";
+          }
+        })
+        .attr('d', createArrowPath);
 
-        self.clusterCircleGroup.selectAll(".clusterCircle")
-          .attr("cx", (d) => {
-            var ext = d3.extent(d, node => node.x);
-            if (isNaN(ext[0])  || isNaN(ext[1])) {
-              console.log(d);
-            }
+      self.clusterCircleGroup.selectAll(".clusterCircle")
+        .attr("cx", (d) => {
+          var ext = d3.extent(d, node => node.x);
+          if (isNaN(ext[0])  || isNaN(ext[1])) {
+            console.log(d);
+          }
 
-            return (ext[1] + ext[0]) / 2;
-          })
-          .attr("cy", (d) => {
-            var ext = d3.extent(d, node => node.y);
-            if (isNaN(ext[0])  || isNaN(ext[1])) {
-              console.log(d);
-            }
+          return (ext[1] + ext[0]) / 2;
+        })
+        .attr("cy", (d) => {
+          var ext = d3.extent(d, node => node.y);
+          if (isNaN(ext[0])  || isNaN(ext[1])) {
+            console.log(d);
+          }
 
-            return (ext[1] + ext[0]) / 2;
-          })
-          .attr("r", function(d) {
-            var x = Number(d3.select(this).attr("cx"));
-            var y = Number(d3.select(this).attr("cy"));
+          return (ext[1] + ext[0]) / 2;
+        })
+        .attr("r", function(d) {
+          var x = Number(d3.select(this).attr("cx"));
+          var y = Number(d3.select(this).attr("cy"));
 
-            var circlePadding = 15;
+          var circlePadding = 15;
 
-            var radius = d3.max(d, (node) => {
-              return Math.sqrt(Math.pow((node.x - x), 2) + Math.pow((node.y - y), 2))
-                + radiusScale(node.hits);
-            });
-
-            if (isNaN(radius)) {
-              console.log(d);
-            }
-
-            return radius + circlePadding;
+          var radius = d3.max(d, (node) => {
+            return Math.sqrt(Math.pow((node.x - x), 2) + Math.pow((node.y - y), 2))
+              + radiusScale(node.hits);
           });
+
+          if (isNaN(radius)) {
+            console.log(d);
+          }
+
+          return radius + circlePadding;
+        });
     }
 
     function createArrowPath(d) {
@@ -984,11 +987,10 @@ ForceDirectedGraph.prototype = {
         });
 
     this.simulation.force("cluster", clustering)
-                   // .force("collide", collide);
+                   .force("collision", collide);
 
 
     // Initial clustering forces:
-    var self = this;
     function clustering(alpha) {
         var clusters = self.clusters;
         nodeArr.forEach(function(d) {
@@ -1021,6 +1023,7 @@ ForceDirectedGraph.prototype = {
             .addAll(nodeArr);
 
         nodeArr.forEach(function(d) {
+          if (d.cluster === 0) return;
           var r = d.radius + maxRadius + Math.max(padding, clusterPadding),
               nx1 = d.x - r,
               nx2 = d.x + r,
