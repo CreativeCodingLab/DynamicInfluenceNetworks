@@ -647,7 +647,7 @@ ForceDirectedGraph.prototype = {
 
         self.linkGroup.selectAll('.link-1')
           .transition()
-          .style('stroke-opacity',0);
+          .style('stroke-opacity',0.4);
 
         self.linkGroup.selectAll(".link-2").filter(function(link) {
           return link.source.name === d.name;
