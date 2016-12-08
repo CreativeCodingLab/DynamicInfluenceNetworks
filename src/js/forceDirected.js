@@ -647,7 +647,7 @@ ForceDirectedGraph.prototype = {
 
         self.linkGroup.selectAll('.link-1')
           .transition()
-          .duration(300)
+          .duration(400)
           .style('stroke-opacity',function() {
             var opacity = d3.select(this).style('stroke-opacity');
             return Math.min(0.4, opacity);
@@ -657,13 +657,15 @@ ForceDirectedGraph.prototype = {
           return link.source.name === d.name;
         })
           .transition()
-          .style('stroke-opacity', 0.66);
+          .style('stroke-opacity', 0.6);
       })
       .on("mouseout", function() {
         d3.select(this).transition()
           .style('stroke-opacity',0.5);
 
         self.linkGroup.selectAll('.link-1')
+          .transition()
+          .duration(400)
           .style('stroke-opacity', (d) => {
             if(App.property.green == true && App.property.red == true) {
               return 0;
@@ -680,7 +682,7 @@ ForceDirectedGraph.prototype = {
             else { 
               return 1;
             }
-          }).interrupt();
+          });
 
         self.linkGroup.selectAll(".link-2")
           .style('stroke-opacity', 0).interrupt();
