@@ -645,6 +645,10 @@ ForceDirectedGraph.prototype = {
         if (App.panels.topVis) { App.panels.topVis.updateRule(d); }
         if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d, true); }
 
+        self.linkGroup.selectAll('.link-1')
+          .transition()
+          .style('stroke-opacity',0);
+
         self.linkGroup.selectAll(".link-2").filter(function(link) {
           return link.source.name === d.name;
         })
@@ -654,6 +658,26 @@ ForceDirectedGraph.prototype = {
       .on("mouseout", function() {
         d3.select(this).transition()
           .style('stroke-opacity',0.5);
+
+        self.linkGroup.selectAll('.link-1')
+          .style('stroke-opacity', (d) => {
+            if(App.property.green == true && App.property.red == true) {
+              return 0;
+            }
+            else if( App.property.green == true && d.value > 0 ) {
+              return 0;
+            }
+            else if( App.property.red == true && d.value < 0) {
+              return 0;
+            }
+            else if( App.property.link == true && Math.abs(d.value) < self.threshold) {
+              return 0;
+            }
+            else { 
+              return 1;
+            }
+          }).interrupt();
+
         self.linkGroup.selectAll(".link-2")
           .style('stroke-opacity', 0).interrupt();
         self.hideTip();
@@ -973,18 +997,6 @@ ForceDirectedGraph.prototype = {
             return 25*strengthScale(d.value);
           }
         })
-        .strength((d) => {
-          let strengthScale = d3.scaleLinear()
-            .domain([0, self.maxInfl])
-            .range([0.3,1])
-            .clamp(true);
-
-          var multiplier = strengthScale(Math.abs(d.value));
-
-          var cs = d.source.inf.length + d.source.outf.length,
-              ct = d.target.inf.length + d.target.outf.length;
-          return multiplier/Math.max(1,Math.min(cs, ct));
-        });
 
     this.simulation.force("cluster", clustering)
                    .force("collision", collide);
@@ -1016,7 +1028,7 @@ ForceDirectedGraph.prototype = {
       function collide(alpha) {
         var padding = 30;
         var clusterPadding = 50; // separation between different-color circles
-        var repulsion = 5;
+        var repulsion = 3;
         var maxRadius = 100;
         var quadtree = d3.quadtree()
             .x((d) => d.x)
@@ -1033,16 +1045,16 @@ ForceDirectedGraph.prototype = {
           quadtree.visit(function(quad, x1, y1, x2, y2) {
             if (quad.data && (quad.data !== d)) {
 
+              var link = self.links.find(link => link.target == quad.data && link.source == d);
+              if (!link) { return;}
+
               var x = d.x - quad.data.x,
                   y = d.y - quad.data.y,
                   l = Math.sqrt(x * x + y * y),
                   r = d.radius + quad.data.radius;
 
               if (d.cluster === quad.data.cluster) {
-                var link = self.links.find(link => link.target == quad.data && link.source == d);
-
-                if (link && link.value < 0) { r += padding*repulsion; }
-                else { r += padding; }
+                r += (link.value < 0) ? padding*repulsion : padding;
               }
               else {
                 r += clusterPadding;
