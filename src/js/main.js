@@ -161,7 +161,7 @@ var App = App || {};
   function initSliders() {
     // set up a time slider
     if (App.dataset.length > 1) {
-      App.timeSlider = new Slider( '#timeSlider', {
+      App.timeSlider = new Slider( {
         title: 'Time',
         domain: [ 0, App.dataset.length-1 ],
         right: true
@@ -199,7 +199,7 @@ var App = App || {};
       });
       return [d3.min(maxs), App.panels.forceDirected.maxInfl];
     }
-    App.infSlider = new Slider( '#clusterSlider', {
+    App.infSlider = new Slider( {
       title: 'Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3),
       domain: infDomain(),
       log: true

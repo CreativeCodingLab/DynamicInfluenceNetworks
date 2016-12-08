@@ -89,8 +89,10 @@ rect.slider {
   max-width:50vw;
   column-count:2;
   -webkit-column-count:2;
+  -moz-column-count:2;
   column-gap:3vw;
   -webkit-column-gap:3vw;
+  -moz-column-gap:3vw;
   margin-left:2vw;
 }
 .columns span {
@@ -98,6 +100,12 @@ rect.slider {
   font-size: 2.2vmin;
   line-height:3.5vmin;
 }
+
+#filename {
+  font-size:1.8vmin;
+  line-height:2.5vmin;
+}
+
 button,input {
     outline:none;
     border-radius:0.4vmin;

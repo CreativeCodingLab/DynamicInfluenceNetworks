@@ -653,9 +653,11 @@ ForceDirectedGraph.prototype = {
             return Math.min(0.4, opacity);
           });
 
-        self.linkGroup.selectAll(".link-2").filter(function(link) {
+        var links = self.linkGroup.selectAll(".link-2").filter(function(link) {
           return link.source.name === d.name;
-        })
+        });
+        links.raise();
+        links
           .transition()
           .style('stroke-opacity', 0.6);
       })
@@ -824,7 +826,8 @@ ForceDirectedGraph.prototype = {
         .on("mouseover", (d, i) => {
           if (self._isDragging) return;
           d3.select(d3.event.target)
-            .style('stroke-opacity',0.5);
+            .style('stroke-opacity',0.5)
+            .raise();
           self.showTip(d, 'path');
         })
         .on("mouseout", (d, i) => {

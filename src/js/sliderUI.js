@@ -1,4 +1,4 @@
-function Slider(selector, options) {
+function Slider(options) {
 
     var svg = App.panels.forceDirected.svg.append('g');
     var color = (options && options.color) ? options.color : '#eee',

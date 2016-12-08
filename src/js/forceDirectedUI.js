@@ -241,12 +241,15 @@ window.addEventListener('load', function() {
 
       var file = files[0];
       if (file) {
-
         // check if file is zip or json
         if (file.type === 'application/zip') {
+          d3.select('#filename')
+            .text('Reading file: ' +file.name);
           readZipFile(file);
         }
         else if (file.type === 'application/json') {
+          d3.select('#filename')
+            .text('Reading file: ' +file.name);
           readJsonFile(file);
         }
       }
@@ -260,6 +263,8 @@ window.addEventListener('load', function() {
           App.resetData([parsedJson]);
         }
         catch (err) {
+          d3.select('#filename')
+            .text('Error parsing file');
           console.log('error parsing file', err)
         }
       }
@@ -292,10 +297,14 @@ window.addEventListener('load', function() {
                 parseFiles(children);
             }
             else {
-                console.log('no json files found');
+              d3.select('#filename')
+                .text('Could not find a .json file');
+              console.log('no json files found');
             }
 
         }, function(err) {
+            d3.select('#filename')
+              .text('Could not read zip file');
             console.log('error',err);
         });
     }
@@ -330,6 +339,8 @@ window.addEventListener('load', function() {
               getDatasets(i+1);
             }
             catch (e) {
+              d3.select('#filename')
+                .text('Error reading file...');
               console.log('error',e);
               App.resetData(datasets);
             }
