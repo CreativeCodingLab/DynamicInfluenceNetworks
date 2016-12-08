@@ -13,7 +13,7 @@ Alternatively, the page is hosted using Github Pages at https://andrewtburks.git
 
 # How to Use
 
-To load data, please use the provided "Change Dataset" button to load in individual json files or zipped time series json files. _Please make sure that the times series json files are in the format name\_[0-x]\.json (i\.e flux\_1\.json, flux\_2\.json etc)_
+To load data, please use the provided "Change Dataset" button to load in individual json files or zipped time series json files. _Please make sure that the times series json files are in the format name_\__\[0-x]\.json (i.e flux_1.json, flux_2.json etc)_
 
 # Motivation 
 
