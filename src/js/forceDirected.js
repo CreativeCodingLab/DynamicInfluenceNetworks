@@ -649,7 +649,7 @@ ForceDirectedGraph.prototype = {
           return target.source.name === d.name;
         })
           .transition()
-          .style('stroke-opacity', 0.5).interrupt();
+          .style('stroke-opacity', 0.5);
       })
       .on("mouseout", function() {
         d3.select(this).transition()
