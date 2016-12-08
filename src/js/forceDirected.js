@@ -647,13 +647,17 @@ ForceDirectedGraph.prototype = {
 
         self.linkGroup.selectAll('.link-1')
           .transition()
-          .style('stroke-opacity',0.4);
+          .duration(300)
+          .style('stroke-opacity',function() {
+            var opacity = d3.select(this).style('stroke-opacity');
+            return Math.min(0.4, opacity);
+          });
 
         self.linkGroup.selectAll(".link-2").filter(function(link) {
           return link.source.name === d.name;
         })
           .transition()
-          .style('stroke-opacity', 0.5);
+          .style('stroke-opacity', 0.66);
       })
       .on("mouseout", function() {
         d3.select(this).transition()
