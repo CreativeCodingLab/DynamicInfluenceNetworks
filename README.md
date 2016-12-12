@@ -37,7 +37,7 @@ There are also two supplemental visualizations with the time series data which s
     ![alt text](screencaps/Hover.png "Hover")
 - Button Toggles
 
-    ![alt text](screencaps/Button.png "Toggles")
+    ![alt text](screencaps/Buttons.png "Toggles")
 - Supplemental Visualizations
 
     ![alt text](screencaps/Supplement.png "Supplemental Viz")
