@@ -44,3 +44,4 @@ There are also two supplemental visualizations with the time series data which s
 
 # Demo
 
+See a video of the tool in action [here](https://vimeo.com/195336381)
