@@ -29,14 +29,18 @@ There are also two supplemental visualizations with the time series data which s
 
 # Screen shots
 - Clustering
-    [![alt text](screencaps/Cluster1.png "Cluster 1")]
-    [![alt text](screencaps/Cluster2.png "Cluster 2")]
+
+    ![alt text](screencaps/Cluster1.png "Cluster 1")
+    ![alt text](screencaps/Cluster2.png "Cluster 2")
 - Hovering
-    [![alt text](screencaps/Hover.png "Hover")]
+
+    ![alt text](screencaps/Hover.png "Hover")
 - Button Toggles
-    [![alt text](screencaps/Button.png "Toggles")]
+
+    ![alt text](screencaps/Button.png "Toggles")
 - Supplemental Visualizations
-    [![alt text](screencaps/Supplement.png "Supplemental Viz")]
-    
+
+    ![alt text](screencaps/Supplement.png "Supplemental Viz")
+
 # Demo
 
