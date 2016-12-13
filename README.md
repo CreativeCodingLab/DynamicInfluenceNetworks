@@ -45,3 +45,7 @@ There are also two supplemental visualizations with the time series data which s
 # Demo
 
 See a video of the tool in action [here](https://vimeo.com/195336381)
+
+# Formal Write-Up
+
+A formal write-up can be found [here](https://github.com/AndrewTBurks/CS424-Project3/blob/master/Writeup.pdf)
