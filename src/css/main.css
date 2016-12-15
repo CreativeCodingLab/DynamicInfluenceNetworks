@@ -30,8 +30,6 @@ body {
   position:relative;
 }
 .col-md-4 {
-  -webkit-font-smoothing:auto;
-  -moz-osx-font-smoothing:auto;
   position:absolute;
   top:0;
   left:70%;
@@ -68,17 +66,9 @@ body {
   pointer-events: all;
 }
 
-#clusterSlider {
-  bottom: 5px;
-}
-
-#timeSlider {
-  bottom:5px;
-  right:0;
-}
 
 .control {
-  padding:2vw;
+  padding:1vh 2vw;
 }
 
 rect.slider { 
@@ -97,8 +87,8 @@ rect.slider {
 }
 .columns span {
   display:block;
-  font-size: 2.2vmin;
-  line-height:3.5vmin;
+  font-size: 2vmin;
+  line-height:3vmin;
 }
 
 #filename {
@@ -115,7 +105,7 @@ button,input {
 
 button {
   font-family: 'source sans pro','helvetica neue', helvetica, arial, sans-serif;
-  font-size:2.2vmin;
+  font-size:2vmin;
   padding:0.5vmin 1vmin;
   font-weight:bold;
   cursor:pointer;
@@ -144,26 +134,32 @@ input[type="checkbox"] {
     cursor:pointer;
 }
 
-
 input[type="checkbox"] + label:before {
   font-family: FontAwesome;
   content: "\f10c"; 
-  color:#7fcdbb;
   cursor:pointer;
   position:absolute;
   font-size: 2vmin;
   margin-left:-3vmin;
 }
 
-input[type="checkbox"] + label {
-  color:#7fcdbb;
-}
-
 input[type="checkbox"]:checked + label:before { 
-  color:#2c7fb8;
   content: "\f058"; 
 }
 
-input[type="checkbox"]:checked + label { 
+input[type="checkbox"] + label, input[type="checkbox"] + label:before, .toggle-axis-scale {
+  color:#999;
+  fill:#999;
+}
+
+input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:before, .toggle-axis-scale .active { 
   color:#2c7fb8;
+  fill:#2c7fb8;
+}
+
+.toggle-axis-scale {
+  cursor:default;
+}
+.toggle-axis-scale .log, .toggle-axis-scale .linear {
+  cursor:pointer;
 }

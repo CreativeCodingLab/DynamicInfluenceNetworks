@@ -8,13 +8,35 @@ function LineGraph(selector, options) {
         .attr('fill','transparent');
 
 
-    this.margin = {top: 40, right: 20, bottom: 30, left: 60};
+    this.margin = {top: 60, right: 20, bottom: 30, left: 60};
 
     this.svg.append('text')
-        .attr('transform','translate(' + 10 + ',' + (this.margin.top/2+5) + ')')
+        .attr('transform','translate(' + 10 + ',' + (this.margin.top/2 - 3) + ')')
         .style('font-weight','bold')
-        .attr('font-size','12px')
+        .style('font-size','14px')
         .attr('class','title');
+
+    // log / linear toggle
+    this.scale = 'linear';
+    var toggle = this.svg.append('g')
+        .attr('class','toggle-axis-scale')
+        .style('display','none')
+        .attr('transform','translate( 10 ,' + (this.margin.top/2 + 15) + ')');
+
+    toggle.append('text')
+        .text('log')
+        .attr('class','log')
+        .on('click', this.setLog.bind(this));
+
+    toggle.append('text')
+        .text('|')
+        .attr('transform','translate( 18, 0 )');
+
+    toggle.append('text')
+        .text('linear')
+        .attr('class','linear active')
+        .attr('transform','translate( 25, 0 )')
+        .on('click', this.setLinear.bind(this));
 
     var graph = this.graph = this.svg.append('g')
         .attr('class', 'graph')
@@ -35,7 +57,7 @@ LineGraph.prototype = {
         var h = this.container.getBoundingClientRect().height;
 
         var aspect = w / h;
-        var vw = 323.328125;
+        var vw = 320;
         var vh = vw / aspect;
 
         this.width = vw - this.margin.right - this.margin.left;
@@ -43,7 +65,7 @@ LineGraph.prototype = {
 
         this.svg
             .style('margin-left', '15px')
-            .style("font-size", "9px")
+            .style("font-size", "12px")
             .attr('width', w)
             .attr('height', h)
             .attr("viewBox", "0 0 " + vw + " " + vh)
@@ -66,6 +88,8 @@ LineGraph.prototype = {
         this.svg.select('.title')
           .text(d.name + (out? ' outgoing influences':' incoming influences'));
 
+        this.svg.select('.toggle-axis-scale')
+            .style('display','block');
 
         var infMap = out ?
             App.dataset.map(dataset => {
@@ -97,8 +121,11 @@ LineGraph.prototype = {
                 min = Math.abs(d3.min(fluxs[i], d => d.flux));
             return max || min;
         }).map(i => fluxs[i]);
-        // console.log('fluxs', fluxs)
 
+        this.updateGraph();
+    },
+    updateGraph: function() {
+        var fluxs = this.fluxs;
         var ymax = d3.max(fluxs, dataset => d3.max(dataset, inf => inf.flux)),
             ymin = d3.min(fluxs, dataset => d3.min(dataset, inf => inf.flux));
 
@@ -119,7 +146,14 @@ LineGraph.prototype = {
         this.svg.select('.axis-x')
             .attr('transform', 'translate(0,' + this.height + ')')
             .call(d3.axisBottom(this.x)
-                    .tickFormat(d => parseInt(App.format.start + d) )
+                    .tickFormat(d => {
+                        d = Math.floor(d);
+                        var data = App.dataset[d];
+                        if (data && data.timeWindow && data.timeWindow[1]) {
+                            return Number(data.timeWindow[1].toFixed(1));
+                        }
+                        return d;
+                    })
                 );
 
         this.svg.select('.axis-x path')
@@ -142,8 +176,8 @@ LineGraph.prototype = {
         var self = this;
         var line = d3.line()
             .curve(d3.curveCatmullRom)
-            .x((d) => self.x(d.i))
-            .y(d => self.y(d.flux));
+            .x(d => self.x(d.i))
+            .y(d => self.y(d.flux) );
 
         var path = this.graph.selectAll('.flux')
             .data(this.fluxs)
@@ -197,5 +231,24 @@ LineGraph.prototype = {
             })
             .attr('r',3)
             .style('opacity',1);
+    },
+
+    setLog: function() {
+        if (this.scale === 'log') { return; }
+        this.scale = 'log';
+        this.svg.select('.log')
+            .classed('active',true);
+        this.svg.select('.linear')
+            .classed('active',false);
+        this.updateGraph();
+    },
+    setLinear: function() {
+        if (this.scale === 'linear') { return; }
+        this.scale = 'linear';
+        this.svg.select('.linear')
+            .classed('active',true);
+        this.svg.select('.log')
+            .classed('active',false);
+        this.updateGraph();
     }
 }
