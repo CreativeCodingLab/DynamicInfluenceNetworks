@@ -85,7 +85,7 @@ LineGraph.prototype = {
                 this.ypos.range([this.height/2, 0]);
             }
             if (this.yneg) {
-                this.yneg.range([this.height,this.height/2]);
+                this.yneg.range([this.height/2,this.height]);
             }
 
             this.drawAxes();
@@ -149,28 +149,28 @@ LineGraph.prototype = {
             var signed = (pflux.length && nflux.length) ? 0 : (pflux.length ? 1 : -1);
 
             ymax = d3.max(fluxs, dataset => d3.max(dataset, inf => Math.abs(inf.flux)));
-            ymin = d3.max(fluxs, dataset => d3.max(dataset, inf => Math.abs(inf.flux)));
+            ymin = d3.max(fluxs, dataset => d3.max(dataset, inf => Math.abs(inf.flux)))/1000;
 
             if (signed === 0) {
                 this.y = null;
                 this.ypos = d3.scaleLog()
-                    .domain([ymin/1000, ymax])
+                    .domain([ymin, ymax])
                     .range([this.height/2, 0])
                     .clamp(true);
                 this.yneg = d3.scaleLog()
-                    .domain([-ymax, -ymin/1000])
-                    .range([this.height, this.height/2])
+                    .domain([-ymin, -ymax])
+                    .range([this.height/2, this.height])
                     .clamp(true);
             }
             else if (signed < 0) {
                 this.y = d3.scaleLog()
-                    .domain([-ymax, -ymin/1000])
+                    .domain([-ymax, -ymin])
                     .range([this.height, 0])
                     .clamp(true);
             }
             else if (signed > 0) {
                 this.y = d3.scaleLog()
-                    .domain([ymin/1000, ymax])
+                    .domain([ymin, ymax])
                     .range([this.height, 0])
                     .clamp(true);
             }
@@ -214,8 +214,12 @@ LineGraph.prototype = {
             var yAxis = d3.axisLeft(this.y).ticks(6);
             if (this.scale == 'linear') {
                 yAxis.tickFormat(function(d) {
-                    if (Math.abs(d) > 999999) {
+                    var dabs = Math.abs(d);
+                    if (dabs > 999999) {
                         return d.toPrecision(3);
+                    }
+                    else if (dabs < 0.001) {
+                        return Number(d.toPrecision(3)).toExponential();
                     }
                     else {
                         return d3.format(',')(d);
@@ -227,12 +231,34 @@ LineGraph.prototype = {
                 .call(yAxis);            
         }
         else {
+            var self = this;
+            function formatTick(d, i, el) {
+                if (i == 0) {
+                    try {
+                        var val = Number(el[0].parentNode.attributes.transform.value.match(/[^,]+(?=\))/)[0]);
+                        if (Math.abs(self.height/2 - val) <= 3) {
+                            return '';
+                        }
+                    }
+                    catch (err) {}                    
+                }
+
+                // return default formatting
+                var k = Math.max(1, 30/el.length);
+                var dabs = Math.abs(d);
+                var i = dabs / +('1e'+Math.round(Math.log10(dabs)));
+                if (i * 10 < 10 - 0.5) i *= 10;
+                return i <= k ? Number(d.toPrecision(2)).toExponential() : '';
+            }
             this.svg.select('.axis-y')
                 .call(d3.axisLeft(this.ypos)
-                        .ticks(3));
+                        .ticks(3)
+                        .tickFormat(formatTick));
             this.svg.select('.axis-y-signed')
                 .call(d3.axisLeft(this.yneg)
-                        .ticks(3));
+                        .ticks(3)
+                        .tickFormat(formatTick));
+
         }
     },
     // draw lines
