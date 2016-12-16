@@ -8,13 +8,35 @@ function LineGraph(selector, options) {
         .attr('fill','transparent');
 
 
-    this.margin = {top: 40, right: 20, bottom: 30, left: 60};
+    this.margin = {top: 60, right: 20, bottom: 30, left: 60};
 
     this.svg.append('text')
-        .attr('transform','translate(' + 10 + ',' + (this.margin.top/2+5) + ')')
+        .attr('transform','translate(' + 10 + ',' + (this.margin.top/2 - 3) + ')')
         .style('font-weight','bold')
-        .attr('font-size','12px')
+        .style('font-size','14px')
         .attr('class','title');
+
+    // log / linear toggle
+    this.scale = 'linear';
+    var toggle = this.svg.append('g')
+        .attr('class','toggle-axis-scale')
+        .style('display','none')
+        .attr('transform','translate( 10 ,' + (this.margin.top/2 + 15) + ')');
+
+    toggle.append('text')
+        .text('log')
+        .attr('class','log')
+        .on('click', this.setLog.bind(this));
+
+    toggle.append('text')
+        .text('|')
+        .attr('transform','translate( 18, 0 )');
+
+    toggle.append('text')
+        .text('linear')
+        .attr('class','linear active')
+        .attr('transform','translate( 25, 0 )')
+        .on('click', this.setLinear.bind(this));
 
     var graph = this.graph = this.svg.append('g')
         .attr('class', 'graph')
@@ -24,6 +46,8 @@ function LineGraph(selector, options) {
         .attr('class','axis-x')
     graph.append('g')
         .attr('class','axis-y')
+    graph.append('g')
+        .attr('class','axis-y-signed')
 
     this.resize();
 }
@@ -35,7 +59,7 @@ LineGraph.prototype = {
         var h = this.container.getBoundingClientRect().height;
 
         var aspect = w / h;
-        var vw = 323.328125;
+        var vw = 320;
         var vh = vw / aspect;
 
         this.width = vw - this.margin.right - this.margin.left;
@@ -43,7 +67,7 @@ LineGraph.prototype = {
 
         this.svg
             .style('margin-left', '15px')
-            .style("font-size", "9px")
+            .style("font-size", "12px")
             .attr('width', w)
             .attr('height', h)
             .attr("viewBox", "0 0 " + vw + " " + vh)
@@ -51,9 +75,18 @@ LineGraph.prototype = {
             .attr('width', w)
             .attr('height', h);
 
-        if (this.x && this.y && this.fluxs) {
-            this.y.range([this.height, 0]);
+        if (this.x && this.fluxs) {
             this.x.range([0, this.width]);
+
+            if (this.y) {
+                this.y.range([this.height, 0]);
+            }
+            if (this.ypos) {
+                this.ypos.range([this.height/2, 0]);
+            }
+            if (this.yneg) {
+                this.yneg.range([this.height/2,this.height]);
+            }
 
             this.drawAxes();
             this.drawPaths();
@@ -66,6 +99,8 @@ LineGraph.prototype = {
         this.svg.select('.title')
           .text(d.name + (out? ' outgoing influences':' incoming influences'));
 
+        this.svg.select('.toggle-axis-scale')
+            .style('display','block');
 
         var infMap = out ?
             App.dataset.map(dataset => {
@@ -97,14 +132,57 @@ LineGraph.prototype = {
                 min = Math.abs(d3.min(fluxs[i], d => d.flux));
             return max || min;
         }).map(i => fluxs[i]);
-        // console.log('fluxs', fluxs)
 
-        var ymax = d3.max(fluxs, dataset => d3.max(dataset, inf => inf.flux)),
+        this.updateGraph();
+    },
+    updateGraph: function() {
+        var fluxs = this.fluxs;
+        var ymax, ymin;
+
+        if (this.scale === 'log') {
+            // log scale
+            var pflux = fluxs.map(d => d.filter(inf => inf.flux > 0))
+                            .filter(d => d.length > 0);
+            var nflux = fluxs.map(d => d.filter(inf => inf.flux < 0))
+                            .filter(d => d.length > 0);
+
+            var signed = (pflux.length && nflux.length) ? 0 : (pflux.length ? 1 : -1);
+
+            ymax = d3.max(fluxs, dataset => d3.max(dataset, inf => Math.abs(inf.flux)));
+            ymin = d3.max(fluxs, dataset => d3.max(dataset, inf => Math.abs(inf.flux)))/1000;
+
+            if (signed === 0) {
+                this.y = null;
+                this.ypos = d3.scaleLog()
+                    .domain([ymin, ymax])
+                    .range([this.height/2, 0])
+                    .clamp(true);
+                this.yneg = d3.scaleLog()
+                    .domain([-ymin, -ymax])
+                    .range([this.height/2, this.height])
+                    .clamp(true);
+            }
+            else if (signed < 0) {
+                this.y = d3.scaleLog()
+                    .domain([-ymax, -ymin])
+                    .range([this.height, 0])
+                    .clamp(true);
+            }
+            else if (signed > 0) {
+                this.y = d3.scaleLog()
+                    .domain([ymin, ymax])
+                    .range([this.height, 0])
+                    .clamp(true);
+            }
+        }
+        else {
+            // linear scale
+            ymax = d3.max(fluxs, dataset => d3.max(dataset, inf => inf.flux));
             ymin = d3.min(fluxs, dataset => d3.min(dataset, inf => inf.flux));
-
-        this.y = d3.scaleLinear()
-                .domain([ymin, ymax])
-                .range([this.height, 0]);
+            this.y = d3.scaleLinear()
+                    .domain([ymin, ymax])
+                    .range([this.height, 0]);
+        }
 
         this.x = d3.scaleLinear()
                 .domain([0, App.dataset.length - 1])
@@ -115,35 +193,86 @@ LineGraph.prototype = {
         this.drawMarkers();
     },
     drawAxes: function() {
-        if (!this.x || !this.y) { return; }
+        if (!this.x) { return; }
         this.svg.select('.axis-x')
             .attr('transform', 'translate(0,' + this.height + ')')
             .call(d3.axisBottom(this.x)
-                    .tickFormat(d => parseInt(App.format.start + d) )
+                    .tickFormat(d => {
+                        d = Math.floor(d);
+                        var data = App.dataset[d];
+                        if (data && data.timeWindow && data.timeWindow[1]) {
+                            return Number(data.timeWindow[1].toFixed(1));
+                        }
+                        return d;
+                    })
                 );
 
         this.svg.select('.axis-x path')
             .style('display','none');
 
-        this.svg.select('.axis-y')
-            .call(d3.axisLeft(this.y)
-                    .ticks(5)
-                    .tickFormat(function(d) {
-                        if (Math.abs(d) > 999999) {
-                            return d.toPrecision(3);
+        if (this.y) {
+            var yAxis = d3.axisLeft(this.y).ticks(6);
+            if (this.scale == 'linear') {
+                yAxis.tickFormat(function(d) {
+                    var dabs = Math.abs(d);
+                    if (dabs > 999999) {
+                        return d.toPrecision(3);
+                    }
+                    else if (dabs < 0.001) {
+                        return Number(d.toPrecision(3)).toExponential();
+                    }
+                    else {
+                        return d3.format(',')(d);
+                    }
+                })
+            }
+            this.svg.select('.axis-y-signed').selectAll('*').remove();
+            this.svg.select('.axis-y')
+                .call(yAxis);            
+        }
+        else {
+            var self = this;
+            function formatTick(d, i, el) {
+                if (i == 0) {
+                    try {
+                        var val = Number(el[0].parentNode.attributes.transform.value.match(/[^,]+(?=\))/)[0]);
+                        if (Math.abs(self.height/2 - val) <= 3) {
+                            return '';
                         }
-                        else {
-                            return d3.format(',')(d);
-                        }
-                    }) );
+                    }
+                    catch (err) {}                    
+                }
+
+                // return default formatting
+                var k = Math.max(1, 30/el.length);
+                var dabs = Math.abs(d);
+                var i = dabs / +('1e'+Math.round(Math.log10(dabs)));
+                if (i * 10 < 10 - 0.5) i *= 10;
+                return i <= k ? Number(d.toPrecision(2)).toExponential() : '';
+            }
+            this.svg.select('.axis-y')
+                .call(d3.axisLeft(this.ypos)
+                        .ticks(3)
+                        .tickFormat(formatTick));
+            this.svg.select('.axis-y-signed')
+                .call(d3.axisLeft(this.yneg)
+                        .ticks(3)
+                        .tickFormat(formatTick));
+
+        }
     },
     // draw lines
     drawPaths: function() {
         var self = this;
         var line = d3.line()
             .curve(d3.curveCatmullRom)
-            .x((d) => self.x(d.i))
-            .y(d => self.y(d.flux));
+            .x(d => self.x(d.i))
+            .y(d => {
+                if (self.y) {
+                    return self.y(d.flux)
+                }
+                return d.flux < 0 ? self.yneg(d.flux) : self.ypos(d.flux);
+            });
 
         var path = this.graph.selectAll('.flux')
             .data(this.fluxs)
@@ -164,7 +293,7 @@ LineGraph.prototype = {
 
     // draw markers
     drawMarkers: function() {
-        if (!(this.fluxs && this.x && this.y)) { return; }
+        if (!(this.fluxs && this.x)) { return; }
         var i = App.item || 0;
 
         // update title color
@@ -182,6 +311,7 @@ LineGraph.prototype = {
 
         marker.exit().remove();
 
+        var self = this;
         marker.enter().append('circle')
             .attr('class','marker')
             .attr('stroke-width',1)
@@ -190,12 +320,36 @@ LineGraph.prototype = {
             .style('opacity',0)
         .merge(marker)
             .attr('cx', d => this.x(d.i) )
-            .attr('cy', d => this.y(d.flux) )
+            .attr('cy', d => {
+                if (self.y) {
+                    return self.y(d.flux);
+                }
+                return (d.flux < 0) ? self.yneg(d.flux) : self.ypos(d.flux);
+            })
             .attr('fill', d => {
                 var rule = App.panels.forceDirected.filteredData[ d.name];
                 return App.panels.forceDirected.clusterColor(rule.cluster);
             })
             .attr('r',3)
             .style('opacity',1);
+    },
+
+    setLog: function() {
+        if (this.scale === 'log') { return; }
+        this.scale = 'log';
+        this.svg.select('.log')
+            .classed('active',true);
+        this.svg.select('.linear')
+            .classed('active',false);
+        this.updateGraph();
+    },
+    setLinear: function() {
+        if (this.scale === 'linear') { return; }
+        this.scale = 'linear';
+        this.svg.select('.linear')
+            .classed('active',true);
+        this.svg.select('.log')
+            .classed('active',false);
+        this.updateGraph();
     }
 }
