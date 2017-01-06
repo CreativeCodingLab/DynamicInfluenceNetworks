@@ -328,17 +328,17 @@ LineGraph.prototype = {
               d3.selectAll('.link-1')
                 .transition()
                 .duration(400)
-                .style('stroke-opacity', (d) => {
+                .style('stroke-opacity', (j) => {
                   if(App.property.green == true && App.property.red == true) {
                     return 0;
                   }
-                  else if( App.property.green == true && d.value > 0 ) {
+                  else if( App.property.green == true && j.value > 0 ) {
                     return 0;
                   }
-                 else if( App.property.red == true && d.value < 0) {
+                 else if( App.property.red == true && j.value < 0) {
                     return 0;
                   }
-                  else if( App.property.link == true && Math.abs(d.value) < self.threshold) {
+                  else if( App.property.link == true && Math.abs(j.value) < Math.abs(App.panels.forceDirected.threshold)) {
                     return 0;
                   }
                   else { 
