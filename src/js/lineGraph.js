@@ -38,6 +38,17 @@ function LineGraph(selector, options) {
         .attr('transform','translate( 25, 0 )')
         .on('click', this.setLinear.bind(this));
 
+    this.textbox = this.svg.append('g')
+        .attr('class','textbox')
+        .style('pointer-events','none');
+    this.textbox.append('rect')
+        .attr('fill','white')
+        .attr('stroke-width','0.5px')
+        .attr('stroke','gray');
+    this.textbox.append('text')
+        .attr('text-anchor','middle')
+        .attr('fill','black');
+
     var graph = this.graph = this.svg.append('g')
         .attr('class', 'graph')
         .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
@@ -263,15 +274,14 @@ LineGraph.prototype = {
     },
     // draw lines
     drawPaths: function() {
-        var self = this;
         var line = d3.line()
             .curve(d3.curveCatmullRom)
-            .x(d => self.x(d.i))
+            .x(d => this.x(d.i))
             .y(d => {
-                if (self.y) {
-                    return self.y(d.flux)
+                if (this.y) {
+                    return this.y(d.flux)
                 }
-                return d.flux < 0 ? self.yneg(d.flux) : self.ypos(d.flux);
+                return d.flux < 0 ? this.yneg(d.flux) : this.ypos(d.flux);
             });
 
 
@@ -285,7 +295,7 @@ LineGraph.prototype = {
             .style('stroke-width', 0.5)
         .merge(path)
             .style('stroke', path => {
-                return path[0].name === self.rule.name ? 'red' : '#888';
+                return path[0].name === this.rule.name ? 'red' : '#888';
             })
         .transition()
             .duration(500)
@@ -304,7 +314,7 @@ LineGraph.prototype = {
             .style('stroke-opacity', 0)
         .merge(hoverPath)
             .style('stroke', hoverPath => {
-                return hoverPath[0].name === self.rule.name ? 'red' : '#888';
+                return hoverPath[0].name === this.rule.name ? 'red' : '#888';
             })
             .attr('name', hoverPath => {
                 return hoverPath[0].name; 
@@ -327,12 +337,28 @@ LineGraph.prototype = {
                             this.rule.name === j.target.name) ? 0.6 : 0;
                 }
               });
-              d3.select(d3.event.target)
-                .style('stroke-opacity',0.6)
-                .raise(); 
-
+              d3.select(d3.event.target).raise()
+                .style('stroke-opacity',0.6);
+              this.textbox.raise()
+                .style('display','block');
+            })
+            .on('mousemove', (d) => {
+              var offset = d3.event.offsetX - this.margin.left;
+              var i = Math.round(this.x.invert(offset));
+              var bbox = this.textbox
+                .attr('transform','translate(' + d3.event.offsetX + ',' + (d3.event.offsetY - 10) + ')')
+              .select('text')
+                .text(d[0].name + ': ' + d[i].flux)
+                .node().getBBox();
+              this.textbox.select('rect')
+                .attr('width',bbox.width+8)
+                .attr('height',bbox.height+4)
+                .attr('x',bbox.x-4)
+                .attr('y',bbox.y-2);
             })
             .on('mouseout', (d,i) => {
+              this.textbox
+                .style('display','none');
               d3.selectAll('.link-1')
                 .transition()
                 .duration(400)
@@ -382,7 +408,6 @@ LineGraph.prototype = {
 
         marker.exit().remove();
 
-        var self = this;
         marker.enter().append('circle')
             .attr('class','marker')
             .attr('stroke-width',1)
@@ -392,10 +417,10 @@ LineGraph.prototype = {
         .merge(marker)
             .attr('cx', d => this.x(d.i) )
             .attr('cy', d => {
-                if (self.y) {
-                    return self.y(d.flux);
+                if (this.y) {
+                    return this.y(d.flux);
                 }
-                return (d.flux < 0) ? self.yneg(d.flux) : self.ypos(d.flux);
+                return (d.flux < 0) ? this.yneg(d.flux) : this.ypos(d.flux);
             })
             .attr('fill', d => {
                 var rule = App.panels.forceDirected.filteredData[ d.name];
