@@ -274,12 +274,13 @@ LineGraph.prototype = {
                 return d.flux < 0 ? self.yneg(d.flux) : self.ypos(d.flux);
             });
 
-        var path = this.graph.selectAll('.flux')
-            .data(this.fluxs)
+
+        var path = this.graph.selectAll('.flux-1')
+            .data(this.fluxs);
 
         path.exit().remove();
         path.enter().append('path')
-            .attr('class','flux')
+            .attr('class','flux-1')
             .attr('fill','none')
             .style('stroke-width', 0.5)
         .merge(path)
@@ -288,7 +289,69 @@ LineGraph.prototype = {
             })
         .transition()
             .duration(500)
-            .attr('d', (d) => line(d) );
+            .attr('d', (d) => line(d));
+
+        var links = d3.selectAll('.link-2')
+
+        var hoverPath = this.graph.selectAll('.flux-2')
+            .data(this.fluxs);
+
+        hoverPath.exit().remove();
+        hoverPath.enter().append('path')
+            .attr('class','flux-2')
+            .attr('fill', 'none')
+            .style('stroke-width', 5)
+            .style('stroke-opacity', 0)
+        .merge(hoverPath)
+            .style('stroke', hoverPath => {
+                return hoverPath[0].name === self.rule.name ? 'red' : '#888';
+            })
+            .attr('name', hoverPath => {
+                return hoverPath[0].name; 
+            })
+            .on('mouseover', (d,i) => {
+              d3.selectAll('.link-1')
+                .transition()
+                .duration(400)
+                .style('stroke-opacity',function() {
+                    var opacity = d3.select(this).style('stroke-opacity');
+                    return Math.min(0.4, opacity);
+              });
+              links.style('stroke-opacity', j => {
+                return parseFloat(d[0].flux) === parseFloat(j.value) ? 0.6 : 0});
+              d3.select(d3.event.target)
+                .style('stroke-opacity',0.6)
+                .raise(); 
+
+            })
+            .on('mouseout', (d,i) => {
+              d3.selectAll('.link-1')
+                .transition()
+                .duration(400)
+                .style('stroke-opacity', (d) => {
+                  if(App.property.green == true && App.property.red == true) {
+                    return 0;
+                  }
+                  else if( App.property.green == true && d.value > 0 ) {
+                    return 0;
+                  }
+                 else if( App.property.red == true && d.value < 0) {
+                    return 0;
+                  }
+                  else if( App.property.link == true && Math.abs(d.value) < self.threshold) {
+                    return 0;
+                  }
+                  else { 
+                    return 1;
+                  } 
+              })
+              links.style('stroke-opacity',0.0);
+              d3.select(d3.event.target)
+                .style('stroke-opacity', 0.0)
+            })
+            .attr('d', (d) => line(d));
+
+
     },
 
     // draw markers
