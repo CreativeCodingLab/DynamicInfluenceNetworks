@@ -1,12 +1,12 @@
 
 function LineGraph(selector, options) {
+    this.outgoing = (options && options.out === true);
     this.container = document.querySelector(selector) || document.body;
     this.svg = d3.select( this.container )
                             .append('svg');
 
     this.svg.append('rect')
         .attr('fill','transparent');
-
 
     this.margin = {top: 60, right: 20, bottom: 30, left: 60};
 
@@ -93,16 +93,16 @@ LineGraph.prototype = {
             this.drawMarkers();
         }
     },
-    updateRule: function(d, out) {
+    updateRule: function(d) {
 
         this.rule = d;
         this.svg.select('.title')
-          .text(d.name + (out? ' outgoing influences':' incoming influences'));
+          .text(d.name + (this.outgoing ? ' outgoing influences':' incoming influences'));
 
         this.svg.select('.toggle-axis-scale')
             .style('display','block');
 
-        var infMap = out ?
+        var infMap = this.outgoing ?
             App.dataset.map(dataset => {
                 var obj = dataset.data[d.name];
                 if (obj && obj.inf) { return obj.inf; }
@@ -300,7 +300,7 @@ LineGraph.prototype = {
         hoverPath.enter().append('path')
             .attr('class','flux-2')
             .attr('fill', 'none')
-            .style('stroke-width', 5)
+            .style('stroke-width', 8)
             .style('stroke-opacity', 0)
         .merge(hoverPath)
             .style('stroke', hoverPath => {
@@ -318,7 +318,15 @@ LineGraph.prototype = {
                     return Math.min(0.4, opacity);
               });
               links.style('stroke-opacity', j => {
-                return parseFloat(d[0].flux) === parseFloat(j.value) ? 0.6 : 0});
+                if (this.outgoing) {
+                    return (d[0].name === j.target.name &&
+                            this.rule.name === j.source.name) ? 0.6 : 0;
+                }
+                else {
+                    return (d[0].name === j.source.name &&
+                            this.rule.name === j.target.name) ? 0.6 : 0;
+                }
+              });
               d3.select(d3.event.target)
                 .style('stroke-opacity',0.6)
                 .raise(); 

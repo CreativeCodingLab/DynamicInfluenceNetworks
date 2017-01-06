@@ -48,8 +48,8 @@ var App = App || {};
     initSliders();
 
     // line graphs
-    App.panels.topVis = new LineGraph('#topVis');
-    App.panels.bottomVis = new LineGraph('#bottomVis');
+    App.panels.topVis = new LineGraph('#topVis', {out: false});
+    App.panels.bottomVis = new LineGraph('#bottomVis', {out: true});
   }
 
   App.loadData = function(file, isSeries) {
