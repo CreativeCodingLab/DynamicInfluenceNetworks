@@ -320,13 +320,16 @@ LineGraph.prototype = {
                 return hoverPath[0].name; 
             })
             .on('mouseover', (d,i) => {
-              d3.selectAll('.link-1')
-                .transition()
-                .duration(400)
-                .style('stroke-opacity',function() {
-                    var opacity = d3.select(this).style('stroke-opacity');
-                    return Math.min(0.4, opacity);
-              });
+              // fade non-hovered influences (ignore for self-influence)
+              if (d[0].name !== this.rule.name) {
+                  d3.selectAll('.link-1')
+                    .transition()
+                    .duration(400)
+                    .style('stroke-opacity',function() {
+                        var opacity = d3.select(this).style('stroke-opacity');
+                        return Math.min(0.4, opacity);
+                  });                
+              }
               links.style('stroke-opacity', j => {
                 if (this.outgoing) {
                     return (d[0].name === j.target.name &&
@@ -344,16 +347,21 @@ LineGraph.prototype = {
             })
             .on('mousemove', (d) => {
               var offset = d3.event.offsetX - this.margin.left;
-              var i = Math.round(this.x.invert(offset));
-              var bbox = this.textbox
-                .attr('transform','translate(' + d3.event.offsetX + ',' + (d3.event.offsetY - 10) + ')')
-              .select('text')
-                .text(d[0].name + ': ' + d[i].flux)
+              var i = Math.round(this.x.invert(d3.event.offsetX - this.margin.left));
+              var bbox = this.textbox.select('text')
+                .text(d[0].name + ': ' + (App.property.sci ?
+                                    Number(d[i].flux.toPrecision(3)).toExponential() :
+                                    Number(d[i].flux.toFixed(3))) )
                 .node().getBBox();
-              this.textbox.select('rect')
-                .attr('width',bbox.width+8)
+
+              var diff = Math.min(this.width + this.margin.right - offset - bbox.width/2 - 7, 0);
+
+              this.textbox
+                .attr('transform','translate(' + (d3.event.offsetX + diff) + ',' + (d3.event.offsetY - 15) + ')')
+              .select('rect')
+                .attr('width',bbox.width+12)
                 .attr('height',bbox.height+4)
-                .attr('x',bbox.x-4)
+                .attr('x',bbox.x-6)
                 .attr('y',bbox.y-2);
             })
             .on('mouseout', (d,i) => {
