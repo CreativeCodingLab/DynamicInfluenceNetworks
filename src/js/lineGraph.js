@@ -346,23 +346,30 @@ LineGraph.prototype = {
                 .style('display','block');
             })
             .on('mousemove', (d) => {
-              var offset = d3.event.offsetX - this.margin.left;
-              var i = Math.round(this.x.invert(d3.event.offsetX - this.margin.left));
-              var bbox = this.textbox.select('text')
-                .text(d[0].name + ': ' + (App.property.sci ?
+                // rescale svg point
+                var svg = this.svg.node();
+                var pt = svg.createSVGPoint();
+                pt.x = d3.event.clientX;
+                pt.y = d3.event.clientY;
+                pt = pt.matrixTransform( svg.getScreenCTM().inverse() );
+
+                var offset = pt.x - this.margin.left;
+                var i = Math.round(this.x.invert(offset));
+                var bbox = this.textbox.select('text')
+                    .text(d[0].name + ': ' + (App.property.sci ?
                                     Number(d[i].flux.toPrecision(3)).toExponential() :
                                     Number(d[i].flux.toFixed(3))) )
-                .node().getBBox();
+                    .node().getBBox();
 
-              var diff = Math.min(this.width + this.margin.right - offset - bbox.width/2 - 7, 0);
+                var diff = Math.min(this.width + this.margin.right - offset - bbox.width/2 - 7, 0);
 
-              this.textbox
-                .attr('transform','translate(' + (d3.event.offsetX + diff) + ',' + (d3.event.offsetY - 15) + ')')
-              .select('rect')
-                .attr('width',bbox.width+12)
-                .attr('height',bbox.height+4)
-                .attr('x',bbox.x-6)
-                .attr('y',bbox.y-2);
+                this.textbox
+                    .attr('transform','translate(' + (pt.x + diff) + ',' + (pt.y - 15) + ')')
+                .select('rect')
+                    .attr('width',bbox.width+12)
+                    .attr('height',bbox.height+4)
+                    .attr('x',bbox.x-6)
+                    .attr('y',bbox.y-2);
             })
             .on('mouseout', (d,i) => {
               this.textbox
