@@ -49,6 +49,16 @@ function LineGraph(selector, options) {
         .attr('text-anchor','middle')
         .attr('fill','black');
 
+    this.axisHelper = this.svg.append('g')
+        .style('display','none')
+        .style('pointer-events','none');
+    this.axisHelper.append('line')
+        .attr('y1',this.margin.top)
+        .attr('stroke','black')
+        .style("stroke-dasharray", "2, 2");
+    this.axisHelper.append('text')
+        .attr('fill','black');
+
     var graph = this.graph = this.svg.append('g')
         .attr('class', 'graph')
         .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
@@ -85,6 +95,9 @@ LineGraph.prototype = {
         .select('rect')
             .attr('width', w)
             .attr('height', h);
+
+        this.axisHelper.select('line')
+            .attr('y2',this.margin.top + this.height);
 
         if (this.x && this.fluxs) {
             this.x.range([0, this.width]);
@@ -342,6 +355,8 @@ LineGraph.prototype = {
               });
               d3.select(d3.event.target).raise()
                 .style('stroke-opacity',0.6);
+              this.axisHelper.raise()
+                .style('display','block');
               this.textbox.raise()
                 .style('display','block');
             })
@@ -363,6 +378,19 @@ LineGraph.prototype = {
 
                 var diff = Math.min(this.width + this.margin.right - offset - bbox.width/2 - 7, 0);
 
+
+                this.axisHelper
+                    .attr('transform','translate('+pt.x+',0)')
+                .select('text')
+                    .text('t=' + Number(App.dataset[i].timeWindow[1].toFixed(3)))
+                    .attr('transform',() => {
+                        var y = this.margin.top;
+                        if (pt.y < y + 30) { y += 30; }
+                        var x = (diff < 0) ? -5 : 5;
+                        return 'translate(' + x + ',' + y + ')';
+                    })
+                    .attr('text-anchor',(diff < 0) ? 'end' : 'start');
+
                 this.textbox
                     .attr('transform','translate(' + (pt.x + diff) + ',' + (pt.y - 15) + ')')
                 .select('rect')
@@ -373,6 +401,8 @@ LineGraph.prototype = {
             })
             .on('mouseout', (d,i) => {
               this.textbox
+                .style('display','none');
+              this.axisHelper
                 .style('display','none');
               d3.selectAll('.link-1')
                 .transition()
