@@ -1,12 +1,12 @@
 
 function LineGraph(selector, options) {
+    this.outgoing = (options && options.out === true);
     this.container = document.querySelector(selector) || document.body;
     this.svg = d3.select( this.container )
                             .append('svg');
 
     this.svg.append('rect')
         .attr('fill','transparent');
-
 
     this.margin = {top: 60, right: 20, bottom: 30, left: 60};
 
@@ -37,6 +37,27 @@ function LineGraph(selector, options) {
         .attr('class','linear active')
         .attr('transform','translate( 25, 0 )')
         .on('click', this.setLinear.bind(this));
+
+    this.textbox = this.svg.append('g')
+        .attr('class','textbox')
+        .style('pointer-events','none');
+    this.textbox.append('rect')
+        .attr('fill','white')
+        .attr('stroke-width','0.5px')
+        .attr('stroke','gray');
+    this.textbox.append('text')
+        .attr('text-anchor','middle')
+        .attr('fill','black');
+
+    this.axisHelper = this.svg.append('g')
+        .style('display','none')
+        .style('pointer-events','none');
+    this.axisHelper.append('line')
+        .attr('y1',this.margin.top)
+        .attr('stroke','black')
+        .style("stroke-dasharray", "2, 2");
+    this.axisHelper.append('text')
+        .attr('fill','black');
 
     var graph = this.graph = this.svg.append('g')
         .attr('class', 'graph')
@@ -75,6 +96,9 @@ LineGraph.prototype = {
             .attr('width', w)
             .attr('height', h);
 
+        this.axisHelper.select('line')
+            .attr('y2',this.margin.top + this.height);
+
         if (this.x && this.fluxs) {
             this.x.range([0, this.width]);
 
@@ -93,16 +117,16 @@ LineGraph.prototype = {
             this.drawMarkers();
         }
     },
-    updateRule: function(d, out) {
+    updateRule: function(d) {
 
         this.rule = d;
         this.svg.select('.title')
-          .text(d.name + (out? ' outgoing influences':' incoming influences'));
+          .text(d.name + (this.outgoing ? ' outgoing influences':' incoming influences'));
 
         this.svg.select('.toggle-axis-scale')
             .style('display','block');
 
-        var infMap = out ?
+        var infMap = this.outgoing ?
             App.dataset.map(dataset => {
                 var obj = dataset.data[d.name];
                 if (obj && obj.inf) { return obj.inf; }
@@ -263,32 +287,150 @@ LineGraph.prototype = {
     },
     // draw lines
     drawPaths: function() {
-        var self = this;
         var line = d3.line()
             .curve(d3.curveCatmullRom)
-            .x(d => self.x(d.i))
+            .x(d => this.x(d.i))
             .y(d => {
-                if (self.y) {
-                    return self.y(d.flux)
+                if (this.y) {
+                    return this.y(d.flux)
                 }
-                return d.flux < 0 ? self.yneg(d.flux) : self.ypos(d.flux);
+                return d.flux < 0 ? this.yneg(d.flux) : this.ypos(d.flux);
             });
 
-        var path = this.graph.selectAll('.flux')
-            .data(this.fluxs)
+
+        var path = this.graph.selectAll('.flux-1')
+            .data(this.fluxs);
 
         path.exit().remove();
         path.enter().append('path')
-            .attr('class','flux')
+            .attr('class','flux-1')
             .attr('fill','none')
             .style('stroke-width', 0.5)
         .merge(path)
             .style('stroke', path => {
-                return path[0].name === self.rule.name ? 'red' : '#888';
+                return path[0].name === this.rule.name ? 'red' : '#888';
             })
         .transition()
             .duration(500)
-            .attr('d', (d) => line(d) );
+            .attr('d', (d) => line(d));
+
+        var links = d3.selectAll('.link-2')
+
+        var hoverPath = this.graph.selectAll('.flux-2')
+            .data(this.fluxs);
+
+        hoverPath.exit().remove();
+        hoverPath.enter().append('path')
+            .attr('class','flux-2')
+            .attr('fill', 'none')
+            .style('stroke-width', 8)
+            .style('stroke-opacity', 0)
+        .merge(hoverPath)
+            .style('stroke', hoverPath => {
+                return hoverPath[0].name === this.rule.name ? 'red' : '#888';
+            })
+            .attr('name', hoverPath => {
+                return hoverPath[0].name; 
+            })
+            .on('mouseover', (d,i) => {
+              // fade non-hovered influences (ignore for self-influence)
+              if (d[0].name !== this.rule.name) {
+                  d3.selectAll('.link-1')
+                    .transition()
+                    .duration(400)
+                    .style('stroke-opacity',function() {
+                        var opacity = d3.select(this).style('stroke-opacity');
+                        return Math.min(0.4, opacity);
+                  });                
+              }
+              links.style('stroke-opacity', j => {
+                if (this.outgoing) {
+                    return (d[0].name === j.target.name &&
+                            this.rule.name === j.source.name) ? 0.6 : 0;
+                }
+                else {
+                    return (d[0].name === j.source.name &&
+                            this.rule.name === j.target.name) ? 0.6 : 0;
+                }
+              });
+              d3.select(d3.event.target).raise()
+                .style('stroke-opacity',0.6);
+              this.axisHelper.raise()
+                .style('display','block');
+              this.textbox.raise()
+                .style('display','block');
+            })
+            .on('mousemove', (d) => {
+                // rescale svg point
+                var svg = this.svg.node();
+                var pt = svg.createSVGPoint();
+                pt.x = d3.event.clientX;
+                pt.y = d3.event.clientY;
+                pt = pt.matrixTransform( svg.getScreenCTM().inverse() );
+
+                var offset = pt.x - this.margin.left;
+                var i = Math.round(this.x.invert(offset));
+                var bbox = this.textbox.select('text')
+                    .text(d[0].name + ': ' + (App.property.sci ?
+                                    Number(d[i].flux.toPrecision(3)).toExponential() :
+                                    Number(d[i].flux.toFixed(3))) )
+                    .node().getBBox();
+
+                var diff = Math.min(this.width + this.margin.right - offset - bbox.width/2 - 7, 0);
+
+
+                this.axisHelper
+                    .attr('transform','translate('+pt.x+',0)')
+                .select('text')
+                    .text('t=' + Number(App.dataset[i].timeWindow[1].toFixed(3)))
+                    .attr('transform',() => {
+                        var y = this.margin.top;
+                        if (pt.y < y + 30) { y += 30; }
+                        var x = (diff < 0) ? -5 : 5;
+                        return 'translate(' + x + ',' + y + ')';
+                    })
+                    .attr('text-anchor',(diff < 0) ? 'end' : 'start');
+
+                this.textbox
+                    .attr('transform','translate(' + (pt.x + diff) + ',' + (pt.y - 15) + ')')
+                .select('rect')
+                    .attr('width',bbox.width+12)
+                    .attr('height',bbox.height+4)
+                    .attr('x',bbox.x-6)
+                    .attr('y',bbox.y-2);
+            })
+            .on('mouseout', (d,i) => {
+              this.textbox
+                .style('display','none');
+              this.axisHelper
+                .style('display','none');
+              d3.selectAll('.link-1')
+                .transition()
+                .duration(400)
+                .style('stroke-opacity', (j) => {
+                  if(App.property.green == true && App.property.red == true) {
+                    return 0;
+                  }
+                  else if( App.property.green == true && j.value > 0 ) {
+                    return 0;
+                  }
+                 else if( App.property.red == true && j.value < 0) {
+                    return 0;
+                  }
+                  else if( App.property.link == true && Math.abs(j.value) < Math.abs(App.panels.forceDirected.threshold)) {
+                    return 0;
+                  }
+                  else { 
+                    return 1;
+                  } 
+              })
+              links.style('stroke-opacity',0.0);
+              d3.select(d3.event.target)
+                .style('stroke-opacity', 0.0)
+            })
+            .attr('d', (d) => line(d));
+
+
     },
 
     // draw markers
@@ -311,7 +453,6 @@ LineGraph.prototype = {
 
         marker.exit().remove();
 
-        var self = this;
         marker.enter().append('circle')
             .attr('class','marker')
             .attr('stroke-width',1)
@@ -321,10 +462,10 @@ LineGraph.prototype = {
         .merge(marker)
             .attr('cx', d => this.x(d.i) )
             .attr('cy', d => {
-                if (self.y) {
-                    return self.y(d.flux);
+                if (this.y) {
+                    return this.y(d.flux);
                 }
-                return (d.flux < 0) ? self.yneg(d.flux) : self.ypos(d.flux);
+                return (d.flux < 0) ? this.yneg(d.flux) : this.ypos(d.flux);
             })
             .attr('fill', d => {
                 var rule = App.panels.forceDirected.filteredData[ d.name];

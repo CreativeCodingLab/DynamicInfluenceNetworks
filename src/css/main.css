@@ -42,6 +42,17 @@ body {
     cursor:pointer;
 }
 
+.rule {
+  stroke:white;
+  stroke-opacity:0.5;
+  stroke-width:1.5;
+}
+.node-to-graph {
+  stroke-opacity:1 !important;
+  stroke-width:2.5;
+  opacity:1 !important;
+}
+
 #legendContainer {
   overflow: hidden;
   position: absolute;

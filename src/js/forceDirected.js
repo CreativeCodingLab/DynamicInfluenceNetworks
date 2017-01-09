@@ -612,9 +612,6 @@ ForceDirectedGraph.prototype = {
       .attr("transform", (d, i) => {
         return "translate(" + d.x + ", " + d.y + ")";
       })
-      .style("stroke", "white")
-      .style("stroke-opacity", 0.5)
-      .style("stroke-width", 1.5)
     .merge(rule)
       .attr("cluster", d => d.cluster)
       .attr("r", d => d.radius)
@@ -637,13 +634,14 @@ ForceDirectedGraph.prototype = {
         else return 0.5;
       })
       .on('mouseover', this._isDragging ? null : function(d) {
-
+        d3.select('.node-to-graph')
+          .classed('node-to-graph',false);
         d3.select(this)
-          .style('stroke-opacity',1);
+          .classed('node-to-graph',true);
         self.showTip(d, 'rule');
 
         if (App.panels.topVis) { App.panels.topVis.updateRule(d); }
-        if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d, true); }
+        if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d); }
 
         self.linkGroup.selectAll('.link-1')
           .transition()
@@ -662,9 +660,6 @@ ForceDirectedGraph.prototype = {
           .style('stroke-opacity', 0.6);
       })
       .on("mouseout", function() {
-        d3.select(this).transition()
-          .style('stroke-opacity',0.5);
-
         self.linkGroup.selectAll('.link-1')
           .transition()
           .duration(400)
