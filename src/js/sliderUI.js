@@ -4,15 +4,19 @@ function Slider(options) {
     var color = (options && options.color) ? options.color : '#eee',
         title = (options && options.title) ? options.title : '',
         domain = (options && options.domain) ? options.domain : [0,1],
-        right = (options && options.right === true),
+        top = (options && options.top) ? options.top : -60,
+        left = (options && options.left) ? options.left : 0,
         log = (options && options.log === true);
 
     var width = 300;
     var height = 50;
 
-    var containerWidth = right ? App.panels.forceDirected.width - width - 5 : 5;
-        containerHeight = App.panels.forceDirected.height-50;
-    svg.attr('transform','translate('+containerWidth+','+containerHeight+')');
+    this.resize = function() {
+        var dx = left < 0 ? App.panels.forceDirected.width + left-5 : left+5,
+            dy = top < 0 ? App.panels.forceDirected.height + top: top;
+        svg.attr('transform','translate('+dx+','+dy+')');
+    }
+    this.resize();
 
     var self = this;
     var drag = d3.drag()
@@ -150,9 +154,4 @@ function Slider(options) {
             .attr('x', this.x);
     }
 
-    this.resize = function( ) {
-    var containerWidth = right ? App.panels.forceDirected.width - 300 : 0;
-        containerHeight = App.panels.forceDirected.height-50;
-    svg.attr('transform','translate('+containerWidth+','+containerHeight+')');
-    }
 };

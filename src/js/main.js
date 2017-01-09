@@ -164,7 +164,7 @@ var App = App || {};
       App.timeSlider = new Slider( {
         title: 'Time',
         domain: [ 0, App.dataset.length-1 ],
-        right: true
+        left: -300
       } );
       App.timeSlider.onDrag = function(x) {
         var t = Math.round(this.value);
@@ -214,6 +214,14 @@ var App = App || {};
       App.panels.topVis.drawMarkers();
       App.panels.bottomVis.drawMarkers();
     }
+
+    App.visSlider = new Slider( {
+      title: 'vis threshold: ' + App.panels.forceDirected.threshold.toPrecision(3),
+      domain: infDomain(),
+      log: true,
+      top: -110
+    });
+
   }
 
   // creating SVGs in layout
