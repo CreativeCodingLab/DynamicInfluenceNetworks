@@ -183,6 +183,8 @@ var App = App || {};
         }
       }
       App.timeSlider.onDragEnd = function() {
+        App.animation.currentTime = Math.round(this.value);
+
         App.panels.forceDirected.simulation
           .alpha(0.3)
           .restart();

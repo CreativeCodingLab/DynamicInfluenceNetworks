@@ -78,6 +78,9 @@ AnimationManager.prototype.togglePlay = function() {
 
       that.currentTime = (that.currentTime + t_pc) % that.totalTime;
       // console.log(that.currentTime);
+      if (isNaN(that.currentTime)) {
+        that.currentTime = 0;
+      }
 
       that.updateData();
 
