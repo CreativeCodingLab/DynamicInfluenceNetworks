@@ -5,7 +5,7 @@ function AnimationManager() {
   this.isActive = true;
 
   this.currentTime = 0; // in terms of timestep
-  this.totalTime = 35;
+  this.totalTime = 1;
   this.isPlaying = false;
 
   this.interval = null;
@@ -48,6 +48,10 @@ function AnimationManager() {
 AnimationManager.prototype.toggleActive = function() {
   // set active to false
   this.isActive = !this.isActive;
+}
+
+AnimationManager.prototype.setTotalTimesteps = function(t) {
+  this.totalTime = t - 1;
 }
 
 AnimationManager.prototype.togglePlay = function() {

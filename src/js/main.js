@@ -13,7 +13,7 @@ var App = App || {};
   App.init = function() {
     var url = document.URL.split('?')[1] || "flux_0.json";
     App.loadData(url, true);
-    
+
     App.animation = new AnimationManager();
   }
 
@@ -142,6 +142,7 @@ var App = App || {};
 
     // init data to first dataset in series
     App.data = App.dataset[0].data;
+    App.animation.setTotalTimesteps(App.dataset.length);
     App.draw();
   };
 
