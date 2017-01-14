@@ -178,9 +178,9 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
 /*Animation controls*/
 .animationControls {
   position: absolute;
-  width: 300px;
-  bottom: 120px;
-  right: -100px;
+  /*width: 300px;*/
+  bottom: 30px;
+  right: 30px;
 }
 
 .animationIcon {
