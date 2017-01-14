@@ -45,13 +45,22 @@ function AnimationManager() {
     });
 }
 
-AnimationManager.prototype.toggleActive = function() {
+AnimationManager.prototype.setActive = function(active) {
   // set active to false
-  this.isActive = !this.isActive;
+  this.isActive = active;
+
+  d3.select(".animationControls")
+    .style("display", active ? "initial" : "none");
 }
 
 AnimationManager.prototype.setTotalTimesteps = function(t) {
   this.totalTime = t - 1;
+
+  if (this.totalTime <= 1) {
+    this.setActive(false);
+  } else {
+    this.setActive(true);
+  }
 }
 
 AnimationManager.prototype.togglePlay = function() {
