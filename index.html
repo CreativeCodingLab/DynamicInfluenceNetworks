@@ -5,7 +5,7 @@
         <title>Dynamic Influence Map</title>
 
         <!-- CSS Libs-->
-<link href="https://fonts.googleapis.com/css?family=Istok+Web" rel="stylesheet"> 
+<link href="https://fonts.googleapis.com/css?family=Istok+Web" rel="stylesheet">
 
         <!-- JS Libs-->
         <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
@@ -24,6 +24,7 @@
         <script src="./src/js/lineGraph.js"></script>
         <script src="./src/js/forceDirectedUI.js"></script>
         <script src="./src/js/sliderUI.js"></script>
+        <script src="./src/js/animation.js" charset="utf-8"></script>
 
     </head>
 
@@ -33,7 +34,15 @@
 
             <div class="row h-100">
                 <div class="col-md-8 mainCol" id="forceDirectedDiv">
-                    
+
+
+                    <div class="animationControls">
+                      <img class="animationIcon frIcon" src="./lib/Icons/frIcon.svg" alt="" width="16" height="16">
+                      <img class="animationIcon sbIcon" src="./lib/Icons/stepBackward.svg" alt="" width="16" height="16">
+                      <img class="animationIcon ppIcon" src="./lib/Icons/playIcon.svg" alt="" width="16" height="16">
+                      <img class="animationIcon sfIcon" src="./lib/Icons/stepForward.svg" alt="" width="16" height="16">
+                      <img class="animationIcon ffIcon" src="./lib/Icons/ffIcon.svg" alt="" width="16" height="16">
+                    </div>
                 </div>
                 <div class="col-md-4 mainCol">
                     <div class="row controls">
@@ -51,7 +60,7 @@
                                     <input type="checkbox" id="sci">
                                     <label for="sci">
                                         Scientific notation
-                                    </label> 
+                                    </label>
                                 </span>
                                 <span>
                                     <input type="checkbox" id="show-labels">
@@ -60,25 +69,25 @@
                                     </label>
                                 </span>
                                 <span>
-                                    <input type="checkbox" id="hide-negative"> 
+                                    <input type="checkbox" id="hide-negative">
                                     <label for="hide-negative">
                                         Hide negative influences
                                     </label>
                                 </span>
                                 <span>
-                                    <input type="checkbox" id="hide-positive"> 
+                                    <input type="checkbox" id="hide-positive">
                                     <label for="hide-positive">
                                         Hide positive influences
                                     </label>
                                 </span>
                                 <span>
-                                    <input type="checkbox" id="infl-node"> 
+                                    <input type="checkbox" id="infl-node">
                                     <label for="infl-node">
                                         Hide weaker rules
                                     </label>
                                 </span>
                                 <span>
-                                    <input type="checkbox" id="infl-link"> 
+                                    <input type="checkbox" id="infl-link">
                                     <label for="infl-link">
                                         Hide weaker influences
                                     </label>
@@ -87,9 +96,9 @@
                         </div>
                     </div>
 
-                    <div class="row h-30 content" id= "topVis"> 
+                    <div class="row h-30 content" id= "topVis">
                     </div>
-                    <div class="row h-30 content" id= "bottomVis">  
+                    <div class="row h-30 content" id= "bottomVis">
                     </div>
                 </div>
             </div>

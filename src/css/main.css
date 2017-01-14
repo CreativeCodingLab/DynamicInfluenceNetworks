@@ -9,8 +9,8 @@ html, body, .fluidContainer, .mainCol {
   font-size:2.5vmin;
   line-height:2.75vmin;
 }
-body { 
-  margin: 0; 
+body {
+  margin: 0;
   font-family: 'istok web','source sans pro','helvetica neue', helvetica, arial, sans-serif;
 }
 
@@ -82,7 +82,7 @@ body {
   padding:1vh 2vw;
 }
 
-rect.slider { 
+rect.slider {
   cursor:pointer;
 }
 
@@ -147,15 +147,15 @@ input[type="checkbox"] {
 
 input[type="checkbox"] + label:before {
   font-family: FontAwesome;
-  content: "\f10c"; 
+  content: "\f10c";
   cursor:pointer;
   position:absolute;
   font-size: 2vmin;
   margin-left:-3vmin;
 }
 
-input[type="checkbox"]:checked + label:before { 
-  content: "\f058"; 
+input[type="checkbox"]:checked + label:before {
+  content: "\f058";
 }
 
 input[type="checkbox"] + label, input[type="checkbox"] + label:before, .toggle-axis-scale {
@@ -163,7 +163,7 @@ input[type="checkbox"] + label, input[type="checkbox"] + label:before, .toggle-a
   fill:#999;
 }
 
-input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:before, .toggle-axis-scale .active { 
+input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:before, .toggle-axis-scale .active {
   color:#2c7fb8;
   fill:#2c7fb8;
 }
@@ -173,4 +173,16 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
 }
 .toggle-axis-scale .log, .toggle-axis-scale .linear {
   cursor:pointer;
+}
+
+/*Animation controls*/
+.animationControls {
+  position: absolute;
+  width: 300px;
+  bottom: 120px;
+  right: -100px;
+}
+
+.animationIcon {
+  /*position: absolute;*/
 }

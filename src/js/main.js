@@ -13,6 +13,8 @@ var App = App || {};
   App.init = function() {
     var url = document.URL.split('?')[1] || "flux_0.json";
     App.loadData(url, true);
+    
+    App.animation = new AnimationManager();
   }
 
   App.resize = function() {
@@ -38,7 +40,7 @@ var App = App || {};
 
     // put function calls here to draw
     var fd = App.panels.forceDirected;
-    App.panels.forceDirected = new ForceDirectedGraph( { 
+    App.panels.forceDirected = new ForceDirectedGraph( {
       svg: fd.svg,
       width: fd.width,
       height: fd.height
