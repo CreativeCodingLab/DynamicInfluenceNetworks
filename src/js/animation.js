@@ -111,6 +111,10 @@ AnimationManager.prototype.stepForward = function() {
   }
 
   this.updateData();
+
+  App.panels.forceDirected.simulation
+    .alpha(0.3)
+    .restart();
 }
 
 AnimationManager.prototype.stepBackward = function() {
@@ -121,6 +125,10 @@ AnimationManager.prototype.stepBackward = function() {
   }
 
   this.updateData();
+
+  App.panels.forceDirected.simulation
+    .alpha(0.3)
+    .restart();
 }
 
 AnimationManager.prototype.increaseSpeed = function() {
@@ -128,6 +136,11 @@ AnimationManager.prototype.increaseSpeed = function() {
   if (this.speed < 32) {
     this.speed *= 2;
   }
+
+  var speed = this.speed < 1 ? "1/" + (1/this.speed).toFixed(0) : "" + this.speed;
+
+  d3.select(".animationSpeed")
+    .text(speed + "x");
 }
 
 AnimationManager.prototype.decreaseSpeed = function() {
@@ -135,6 +148,11 @@ AnimationManager.prototype.decreaseSpeed = function() {
   if (this.speed > 1/32) {
     this.speed /= 2;
   }
+
+  var speed = this.speed < 1 ? "1/" + (1/this.speed).toFixed(0) : "" + this.speed;
+
+  d3.select(".animationSpeed")
+    .text(speed + "x");
 }
 
 AnimationManager.prototype.updateData = function() {

@@ -178,11 +178,44 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
 /*Animation controls*/
 .animationControls {
   position: absolute;
-  /*width: 300px;*/
-  bottom: 30px;
-  right: 30px;
+  bottom: 35px;
+  right: 8px;
+
+  margin: 2px;
+  padding: 2px;
+
+  background-color: rgba(200, 200, 200, 0.3);
+  border: 1px solid white;
+  border-radius: 5px;
+
+  pointer-events: none;
 }
 
-.animationIcon {
-  /*position: absolute;*/
+.animationIcon, .animationSpeedDiv {
+  display: inline-block;
+  float: left;
+  margin: 3px;
+
+  pointer-events: all;
+}
+
+.animationSpeedDiv {
+  width: 32px;
+  height: 16px;
+
+  border-radius: 2px;
+  background-color: rgba(100, 100, 100, 0.75);
+  border: 1px solid darkgray;
+}
+
+.animationSpeed {
+  font-size: 12px;
+  font-weight: bold;
+
+  text-align: center;
+  vertical-align: middle;
+  line-height: 16px;
+
+  color: white;
+  margin: 0px;
 }
