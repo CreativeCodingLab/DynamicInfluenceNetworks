@@ -178,14 +178,14 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
 /*Animation controls*/
 .animationControls {
   position: absolute;
-  bottom: 35px;
+  bottom: 70px;
   right: 8px;
 
   margin: 2px;
   padding: 2px;
 
   background-color: rgba(200, 200, 200, 0.3);
-  border: 1px solid white;
+  border: 3px solid white;
   border-radius: 5px;
 
   pointer-events: none;
@@ -200,21 +200,21 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
 }
 
 .animationSpeedDiv {
-  width: 32px;
-  height: 16px;
+  width: 64px;
+  height: 32px;
 
   border-radius: 2px;
   background-color: rgba(100, 100, 100, 0.75);
-  border: 1px solid darkgray;
+  border: 2px solid darkgray;
 }
 
 .animationSpeed {
-  font-size: 12px;
+  font-size: 24px;
   font-weight: bold;
 
   text-align: center;
   vertical-align: middle;
-  line-height: 16px;
+  line-height: 32px;
 
   color: white;
   margin: 0px;
