@@ -1,6 +1,7 @@
 # CS424-Project3
 Interactive visualization of dynamic rule networks 
-Project Member: Andrew Burks, Kristine Lee, Xing Li
+
+Project Members: Andrew Burks, Kristine Lee, Xing Li
 
 # Installation Instructions
 
