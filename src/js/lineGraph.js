@@ -417,7 +417,7 @@ LineGraph.prototype = {
                  else if( App.property.red == true && j.value < 0) {
                     return 0;
                   }
-                  else if( App.property.link == true && Math.abs(j.value) < Math.abs(App.panels.forceDirected.threshold)) {
+                  else if( Math.abs(j.value) < App.panels.forceDirected.visThreshold) {
                     return 0;
                   }
                   else { 
