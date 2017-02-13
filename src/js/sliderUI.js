@@ -4,18 +4,14 @@ function Slider(options) {
     var color = (options && options.color) ? options.color : '#eee',
         title = (options && options.title) ? options.title : '',
         domain = (options && options.domain) ? options.domain : [0,1],
-        top = (options && options.top) ? options.top : -60,
-        left = (options && options.left) ? options.left : 0,
-        log = (options && options.log === true);
+        top = this.top = (options && options.top) ? options.top : -70,
+        left = this.left = (options && options.left) ? options.left : 0,
+        log = (options && options.log === true),
+        tabs = options && options.tabs;
 
     var width = 300;
-    var height = 50;
+    var height = 80;
 
-    this.resize = function() {
-        var dx = left < 0 ? App.panels.forceDirected.width + left-5 : left+5,
-            dy = top < 0 ? App.panels.forceDirected.height + top: top;
-        svg.attr('transform','translate('+dx+','+dy+')');
-    }
     this.resize();
 
     var self = this;
@@ -66,10 +62,11 @@ function Slider(options) {
 
     if (!log) { axis.tickFormat(d => parseInt(App.format.start+d)); }
 
+    svg.style("font-size", '13px');
+
     svg.append('g')
         .attr('class','axis')
-        .attr('transform','translate(0,25)')
-        .style("font-size", '11px')
+        .attr('transform','translate(0,35)')
         .call(axis);
 
     svg.select('.axis path')
@@ -82,7 +79,7 @@ function Slider(options) {
         .attr('fill',color);
 
     svg.append('g')
-        .attr('transform','translate(5,17)')
+        .attr('transform','translate(5,25)')
     .append('rect')
         .attr('class','slider')
         .attr('stroke','#444')
@@ -99,12 +96,27 @@ function Slider(options) {
         .attr('pointer-events','none')
         .attr('text-anchor','middle')
         .attr('fill',color)
-        .attr('font-size','12px')
         .attr('text-anchor','start')
-        .attr('x',8)
         .style('font-weight','bold')
-        .attr('y',12)
+        .attr('x',8)
+        .attr('y',tabs ? 0 : 15)
         .text(title);
+
+    if (tabs) {
+        this.tabs = tabs.map(label =>
+            svg.append('text')
+                .attr('text-anchor','start')
+                .attr('x',8)
+                .attr('y', 17)
+                .attr('class','slider-tab')
+                .style('cursor','pointer')
+                .attr('fill',color)
+                .text(label)
+        );
+        this.tabs[0]
+            .classed('active',true);
+        this.resizeTabs();
+    }
 
 
     this.setTitle = function(title) {
@@ -153,5 +165,22 @@ function Slider(options) {
         svg.select('.slider')
             .attr('x', this.x);
     }
-
 };
+
+Slider.prototype.resize = function() {
+    var dx = this.left < 0 ? App.panels.forceDirected.width + this.left-5 : this.left+5,
+        dy = this.top < 0 ? App.panels.forceDirected.height + this.top: this.top;
+    this.svg.attr('transform','translate('+dx+','+dy+')');
+    this.resizeTabs();
+}
+
+Slider.prototype.resizeTabs = function() {
+    if (this.tabs) {
+        this.tabs.forEach((tab, i) => {
+            if (i > 0) {
+                let prevTab = this.tabs[i-1].node().getBBox();
+                tab.attr('x', prevTab.x + prevTab.width + 10);
+            }
+        })        
+    }
+}

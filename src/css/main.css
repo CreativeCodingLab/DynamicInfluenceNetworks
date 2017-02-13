@@ -168,6 +168,13 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
   fill:#2c7fb8;
 }
 
+.slider-tab {
+  fill:#ccc;
+}
+.slider-tab.active {
+  fill:#5bf;
+}
+
 .toggle-axis-scale {
   cursor:default;
 }
@@ -178,22 +185,21 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
 /*Animation controls*/
 .animationControls {
   position:absolute;
-  background:rgba(200,200,200,0.2);
   color:white;
   transform:translateY(-100%);
-  font-size:0.9em;
+  font-size:0.8em;
   padding:0.5vmin;
+  pointer-events:none;
 }
 .animationSpeedDiv {
-  border:0.4vmin solid #ccc;
   display:inline-block;
 }
 .animationSpeed {
   font-weight:bold;
-  padding:0.25vmin 0.9vmin;
   margin:0;
 }
 i.animationIcon {
+  pointer-events:auto;
   cursor:pointer;
   margin:0 0.75vmin;
   font-style:normal;

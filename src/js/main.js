@@ -28,7 +28,7 @@ var App = App || {};
       }
     }
 
-    ['timeSlider', 'infSlider', 'visSlider'].forEach(function(slider) {
+    ['timeSlider', 'infSlider'/*, 'visSlider'*/].forEach(function(slider) {
       if (App[slider]) {
         App[slider].resize();
       }
@@ -206,14 +206,15 @@ var App = App || {};
       return [d3.min(maxs), App.panels.forceDirected.maxInfl];
     }
     App.infSlider = new Slider( {
-      title: 'Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3),
+      title: 'Influence > ' + App.panels.forceDirected.threshold.toPrecision(3),
       domain: infDomain(),
-      log: true
+      log: true,
+      tabs: ['Clustering', 'Visibility']
     });
     App.infSlider.setPosition( App.panels.forceDirected.threshold );
     App.infSlider.onDrag = function(x, evt) {
       var inf = this.value;
-      this.setTitle('Influence threshold: ' + App.panels.forceDirected.threshold.toPrecision(3));
+      this.setTitle('Influence > ' + App.panels.forceDirected.threshold.toPrecision(3));
       App.panels.forceDirected.threshold = inf;
       App.panels.forceDirected.defineClusters(inf);
       App.panels.forceDirected.drawGraph();
@@ -221,14 +222,14 @@ var App = App || {};
       App.panels.bottomVis.drawMarkers();
     }
 
-    App.visSlider = new Slider( {
-      title: 'vis threshold: ' + App.panels.forceDirected.threshold.toPrecision(3),
+/*    App.visSlider = new Slider( {
+      title: 'Visibility > ' + App.panels.forceDirected.threshold.toPrecision(3),
       domain: infDomain(),
       log: true,
       top: -110
     });
 
-  }
+*/  }
 
   // creating SVGs in layout
   function createSVGs() {

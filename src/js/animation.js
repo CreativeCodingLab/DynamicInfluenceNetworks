@@ -29,7 +29,7 @@ function AnimationManager() {
   d3.select(".ppIcon")
     .on("click", function(d) {
       that.togglePlay(); // change icon
-      this.classList.toggle('paused', !that.isPlaying);
+      this.classList.toggle('paused', that.isPlaying);
     });
 
   d3.select(".sfIcon")
@@ -211,7 +211,7 @@ AnimationManager.prototype.attachToSlider = function(slider) {
       .style('left', rect.left + 'px')
       .style('top', rect.top + 'px');    
   }
-  var oldSliderResize = slider.resize;
+  var oldSliderResize = slider.resize.bind(slider);
 
   slider.resize = function() {
     oldSliderResize();
