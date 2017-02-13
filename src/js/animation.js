@@ -29,7 +29,6 @@ function AnimationManager() {
   d3.select(".ppIcon")
     .on("click", function(d) {
       that.togglePlay(); // change icon
-      this.classList.toggle('paused', that.isPlaying);
     });
 
   d3.select(".sfIcon")
@@ -64,6 +63,7 @@ AnimationManager.prototype.setTotalTimesteps = function(t) {
 AnimationManager.prototype.togglePlay = function() {
   // toggle between playing and paused
   this.isPlaying = !this.isPlaying;
+  d3.select(".ppIcon").classed('paused', this.isPlaying);
 
   var that = this;
 
