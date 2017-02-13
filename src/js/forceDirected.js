@@ -673,7 +673,7 @@ ForceDirectedGraph.prototype = {
             else if( App.property.red == true && d.value < 0) {
               return 0;
             }
-            else if( App.property.link == true && Math.abs(d.value) < self.threshold) {
+            else if( Math.abs(d.value) < self.visThreshold) {
               return 0;
             }
             else { 
@@ -751,29 +751,28 @@ ForceDirectedGraph.prototype = {
       .domain(this.links.map(d => Math.abs(d.value)))
       .range(d3.range(0.4, this.links.length > 200 ? 1 : 4, 0.05));
 
-   // var inflToggle = d3.selectAll("#infl-link");
     var threshold = Math.abs(App.panels.forceDirected.threshold);
     var mainLink = this.linkGroup.selectAll('.link-1')
       .data(this.links)
 
-   mainLink
-      .style('stroke-opacity', (d) => {
-        if(App.property.green == true && App.property.red == true) {
-          return 0;
-        }
-        else if( App.property.green == true && d.value > 0 ) {
-          return 0;
-        }
-        else if( App.property.red == true && d.value < 0) {
-          return 0;
-        }
-        else if( App.property.link == true && Math.abs(d.value) < threshold) {
-          return 0;
-        }
-        else { 
-          return 1;
-        }
-      });
+    mainLink
+        .style('stroke-opacity', (d) => {
+          if(App.property.green == true && App.property.red == true) {
+            return 0;
+          }
+          else if( App.property.green == true && d.value > 0 ) {
+            return 0;
+          }
+          else if( App.property.red == true && d.value < 0) {
+            return 0;
+          }
+          else if( Math.abs(d.value) < this.visThreshold) {
+            return 0;
+          }
+          else { 
+            return 1;
+          }
+        });
 
     mainLink.exit().remove();
     mainLink.enter().append('path')
@@ -791,47 +790,47 @@ ForceDirectedGraph.prototype = {
     var hoverLink = this.linkGroup.selectAll('.link-2')
       .data(this.links);
 
-   hoverLink
-      .attr('pointer-events', (d) => {
-        if(App.property.green == true && 
-           App.property.red == true) {
-          return 'none';
-        }
-        else if(App.property.green == true && d.value > 0) {
-          return 'none';
-        }
-        else if( App.property.red == true && d.value < 0) {
-          return 'none';
-        }
-        else if( App.property.link == true && Math.abs(d.value) < threshold) {
-          return 'none';
-        }
-        else { 
-          return 'all';
-        }
-      });
+    hoverLink
+        .attr('pointer-events', (d) => {
+          if(App.property.green == true && 
+             App.property.red == true) {
+            return 'none';
+          }
+          else if(App.property.green == true && d.value > 0) {
+            return 'none';
+          }
+          else if( App.property.red == true && d.value < 0) {
+            return 'none';
+          }
+          else if( Math.abs(d.value) < this.visThreshold) {
+            return 'none';
+          }
+          else { 
+            return 'all';
+          }
+        });
 
     hoverLink.exit().remove();
     hoverLink.enter().append('path')
-        .attr("class", "link link-2")
-        .attr('fill','none')
-        .attr("value", d => d.value)
-        .style("stroke-opacity", 0)
-        .style("stroke-width", 8)
-        .on("mouseover", (d, i) => {
-          if (self._isDragging) return;
-          d3.select(d3.event.target)
-            .style('stroke-opacity',0.5)
-            .raise();
-          self.showTip(d, 'path');
-        })
-        .on("mouseout", (d, i) => {
+          .attr("class", "link link-2")
+          .attr('fill','none')
+          .attr("value", d => d.value)
+          .style("stroke-opacity", 0)
+          .style("stroke-width", 8)
+          .on("mouseover", (d, i) => {
+            if (self._isDragging) return;
+            d3.select(d3.event.target)
+              .style('stroke-opacity',0.5)
+              .raise();
+            self.showTip(d, 'path');
+          })
+          .on("mouseout", (d, i) => {
 
-          d3.select(d3.event.target)
-            .transition()
-            .style('stroke-opacity',0);
-          self.hideTip();
-        });
+            d3.select(d3.event.target)
+              .transition()
+              .style('stroke-opacity',0);
+            self.hideTip();
+          });
   },
 
 

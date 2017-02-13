@@ -218,6 +218,7 @@ var App = App || {};
 
       if (this.activeTab == 1) {
         App.panels.forceDirected.visThreshold = inf;
+        App.panels.forceDirected.drawLinks();
       }
       else {
         App.panels.forceDirected.threshold = inf;
