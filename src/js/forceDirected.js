@@ -427,7 +427,7 @@ ForceDirectedGraph.prototype = {
     } else {
       threshold = this.threshold;
     }
-    if (App.infSlider) { App.infSlider.setPosition(threshold); }
+    if (App.infSlider && App.infSlider.activeTab < 1) { App.infSlider.setPosition(threshold); }
 
     var clusters = [];
     var data = this.filteredData;
