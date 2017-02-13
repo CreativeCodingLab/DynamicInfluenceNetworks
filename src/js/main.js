@@ -221,15 +221,7 @@ var App = App || {};
       App.panels.topVis.drawMarkers();
       App.panels.bottomVis.drawMarkers();
     }
-
-/*    App.visSlider = new Slider( {
-      title: 'Visibility > ' + App.panels.forceDirected.threshold.toPrecision(3),
-      domain: infDomain(),
-      log: true,
-      top: -110
-    });
-
-*/  }
+  }
 
   // creating SVGs in layout
   function createSVGs() {
