@@ -103,16 +103,26 @@ function Slider(options) {
         .text(title);
 
     if (tabs) {
-        this.tabs = tabs.map(label =>
-            svg.append('text')
+        this.tabs = tabs.map((label, i) => {
+            let tab = svg.append('text')
                 .attr('text-anchor','start')
                 .attr('x',8)
                 .attr('y', 17)
                 .attr('class','slider-tab')
                 .style('cursor','pointer')
                 .attr('fill',color)
-                .text(label)
-        );
+                .text(label);
+
+            tab.on('click', () => {
+                this.tabs.forEach((tab, j) => {
+                    tab.classed('active', i == j);
+                });
+                this.activeTab = i;
+            })
+
+            return tab;
+        });
+        this.activeTab = 0;
         this.tabs[0]
             .classed('active',true);
         this.resizeTabs();
