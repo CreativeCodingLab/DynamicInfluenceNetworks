@@ -27,12 +27,12 @@ var App = App || {};
         App.panels[key].resize();
       }
     }
-    if (App.timeSlider) {
-      App.timeSlider.resize();
-    }
-    if (App.infSlider) {
-      App.infSlider.resize();
-    }
+
+    ['timeSlider', 'infSlider', 'visSlider'].forEach(function(slider) {
+      if (App[slider]) {
+        App[slider].resize();
+      }
+    })
   }
 
   App.draw = function() {
@@ -190,6 +190,7 @@ var App = App || {};
           .restart();
       }
 
+      App.animation.attachToSlider(App.timeSlider);
       // append slider to force directed
     }
 

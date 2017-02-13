@@ -1,6 +1,6 @@
 function Slider(options) {
 
-    var svg = App.panels.forceDirected.svg.append('g');
+    var svg = this.svg = App.panels.forceDirected.svg.append('g');
     var color = (options && options.color) ? options.color : '#eee',
         title = (options && options.title) ? options.title : '',
         domain = (options && options.domain) ? options.domain : [0,1],

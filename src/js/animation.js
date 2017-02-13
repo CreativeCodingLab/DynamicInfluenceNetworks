@@ -29,9 +29,7 @@ function AnimationManager() {
   d3.select(".ppIcon")
     .on("click", function(d) {
       that.togglePlay(); // change icon
-
-      d3.select(this)
-        .property("src", !that.isPlaying ? "./lib/Icons/playIcon.svg" : "./lib/Icons/pauseIcon.svg");
+      this.classList.toggle('paused', !that.isPlaying);
     });
 
   d3.select(".sfIcon")
@@ -203,4 +201,21 @@ AnimationManager.prototype.updateData = function() {
 
     return intFlux;
   }
+}
+
+AnimationManager.prototype.attachToSlider = function(slider) {
+  // let bbox = slider.svg.node().getBBox();
+  function getPosition() {
+    let rect = slider.svg.node().getBoundingClientRect();
+    d3.select('.animationControls')
+      .style('left', rect.left + 'px')
+      .style('top', rect.top + 'px');    
+  }
+  var oldSliderResize = slider.resize;
+
+  slider.resize = function() {
+    oldSliderResize();
+    getPosition();
+  }
+  getPosition();
 }
