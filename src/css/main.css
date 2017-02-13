@@ -187,12 +187,23 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
   position:absolute;
   color:white;
   transform:translateY(-100%);
-  font-size:0.8em;
+  font-size:0.7em;
+  line-height:0.7em;
   padding:0.5vmin;
   pointer-events:none;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+   -khtml-user-select: none; /* Konqueror */
+     -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                not supported by any browser */
+
 }
 .animationSpeedDiv {
   display:inline-block;
+  width:3em;
+  text-align:center;
 }
 .animationSpeed {
   font-weight:bold;
@@ -204,6 +215,9 @@ i.animationIcon {
   margin:0 0.75vmin;
   font-style:normal;
   font-family: FontAwesome;
+  display:inline-block;
+  width:0.9em;
+  text-align: center;
 }
 .frIcon:before {
   content:"\f049";
