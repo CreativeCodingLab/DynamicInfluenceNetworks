@@ -103,10 +103,23 @@ function Slider(options) {
                 .text(label);
 
             tab.on('click', () => {
-                this.tabs.forEach((tab, j) => {
-                    tab.classed('active', i == j);
+                this.activeTab = this.activeTab || 0;
+                // store previous tab's position
+                this.tabs[this.activeTab]
+                    .attr('position', this.svg.select('.slider').attr('x'));
+
+                this.tabs.forEach((t, j) => {
+                    t.classed('active', i == j);
                 });
                 this.activeTab = i;
+
+                // retrieve new tab's position
+                var x = tab.attr('position') || 0;
+                this.setPosition( x , true);
+
+                // perform click event
+                this.value = this.scale.copy().invert(x + 10);
+                this.onTabClick(this.value);
             })
 
             return tab;
@@ -120,7 +133,7 @@ function Slider(options) {
 };
 
 Slider.prototype.setPosition = function(x, absolute) {
-    x = (absolute ? x : this.scale(x)) - 10;
+    x = absolute ? x : this.scale(x) - 10;
     this.svg.select('.slider')
         .attr('x', x);
 }
@@ -144,15 +157,6 @@ Slider.prototype.setDomain = function(arr) {
         .attr('fill',this.color);
 }
 
-
-Slider.prototype.onDrag = function(x, evt) {
-    // console.log('dragging',x, evt);
-}
-
-Slider.prototype.onDragEnd = function(x, evt) {
-    // console.log('drag end', x, evt);
-}
-
 Slider.prototype.resize = function() {
     var dx = this.left < 0 ? App.panels.forceDirected.width + this.left-5 : this.left+5,
         dy = this.top < 0 ? App.panels.forceDirected.height + this.top: this.top;
@@ -170,3 +174,17 @@ Slider.prototype.resizeTabs = function() {
         })        
     }
 }
+
+/* event handling */
+Slider.prototype.onTabClick = function(x) {
+    // console.log('tab', x)
+}
+
+Slider.prototype.onDrag = function(x, evt) {
+    // console.log('dragging',x, evt);
+}
+
+Slider.prototype.onDragEnd = function(x, evt) {
+    // console.log('drag end', x, evt);
+}
+

@@ -214,12 +214,22 @@ var App = App || {};
     App.infSlider.setPosition( App.panels.forceDirected.threshold );
     App.infSlider.onDrag = function(x, evt) {
       var inf = this.value;
-      this.setTitle('Influence > ' + App.panels.forceDirected.threshold.toPrecision(3));
-      App.panels.forceDirected.threshold = inf;
-      App.panels.forceDirected.defineClusters(inf);
-      App.panels.forceDirected.drawGraph();
-      App.panels.topVis.drawMarkers();
-      App.panels.bottomVis.drawMarkers();
+      this.setTitle('Influence > ' + inf.toPrecision(3));
+
+      if (this.activeTab == 1) {
+        App.panels.forceDirected.visThreshold = inf;
+      }
+      else {
+        App.panels.forceDirected.threshold = inf;
+        App.panels.forceDirected.defineClusters(inf);
+        App.panels.forceDirected.drawGraph();
+        App.panels.topVis.drawMarkers();
+        App.panels.bottomVis.drawMarkers();
+      }
+    }
+    App.infSlider.onTabClick = function(x) {
+      var inf = this.value;
+      this.setTitle('Influence > ' + inf.toPrecision(3));
     }
   }
 
