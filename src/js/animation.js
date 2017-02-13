@@ -207,8 +207,9 @@ AnimationManager.prototype.attachToSlider = function(slider) {
   // let bbox = slider.svg.node().getBBox();
   function getPosition() {
     let rect = slider.svg.node().getBoundingClientRect();
+    let selfRect = d3.select('.animationControls').node().getBoundingClientRect();
     d3.select('.animationControls')
-      .style('left', rect.left + 'px')
+      .style('left', rect.right - selfRect.width + 'px')
       .style('top', rect.top + 'px');    
   }
   var oldSliderResize = slider.resize.bind(slider);
