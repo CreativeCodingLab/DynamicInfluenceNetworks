@@ -91,7 +91,7 @@ AnimationManager.prototype.togglePlay = function() {
 
       that.updateData();
 
-    }, that.updateTimestep)
+    }, this.updateTimestep);
   } else {
     clearInterval(this.interval);
     // restart simulation on pause
@@ -157,6 +157,11 @@ AnimationManager.prototype.updateData = function() {
   // interpolate values between timesteps
   var startData = App.dataset[Math.floor(this.currentTime)];
   var endData = App.dataset[Math.floor(this.currentTime) + 1];
+
+  if (startData.timeWindow) {
+    var timeRange = startData.timeWindow.map(n => +(n.toFixed(2)) );
+    App.timeSlider.setTitle('Time: ' + timeRange[0] + '-' + timeRange[1]);    
+  }
 
   var keys = Object.keys(startData.data);
 
