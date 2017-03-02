@@ -11,8 +11,7 @@ var App = App || {};
   };
 
   App.init = function() {
-    var url = document.URL.split('?')[1] || "flux_0.json";
-    App.loadData(url, true);
+    App.loadData("flux_0.json", true, 35);
 
     App.animation = new AnimationManager();
   }
@@ -54,7 +53,7 @@ var App = App || {};
     App.panels.bottomVis = new LineGraph('#bottomVis', {out: true});
   }
 
-  App.loadData = function(file, isSeries) {
+  App.loadData = function(file, isSeries, n) {
     var dir = './data/';
 
     var isFormattedSeries = isSeries;
@@ -68,25 +67,18 @@ var App = App || {};
 
         App.format = {prefix: prefix, start:num, suffix:suffix}
 
-        var datasets = [];
-
-        // recursively load next file
-        function loadNext(err, json) {
-          if (!err) {
-            ++num;
-            datasets.push(json);
-            d3.json ( dir + prefix + num + suffix, loadNext );
-          }
-          else if (datasets.length > 0) {
-            // success!!
-            App.handleData(datasets);
-          }
-          else {
+        var q = d3.queue();
+        for (var i = num; i <= n; ++i) {
+          q.defer( d3.json, dir + prefix + num + suffix );
+        }
+        q.awaitAll(function(error, datasets) {
+          if (error) {
             console.log('Error', err);
           }
-        }
-
-        d3.json(dir + file, loadNext);
+          else {
+            App.handleData(datasets);
+          }
+        })
       }
       else {
         isFormattedSeries = false;

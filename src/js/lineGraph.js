@@ -442,6 +442,7 @@ LineGraph.prototype = {
         var rule = App.panels.forceDirected.filteredData[this.rule.name];
         this.svg.select('.title')
           .attr('fill', () => {
+              if (!rule) return "black";
               var c = d3.hsl(App.panels.forceDirected.clusterColor(rule.cluster));
 
               if (c.l > 0.65) c.l = 0.65;
@@ -469,6 +470,7 @@ LineGraph.prototype = {
             })
             .attr('fill', d => {
                 var rule = App.panels.forceDirected.filteredData[ d.name];
+                if (!rule) { return 'transparent'; }
                 return App.panels.forceDirected.clusterColor(rule.cluster);
             })
             .attr('r',3)
