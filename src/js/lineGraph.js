@@ -442,10 +442,11 @@ LineGraph.prototype = {
         var rule = App.panels.forceDirected.filteredData[this.rule.name];
         this.svg.select('.title')
           .attr('fill', () => {
-              var c = d3.hsl(App.panels.forceDirected.clusterColor(rule.cluster));
+            if (!rule) return 'black';
+            var c = d3.hsl(App.panels.forceDirected.clusterColor(rule.cluster));
 
-              if (c.l > 0.65) c.l = 0.65;
-              return c.toString();
+            if (c.l > 0.65) c.l = 0.65;
+            return c.toString();
           });
 
         var marker = this.graph.selectAll('.marker')
@@ -468,6 +469,7 @@ LineGraph.prototype = {
                 return (d.flux < 0) ? this.yneg(d.flux) : this.ypos(d.flux);
             })
             .attr('fill', d => {
+                if (!rule) { return 'transparent'; }
                 var rule = App.panels.forceDirected.filteredData[ d.name];
                 return App.panels.forceDirected.clusterColor(rule.cluster);
             })

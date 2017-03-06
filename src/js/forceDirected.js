@@ -78,90 +78,57 @@ ForceDirectedGraph.prototype = {
 
 
     // stroke gradients
+    function createSVGLinearGradient(colors, id, defs) {
+      var left = defs.append('linearGradient')
+        .attr('id',id + 'Left')
+        .attr('x1',1)
+        .attr('y1',0)
+        .attr('x2',0)
+        .attr('y2',0);
+
+      for (var i = 0, il = colors.length - 1; i < il; ++i) {
+        left.append('stop')
+          .attr('offset', Math.floor(i * 100 / il) + '%')
+          .attr('stop-color', colors[i]);
+      }
+
+      left.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', colors.pop());
+
+      let xid = '#' + id + 'Left';
+      defs.append('linearGradient')
+          .attr('id', id + 'Right')
+          .attr('xlink:href', xid)
+          .attr('x1',0)
+          .attr('x2',1)
+      defs.append('linearGradient')
+          .attr('id', id + 'Up')
+          .attr('xlink:href', xid)
+          .attr('x1',0)
+          .attr('y1',1)
+      defs.append('linearGradient')
+          .attr('id', id + 'Down')
+          .attr('xlink:href', xid)
+          .attr('x1',0)
+          .attr('y2',1)
+    }
+
     var defs = this.svg.append('defs');
 
-    // #fee08b
-    // #fdae61
-    // #f46d43
-    // #d73027
+    createSVGLinearGradient([
+      '#fee08b',
+      '#fdae61',
+      '#f46d43',
+      '#d73027'
+    ], 'red', defs);
 
-    var red = defs.append('linearGradient')
-        .attr('id','redLeft')
-        .attr('x1',1)
-        .attr('y1',0)
-        .attr('x2',0)
-        .attr('y2',0)
-    
-    red.append('stop')
-        .attr('offset','0%')
-        .attr('stop-color','#fee08b');
-    red.append('stop')
-        .attr('offset','33%')
-        .attr('stop-color', "#fdae61");
-    red.append('stop')
-        .attr('offset','66%')
-        .attr('stop-color','#f46d43');
-    red.append('stop')
-        .attr('offset','100%')
-        .attr('stop-color', "#d73027");
-
-
-    // #d9ef8b
-    // #a6d96a
-    // #66bd63
-    // #1a9850
-
-    var green = defs.append('linearGradient')
-        .attr('id','greenLeft')
-        .attr('x1',1)
-        .attr('y1',0)
-        .attr('x2',0)
-        .attr('y2',0)
-
-    green.append('stop')
-        .attr('offset','0%')
-        .attr('stop-color','#d9ef8b');
-    green.append('stop')
-        .attr('offset','33%')
-        .attr('stop-color', "#a6d96a");
-    green.append('stop')
-        .attr('offset','66%')
-        .attr('stop-color','#66bd63');
-    green.append('stop')
-        .attr('offset','100%')
-        .attr('stop-color', "#1a9850");
-
-
-    defs.append('linearGradient')
-        .attr('id','redRight')
-        .attr('xlink:href','#redLeft')
-        .attr('x1',0)
-        .attr('x2',1)
-    defs.append('linearGradient')
-        .attr('id','redUp')
-        .attr('xlink:href','#redLeft')
-        .attr('x1',0)
-        .attr('y1',1)
-    defs.append('linearGradient')
-        .attr('id','redDown')
-        .attr('xlink:href','#redLeft')
-        .attr('x1',0)
-        .attr('y2',1)
-    defs.append('linearGradient')
-        .attr('id','greenRight')
-        .attr('xlink:href','#greenLeft')
-        .attr('x1',0)
-        .attr('x2',1)
-    defs.append('linearGradient')
-        .attr('id','greenUp')
-        .attr('xlink:href','#greenLeft')
-        .attr('x1',0)
-        .attr('y1',1)
-    defs.append('linearGradient')
-        .attr('id','greenDown')
-        .attr('xlink:href','#greenLeft')
-        .attr('x1',0)
-        .attr('y2',1)
+    createSVGLinearGradient([
+      '#d9ef8b',
+      '#a6d96a',
+      '#66bd63',
+      '#1a9850'
+    ], 'green', defs);
 
     this.clusterCircleGroup = this.svg.append("g")
       .attr("class", "clusterGroup");
@@ -173,18 +140,7 @@ ForceDirectedGraph.prototype = {
     this._isDragging = false;
 
     /* Initialize tooltip for nodes */
-    this.tip = d3.select('#forceDirectedDiv').append('div')
-        .style('opacity',0)
-        .style('position','absolute')
-        .style('left',0)
-        .style('top',0)
-        .style('font-size', '0.85em')
-        .style('padding','1vmin 1.5vmin')
-        .style('border-radius','0 0 8px 0')
-        .style('background', 'rgba(30,30,30,0.8)')
-        .style('color','white')
-        .style('letter-spacing','0.1vmin')
-        .style('pointer-events','none');
+    this.tip = d3.select('#forceDirectedDiv').append('div').attr('id', 'tip');
   },
   resize:function() {
     var rect = this.svg.node().parentNode.getBoundingClientRect();

@@ -11,27 +11,50 @@ html, body, .fluidContainer, .mainCol {
 }
 body {
   margin: 0;
-  font-family: 'istok web','source sans pro','helvetica neue', helvetica, arial, sans-serif;
+  font-family: 'istok web','source sans', 'helvetica neue', helvetica, arial, sans-serif;
 }
 
-.h-100 {
-  height: 100%;
-  min-height: 100%;
+#toolbar {
+  display:none;
+  position:absolute;
+  top:0;
+  left:0;
+  height:7vmin;
+  padding:0 2vmin;
+  background:white;
+  box-shadow:0 0 2vmin black;
+  width:100%;
+  font-size: 2vmin;
+}
+#toolbar>div {
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+}
+#toolbar span {
+  display:inline-block;
+  width:10vw;
+  margin-right:3vw;
+  text-align:center;
+  vertical-align: middle
 }
 
-.h-30 {
-  height: 30%;
-  min-height: 30%;
+.linegraph {
+  height: 45%;
+  min-height: 45%;
 }
 
-
-.col-md-8 {
+.mainCol {
+/*  padding-top:7vmin;
+  height:calc(100% - 7vmin);
+*/  height:100%;
   width:70%;
   position:relative;
 }
-.col-md-4 {
+.sideCol {
   position:absolute;
   top:0;
+  border-left:1px solid #eee;
   left:70%;
   margin:0;
   width:30%;
@@ -53,14 +76,26 @@ body {
   opacity:1 !important;
 }
 
+#tip, #legendContainer {
+  position:absolute;
+  /*top:7vmin;*/
+  top:0;
+  left:0;
+}
+#tip {
+  opacity:0;
+  font-size: 0.85em;
+  padding:1vmin 1.5vmin;
+  border-radius: 0 0 8px 0;
+  background: rgba(30,30,30,0.8);
+  color:white;
+  letter-spacing: 0.1vmin;
+  pointer-events:none;
+}
+
 #legendContainer {
   overflow: hidden;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-
   margin-right: 15px;
-
   width: 100%;
   height: 100%;
 
@@ -115,7 +150,7 @@ button,input {
 
 
 button {
-  font-family: 'source sans pro','helvetica neue', helvetica, arial, sans-serif;
+  font-family: inherit;
   font-size:2vmin;
   padding:0.5vmin 1vmin;
   font-weight:bold;

@@ -29,74 +29,69 @@
     </head>
 
     <body onload="App.init()" onresize="App.resize()">
-
-        <div class="fluidContainer">
-
-            <div class="row h-100">
-                <div class="col-md-8 mainCol" id="forceDirectedDiv">
-
-
-                    <div class="animationControls">
-                      <div class="animationSpeedDiv">
-                        <p class="animationSpeed">1x</p>
-                      </div>
-
-
-                      <i class="animationIcon frIcon"></i>
-                      <i class="animationIcon sbIcon"></i>
-                      <i class="animationIcon ppIcon"></i>
-                      <i class="animationIcon sfIcon"></i>
-                      <i class="animationIcon ffIcon"></i>
-
-                    </div>
+        <div class="mainCol" id="forceDirectedDiv">
+            <div id="toolbar">
+                <div id="toolbar-inside">
                 </div>
-                <div class="col-md-4 mainCol">
-                    <div class="row controls">
-                        <div class="control">
-                            <p>
-                                <form id="form">
-                                    <input id="input" type="file" accept="application/zip,application/json" style="display:none;">
-                                </form>
-                                <div id="filename"></div>
-                                <button id="changeFile"><label for="input">Change dataset</label></button>
-                                <button id="unpin">Unpin nodes</button>
-                            </p>
-                            <p class="columns">
-                                <span>
-                                    <input type="checkbox" id="sci">
-                                    <label for="sci">
-                                        Scientific notation
-                                    </label>
-                                </span>
-                                <span>
-                                    <input type="checkbox" id="show-labels">
-                                    <label for="show-labels">
-                                        Show labels
-                                    </label>
-                                </span>
-                                <span>
-                                    <input type="checkbox" id="hide-negative">
-                                    <label for="hide-negative">
-                                        Hide negative influences
-                                    </label>
-                                </span>
-                                <span>
-                                    <input type="checkbox" id="hide-positive">
-                                    <label for="hide-positive">
-                                        Hide positive influences
-                                    </label>
-                                </span>
-                             </p>
-                        </div>
-                    </div>
+            </div>
+            <div class="animationControls">
+              <div class="animationSpeedDiv">
+                <p class="animationSpeed">1x</p>
+              </div>
 
-                    <div class="row h-30 content" id= "topVis">
-                    </div>
-                    <div class="row h-30 content" id= "bottomVis">
-                    </div>
+
+              <i class="animationIcon frIcon"></i>
+              <i class="animationIcon sbIcon"></i>
+              <i class="animationIcon ppIcon"></i>
+              <i class="animationIcon sfIcon"></i>
+              <i class="animationIcon ffIcon"></i>
+
+            </div>
+        </div>
+        <div class="sideCol">
+            <div class="row controls">
+                <div class="control">
+                    <p>
+                        <form id="form">
+                            <input id="input" type="file" accept="application/zip,application/json" style="display:none;">
+                        </form>
+                        <div id="filename"></div>
+                        <button id="changeFile"><label for="input">Change dataset</label></button>
+                        <button id="unpin">Unpin nodes</button>
+                    </p>
+                    <p class="columns">
+                        <span>
+                            <input type="checkbox" id="sci">
+                            <label for="sci">
+                                Scientific notation
+                            </label>
+                        </span>
+                        <span>
+                            <input type="checkbox" id="show-labels">
+                            <label for="show-labels">
+                                Show labels
+                            </label>
+                        </span>
+                        <span>
+                            <input type="checkbox" id="hide-negative">
+                            <label for="hide-negative">
+                                Hide negative influences
+                            </label>
+                        </span>
+                        <span>
+                            <input type="checkbox" id="hide-positive">
+                            <label for="hide-positive">
+                                Hide positive influences
+                            </label>
+                        </span>
+                     </p>
                 </div>
             </div>
 
+            <div class="row linegraph" id= "topVis">
+            </div>
+            <div class="row linegraph" id= "bottomVis">
+            </div>
         </div>
     </body>
 </html>
