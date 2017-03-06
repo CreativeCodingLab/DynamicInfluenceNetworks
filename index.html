@@ -55,18 +55,10 @@
                         <div class="control">
                             <p>
                                 <form id="form">
-                                    <input id="input" type="file" accept="application/zip,application/json" style="visibility:hidden; position:absolute;">
+                                    <input id="input" type="file" accept="application/zip,application/json" style="display:none;">
                                 </form>
                                 <div id="filename"></div>
-
-                                <select id="changeFile">
-                                    <option>Non-normalized</option>
-                                    <option>Normalized</option>
-                                    <option>MiniKai</option>
-                                    <option>Demo snapshot</option>
-                                </select>
-                                <button id="inputButton"><label for="input">Upload...</label></button>
-                                <br/><br/>
+                                <button id="changeFile"><label for="input">Change dataset</label></button>
                                 <button id="unpin">Unpin nodes</button>
                             </p>
                             <p class="columns">

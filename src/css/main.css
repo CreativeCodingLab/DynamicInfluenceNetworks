@@ -97,7 +97,7 @@ rect.slider {
   margin-left:2vw;
 }
 .columns span {
-  display:inline-block;
+  display:block;
   font-size: 2vmin;
   line-height:3vmin;
 }
@@ -105,11 +105,6 @@ rect.slider {
 #filename {
   font-size:1.8vmin;
   line-height:2.5vmin;
-}
-
-#changeFile {
-  font-size:2vmin;
-  outline:none;
 }
 
 button,input {

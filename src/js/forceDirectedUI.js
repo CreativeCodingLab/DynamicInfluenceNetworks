@@ -107,33 +107,15 @@ window.addEventListener('load', function() {
 
 
     //-------------- file handler -------------------//
-    document.getElementById('changeFile').oninput = function(e) {
-      switch (e.target.selectedIndex) {
-        case 0:
-          App.loadData('flux_0.json', true, 35);
-          break;
-        case 1:
-          App.loadData('data/flux_0.json', true, 99);
-          break;
-        case 2:
-          App.loadData('MiniKaiRun/flux_0.json', true, 148);
-          break;
-        case 3:
-          App.loadData('Real.json', false);
-          break;
-        default:
-          break;
-      }
-    }
-
-
+    
     // from global zip-js
     zip.workerScriptsPath = './lib/WebContent/';
 
     // prevent form submission on click
-    this._inputButton = function() {
-      return false;
-    }
+    this._changeFile = function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    };
     document.body.addEventListener('dragover', handleDragOver, false);
     document.body.addEventListener('drop', handleDrop, false);
     document.getElementById('input').addEventListener('change', handleInput, false);
