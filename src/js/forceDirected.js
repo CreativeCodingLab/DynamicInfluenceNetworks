@@ -1412,7 +1412,7 @@ ForceDirectedGraph.prototype = {
       .attr("class", "legendNodeSize")
       .attr("d", "M " + backgroundCoords.map(c => c.join(",")).join("L") + "Z")
       .style("stroke", "white")
-      .style("fill", self.clusterColor(1))
+      .style("fill", Object.keys(self.colorPalette)[1])
       .style("opacity", 0.25);
 
     // left circle
@@ -1421,7 +1421,7 @@ ForceDirectedGraph.prototype = {
       .attr("cx", margin.left + radiusRange[0])
       .attr("cy", nodeCircleTop + radiusRange[1] - radiusRange[0])
       .attr("r", radiusRange[0])
-      .style("fill", self.clusterColor(1))
+      .style("fill", Object.keys(self.colorPalette)[1])
       .style("stroke", "white");
 
     // right circle
@@ -1430,7 +1430,7 @@ ForceDirectedGraph.prototype = {
       .attr("cx", 183 - margin.right - radiusRange[1])
       .attr("cy", nodeCircleTop)
       .attr("r", radiusRange[1])
-      .style("fill", self.clusterColor(1))
+      .style("fill", Object.keys(self.colorPalette)[1])
       .style("stroke", "white");
 
      // left label
@@ -1479,7 +1479,7 @@ ForceDirectedGraph.prototype = {
       .attr("cx", (d, i) => margin.left + (i * nodeCircleSpacing) + nodeCircleRadius)
       .attr("cy", nodeCircleTop)
       .attr("r", nodeCircleRadius)
-      .style("fill", (d, i) => self.clusterColor(i + 1))
+      .style("fill", (d, i) => Object.keys(self.colorPalette)[i])
       .style("stroke", "white");
 
     // link color/direction
