@@ -41,7 +41,7 @@ window.addEventListener('load', function() {
             }
             else {
               return this.style.stroke.indexOf(key) > -1 ? 1 :
-                this.style['stroke-opacity']  
+                this.style['stroke-opacity']
             }
           });
 
@@ -73,7 +73,7 @@ window.addEventListener('load', function() {
             })
         }
         else {
-         App.property.label = false; 
+         App.property.label = false;
          d3.selectAll('.rule-text')
             .transition()
             .style('opacity', 0)
@@ -90,13 +90,16 @@ window.addEventListener('load', function() {
           .style("fill", d => App.panels.forceDirected.clusterColor(d.cluster))
           .style("stroke", "white");
 
+        d3.selectAll(".clusterCircle")
+          .style("stroke-dasharray", "2, 2");
+
         App.panels.forceDirected.simulation.alpha(0.1).restart();
     };
 
     // add listeners
     [].slice.call(document.querySelectorAll('.control input[type="checkbox"]'))
         .forEach((checkbox) => {
-            checkbox.addEventListener('change', 
+            checkbox.addEventListener('change',
                 self['_toggle'+checkbox.id.split('-')[0]]);
         });
 
@@ -107,7 +110,7 @@ window.addEventListener('load', function() {
 
 
     //-------------- file handler -------------------//
-    
+
     // from global zip-js
     zip.workerScriptsPath = './lib/WebContent/';
 
@@ -128,7 +131,7 @@ window.addEventListener('load', function() {
     }
 
     // this just changes the cursor hover effect
-    function handleDragOver(e) { 
+    function handleDragOver(e) {
         e.stopPropagation();
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
@@ -182,7 +185,7 @@ window.addEventListener('load', function() {
 
             function findJson(root) {
                 if ( root.children.some(entry => {
-                    return entry.name.endsWith('.json') && 
+                    return entry.name.endsWith('.json') &&
                         !entry.directory;
                 }) ) {
                     parent = root;
@@ -252,5 +255,5 @@ window.addEventListener('load', function() {
 
         getDatasets(0);
     }
- 
+
 });

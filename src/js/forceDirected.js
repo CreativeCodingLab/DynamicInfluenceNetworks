@@ -608,17 +608,41 @@ ForceDirectedGraph.prototype = {
             n.fx += d3.event.dx;
             n.fy += d3.event.dy;
           })
+          console.log(d);
         })
         .on('end', function(d) {
           if (!d3.event.active) {
             self.simulation.alphaTarget(0);
           }
+          let cluster = this;
+
           d.forEach((n) => {
-            if (!n._fixed) {
-              n.fx = n.fy = null;
-            }
+            // pin cluster nodes on cluster drag end (testing out how this feels)
+            n._fixed = true;
+
+            d3.selectAll('.rule-node')
+              .style('stroke', (d) => d._fixed ? "#404040" : "white");
+
+            d3.select(cluster)
+              .style("stroke-dasharray", null);
           })
-        }) );
+        }) )
+        .on('click', function(d) {
+          // unpin cluster and its nodes
+          let cluster = this;
+
+          d.forEach((n) => {
+            // pin cluster nodes on cluster drag end (testing out how this feels)
+            n._fixed = false;
+            n.fx = n.fy = null;
+
+            d3.selectAll('.rule-node')
+              .style('stroke', (d) => d._fixed ? "#404040" : "white");
+
+            d3.select(cluster)
+              .style("stroke-dasharray", "2, 2");
+          })
+        });
   },
 
   // draw nodes
