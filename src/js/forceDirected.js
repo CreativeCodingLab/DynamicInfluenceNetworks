@@ -14,7 +14,7 @@ function ForceDirectedGraph(args) {
 
   this.legend = {};
 
-  this.legend.nodeSizeDomain = 
+  this.legend.nodeSizeDomain =
     d3.extent(Object.keys(this.filteredData), (d) => {
         return this.filteredData[d].hits;
       });
@@ -22,6 +22,17 @@ function ForceDirectedGraph(args) {
 
   this.legend.linkSizeDomain = d3.extent(this.links.map(d => Math.abs(d.value)));
   this.legend.linkSizeRange = d3.extent(d3.range(0.4, this.links.length > 200 ? 1 : 4, 0.05));
+
+  // initialize color palette
+  let avaliableColors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a'];
+  this.colorPalette = {};
+
+  for (let color of avaliableColors) {
+    this.colorPalette[color] = {
+      inUse: false,
+      currentClusterNumber: -1
+    };
+  }
 
   var threshold = sortedLinks[Math.round(Math.sqrt(this.links.length))].value;
   this.defineClusters(Math.abs(threshold));
@@ -73,7 +84,7 @@ ForceDirectedGraph.prototype = {
     var container = d3.select("#forceDirectedDiv").append("div")
         .attr("id", "legendContainer");
 
-    // colors from 
+    // colors from
     // http://colorbrewer2.org/#type=diverging&scheme=RdYlGn&n=9
 
 
@@ -240,7 +251,7 @@ ForceDirectedGraph.prototype = {
           .text('Self-influence: ')
           .style('color', function() {
             return adjustedClusterColor(selfCluster);
-          })       
+          })
       sp.append('span')
           .text(num)
           .style('color', function() {
@@ -271,7 +282,7 @@ ForceDirectedGraph.prototype = {
               return num < 0 ? '#f66' : '#4c4';
             });
         })
-  
+
         if (inf.length > 10) {
           sp.append('br');
           sp.append('span')
@@ -440,9 +451,102 @@ ForceDirectedGraph.prototype = {
         });
         cluster.sort((a,b) => b.hits - a.hits);
       });
+
+    let newColors = new Array(clusters.length);
+    let similarities = new Array(clusters.length);
+
+    // define color mapping
+    if (this.clusters && this.clusterColors) {
+      // map new colors from previous clusters & colors
+      for (let clusterNum = 1; clusterNum < clusters.length; clusterNum++) {
+        // need to bind this correctly
+        similarities[clusterNum] = findMostSimilarCluster.call(this, clusters[clusterNum]);
+        similarities[clusterNum].clusterNum = clusterNum;
+      }
+
+      let sortedSimilarities = _.orderBy(similarities, 'intersection', 'desc');
+      let clustersNeedingColor = [];
+
+        // reset inUse values of colorPalette
+      for (let color of Object.keys(this.colorPalette)) {
+        this.colorPalette[color].inUse = false;
+      }
+
+      for (let similarity of sortedSimilarities) {
+        if (similarity) { // first is undefined
+          if (similarity.closestCluster < 0) {
+            // if it shares no nodes with any existing clusters, it will need a new color
+            clustersNeedingColor.push(similarity);
+          } else {
+            // the potential color is the one of the cluster in the previous timestep that it was most similar to
+            let potentialColor = this.clusterColors[similarity.closestCluster];
+
+            // if the color is one from the colorPalette and is not already in use, assign it to this cluster
+            if (this.colorPalette[potentialColor] && !this.colorPalette[potentialColor].inUse) {
+              newColors[similarity.clusterNum] = potentialColor;
+              this.colorPalette[potentialColor] = {
+                inUse: true,
+                currentClusterNumber: similarity.clusterNum
+              };
+            } else {
+              // otherwise after the similarity color assignment it will still need a color
+              clustersNeedingColor.push(similarity);
+            }
+          }
+        }
+      }
+
+      // iterate through clusters needing a color, assigning them with an unused color
+      for (let cluster of clustersNeedingColor) {
+        newColors[cluster.clusterNum] = getFirstUnusedColor.call(this, cluster.clusterNum);
+      }
+
+    } else {
+      for (let color = 0; color < clusters.length; color++) {
+        newColors[color] = Object.keys(this.colorPalette)[color];
+      }
+
+    }
+    this.clusterColors = newColors;
     this.clusters = clusters;
     if (this.simulation && alpha !== 0) {
       this.simulation.alpha(alpha || 0.15).restart();
+    }
+
+    function findMostSimilarCluster(cluster) {
+      // check which cluster it shares the most nodes with
+      let closestCluster = -1;
+      let maxIntersect = 0;
+
+      for (let num in this.clusters) {
+        let oldCluster = this.clusters[num];
+
+        let numSame = _.intersectionBy(cluster, oldCluster, 'name');
+
+        if (numSame.length > maxIntersect) {
+          maxIntersect = numSame.length;
+          closestCluster = num;
+        }
+      }
+
+      return {
+        closestCluster: closestCluster,
+        intersection: maxIntersect
+      };
+    }
+
+    function getFirstUnusedColor(clusterNum) {
+      for (let color of Object.keys(this.colorPalette)) {
+        if (!this.colorPalette[color].inUse) {
+          this.colorPalette[color] = {
+              inUse: true,
+              currentClusterNumber: clusterNum
+          };
+
+          return color;
+        }
+      }
+      return "#bababa"; // no more
     }
   },
 
@@ -489,7 +593,7 @@ ForceDirectedGraph.prototype = {
       .style("stroke-dasharray", "2, 2")
       .style("fill-opacity", 0.3)
       .call(d3.drag()
-        .on('start', function(d) { 
+        .on('start', function(d) {
           if (!d3.event.active) {
             self.simulation.alphaTarget(0.3).restart();
           }
@@ -499,13 +603,13 @@ ForceDirectedGraph.prototype = {
             n.fy = n.y;
           })
         })
-        .on('drag', function(d) { 
+        .on('drag', function(d) {
           d.forEach((n) => {
             n.fx += d3.event.dx;
             n.fy += d3.event.dy;
           })
         })
-        .on('end', function(d) { 
+        .on('end', function(d) {
           if (!d3.event.active) {
             self.simulation.alphaTarget(0);
           }
@@ -562,7 +666,7 @@ ForceDirectedGraph.prototype = {
     var text = this.nodeGroup.selectAll(".rule-text")
         .data(Object.keys(filteredData).map(d => filteredData[d]));
 
-    
+
     rule.enter().append("circle")
       .attr("class", "rule rule-node")
       .attr("transform", (d, i) => {
@@ -632,7 +736,7 @@ ForceDirectedGraph.prototype = {
             else if( Math.abs(d.value) < self.visThreshold) {
               return 0;
             }
-            else { 
+            else {
               return 1;
             }
           });
@@ -687,9 +791,13 @@ ForceDirectedGraph.prototype = {
       return '#222';
     }
 
-    return d3.scaleOrdinal(d3.schemeCategory20)
-      .domain(d3.range(1,20))
-      (cluster);
+    if (!this.clusterColors) {
+      return d3.scaleOrdinal(d3.schemeCategory20)
+        .domain(d3.range(1,20))
+        (cluster);
+    }
+
+    return this.clusterColors[cluster];
   },
 
   findCluster: function(name) {
@@ -725,7 +833,7 @@ ForceDirectedGraph.prototype = {
           else if( Math.abs(d.value) < this.visThreshold) {
             return 0;
           }
-          else { 
+          else {
             return 1;
           }
         });
@@ -748,7 +856,7 @@ ForceDirectedGraph.prototype = {
 
     hoverLink
         .attr('pointer-events', (d) => {
-          if(App.property.green == true && 
+          if(App.property.green == true &&
              App.property.red == true) {
             return 'none';
           }
@@ -761,7 +869,7 @@ ForceDirectedGraph.prototype = {
           else if( Math.abs(d.value) < this.visThreshold) {
             return 'none';
           }
-          else { 
+          else {
             return 'all';
           }
         });
@@ -1073,12 +1181,12 @@ ForceDirectedGraph.prototype = {
     var peekWidth = (183 / 8);
 
     this.legend.pinned = false;
-    
+
     this.legend.div = this.legend.container
       .append("div")
       .attr("id", "legend")
       .style("width", this.legend.width + "px")
-      .style("height", this.legend.height + "px") 
+      .style("height", this.legend.height + "px")
       .style("right", (this.legend.width / 8) - this.legend.width + "px")
       .on("click", function() {
         self.legend.pinned = !self.legend.pinned;
@@ -1104,7 +1212,7 @@ ForceDirectedGraph.prototype = {
           self.legend.svg.select(".arrow2").transition().duration(250)
             .style("opacity", 1);
         }
-        
+
       })
       .on("mouseover", function() {
         if (!self.legend.pinned){
@@ -1154,7 +1262,7 @@ ForceDirectedGraph.prototype = {
       .attr("viewBox", "0 0 183 265");
 
 
-    var defs = this.legend.svg.append("defs"); 
+    var defs = this.legend.svg.append("defs");
 
     var red = defs.append('linearGradient')
         .attr('id','redLgd')
@@ -1311,7 +1419,7 @@ ForceDirectedGraph.prototype = {
       .style("font-size", "10px")
       .style("text-anchor", "start");
 
-     // right label 
+     // right label
      nodeSizeGroup.append("text")
       .attr("class", "legendNodeSize")
       .text(hitsDomain[1])
@@ -1354,7 +1462,7 @@ ForceDirectedGraph.prototype = {
     var linkColorGroup = this.legend.svg.append("g")
       .attr("class", "legendLinkColorG")
       .attr("transform", "translate(0, 146)");
-    
+
     linkColorGroup.append("text")
       .attr("class", "legendLinkColor")
       .text("Link Color")
@@ -1468,7 +1576,7 @@ ForceDirectedGraph.prototype = {
       .style("font-size", "10px")
       .style("text-anchor", "start");
 
-     // right label 
+     // right label
      linkSizeGroup.append("text")
       .attr("class", "legendNodeSize")
       .text(linkSizeDomain[1])
