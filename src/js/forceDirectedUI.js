@@ -83,6 +83,7 @@ window.addEventListener('load', function() {
 
     this._unpin = function(e) {
         for (var node in App.panels.forceDirected.filteredData) {
+            App.panels.forceDirected.filteredData[node]._fixed = false;
             App.panels.forceDirected.filteredData[node].fx = null;
             App.panels.forceDirected.filteredData[node].fy = null;
         }
