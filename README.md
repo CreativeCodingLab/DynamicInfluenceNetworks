@@ -10,7 +10,7 @@ Project Members: Andrew Burks, Kristine Lee, Xing Li
 ```[path to python.exe]\python -m SimpleHTTPServer 8080``` to start the server. If this command cannot start the server, use the command: ```[path to python.exe]\python -m http.server 8080``` instead. 
 - Go to localhost:8080 on Google Chrome to load the visualization.
 
-Alternatively, the page is hosted using GitHub Pages at https://andrewtburks.github.io/CS424-Project3/
+Alternatively, the page is hosted using GitHub Pages at https://creativecodinglab.github.io/DynamicInfluenceNetworks/
 
 # How to Use
 
