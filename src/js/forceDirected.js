@@ -454,6 +454,52 @@ ForceDirectedGraph.prototype = {
         cluster.sort((a,b) => b.hits - a.hits);
       });
 
+    // integrate painted clusters into master list
+    let self = this;
+
+    // if we will view painted clusters
+    if (this.paintingManager.isInPaintingMode()) {
+      let keptClusters;
+
+      if (this.paintingManager.isOverridingExistingClusters() ){
+        // remove painted nodes from calculated clusters
+        let reducedClusters =
+        _.map(clusters, function(c) {
+          let reduced = _.map(c, _.clone);
+          _.forEach(self.paintingManager.getPaintedClusters(), function(pc) {
+              reduced = _.concat(reduced, _.differenceBy(c, pc, 'name'));
+          });
+
+          return _.uniqBy(reduced, 'name');
+        });
+        // assign new cluster numbers for painted clusters
+        _.forEach(self.paintingManager.getPaintedClusters(), function (pc, i) {
+          _.forEach(pc, function(node) {
+            node.cluster = node.paintedCluster + reducedClusters.length;
+          });
+        });
+
+        clusters = _.concat(reducedClusters, self.paintingManager.getPaintedClusters());
+
+
+      } else {
+        // remove calculated clustered nodes from painted clusters
+        // remove painted nodes from calculated clusters
+        let reducedClusters =
+        _.map(self.paintingManager.getPaintedClusters(), function(pc) {
+          let reduced = [];
+          _.forEach(clusters, function(c) {
+              reduced = _.concat(reduced, _.differenceBy(pc, c, 'name'));
+          });
+
+          return _.uniqBy(reduced, 'name');
+        });
+        clusters = _.concat(clusters, reducedClusters);
+      }
+    }
+
+
+
     let newColors = new Array(clusters.length);
     let similarities = new Array(clusters.length);
 
@@ -511,6 +557,7 @@ ForceDirectedGraph.prototype = {
     }
     this.clusterColors = newColors;
     this.clusters = clusters;
+
     if (this.simulation && alpha !== 0) {
       this.simulation.alpha(alpha || 0.15).restart();
     }
@@ -1016,7 +1063,7 @@ ForceDirectedGraph.prototype = {
         .attr("cy", (d) => {
           var ext = d3.extent(d, node => node.y);
           if (isNaN(ext[0])  || isNaN(ext[1])) {
-            console.log(d);
+            // console.log(d);
           }
 
           return (ext[1] + ext[0]) / 2;
@@ -1033,7 +1080,7 @@ ForceDirectedGraph.prototype = {
           });
 
           if (isNaN(radius)) {
-            console.log(d);
+            // console.log(d);
           }
 
           return radius + circlePadding;

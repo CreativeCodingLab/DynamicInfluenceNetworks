@@ -19,6 +19,11 @@ const PaintingManager = function() {
 
   function addNodeToPaintingCluster(node) {
     if (self.isPaintingCluster) {
+      if (node.paintedCluster !== undefined) {
+        _.remove(self.paintedClusters[node.paintedCluster], function(n) {
+          return n.name === node.name;
+        });
+      }
       node.paintedCluster = self.currentClusterNumber;
 
       self.paintedClusters[self.currentClusterNumber].push(node);
@@ -27,6 +32,16 @@ const PaintingManager = function() {
 
   function stopPaintingCluster() {
     self.isPaintingCluster = false;
+  }
+
+  function unPaintAllNodes() {
+    _.forEach(self.paintedClusters, function (cluster, i) {
+      _.forEach(cluster, function(node) {
+        delete node.paintedCluster;
+      });
+    });
+
+    self.paintedClusters = [];
   }
 
   /* ========================= GETTERS && SETTERS =========================== */
@@ -62,6 +77,7 @@ const PaintingManager = function() {
     startPaintingNewCluster: startPaintingNewCluster,
     addNodeToPaintingCluster: addNodeToPaintingCluster,
     stopPaintingCluster: stopPaintingCluster,
+    unPaintAllNodes: unPaintAllNodes,
     // setters/getters
     setPaintingMode: setPaintingMode,
     isInPaintingMode: isInPaintingMode,
