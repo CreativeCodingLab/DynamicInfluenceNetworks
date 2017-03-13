@@ -608,7 +608,7 @@ ForceDirectedGraph.prototype = {
             n.fx += d3.event.dx;
             n.fy += d3.event.dy;
           })
-          console.log(d);
+          // console.log(d);
         })
         .on('end', function(d) {
           if (!d3.event.active) {
@@ -789,9 +789,6 @@ ForceDirectedGraph.prototype = {
       .attr("transform", (d, i) => {
         return "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")";
       })
-      .style('font-size','14px')
-      .style('letter-spacing','0.1px')
-      .style('text-shadow','2px 1px 1px #333')
     .merge(text)
       .text(d => d.name)
       .style('opacity', function(d) {
@@ -799,7 +796,7 @@ ForceDirectedGraph.prototype = {
           if (App.property.node == true && d.cluster === 0) {
             return 0;
           }
-          return 0.75;
+          return 0.9;
         }
         else {
           return 0;

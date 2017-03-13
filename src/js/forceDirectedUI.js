@@ -1,6 +1,34 @@
 var App = App || {};
-
 window.addEventListener('load', function() {
+    // --- toolbar --- //
+    document.getElementById('toolbar-close').onclick = function() {
+      document.getElementById('toolbar').classList.toggle("closed");
+    }
+
+    var dx = 0;
+    document.getElementById('toolbar-nav-left').onclick = function() {
+      var interval = window.innerWidth / 10;
+      dx = Math.min(dx + interval, 0);
+      document.querySelectorAll('#toolbar>span').forEach(span => span.style.transform = 'translateX(' + dx + 'px)');
+    }
+    document.getElementById('toolbar-nav-right').onclick = function() {
+      var interval = window.innerWidth / 10;
+      var xMax = document.getElementById('toolbar-nav-right').getBoundingClientRect().right;
+      var xSpan = document.querySelector('#toolbar>span:last-of-type').getBoundingClientRect().right;
+
+      dx -= Math.min(interval, xSpan - xMax);
+
+      document.querySelectorAll('#toolbar>span').forEach(span => span.style.transform = 'translateX(' + dx + 'px)');
+    }
+
+    document.getElementById('label-size-slider').onchange = function(e) {
+      var fontSize = (8 + 0.12 * this.value);
+      d3.selectAll('.rule-text')
+        .style('font-size', fontSize + 'px');
+    }
+
+
+
     App.property = {};
     var self = this;
 
@@ -11,7 +39,7 @@ window.addEventListener('load', function() {
     this._togglehide = function(e) {
       let key = this.id.split('-').indexOf('positive') > -1 ? 'green' : 'red';
 
-      if (this.checked) {
+      if (!this.checked) {
         App.property[key] = true;
         // make links invisible
         d3.selectAll('.link-1')
@@ -69,7 +97,7 @@ window.addEventListener('load', function() {
               if (App.property.node == true && d.cluster === 0) {
                 return 0;
               }
-              return 0.75;
+              return 0.9;
             })
         }
         else {
@@ -108,7 +136,6 @@ window.addEventListener('load', function() {
         .forEach((button) => {
             button.addEventListener('click', self['_'+button.id]);
         });
-
 
     //-------------- file handler -------------------//
 

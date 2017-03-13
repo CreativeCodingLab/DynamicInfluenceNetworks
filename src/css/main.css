@@ -16,38 +16,15 @@ body {
 
 #toolbar {
   display:none;
-  position:absolute;
-  top:0;
-  left:0;
-  height:7vmin;
-  padding:0 2vmin;
-  background:white;
-  box-shadow:0 0 2vmin black;
-  width:100%;
-  font-size: 2vmin;
-}
-#toolbar>div {
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-}
-#toolbar span {
-  display:inline-block;
-  width:10vw;
-  margin-right:3vw;
-  text-align:center;
-  vertical-align: middle
 }
 
 .linegraph {
-  height: 45%;
-  min-height: 45%;
+  height: 30vh;
+  min-height: 30vh;
 }
 
 .mainCol {
-/*  padding-top:7vmin;
-  height:calc(100% - 7vmin);
-*/  height:100%;
+  height:100%;
   width:70%;
   position:relative;
 }
@@ -70,6 +47,12 @@ body {
   stroke-opacity:0.5;
   stroke-width:1.5;
 }
+
+.rule-text {
+  font-size:14px;
+  letter-spacing: 0.1px;
+  text-shadow:0 0 1px #333;
+}
 .node-to-graph {
   stroke-opacity:1 !important;
   stroke-width:2.5;
@@ -78,7 +61,6 @@ body {
 
 #tip, #legendContainer {
   position:absolute;
-  /*top:7vmin;*/
   top:0;
   left:0;
 }
@@ -113,10 +95,6 @@ body {
 }
 
 
-.control {
-  padding:1vh 2vw;
-}
-
 rect.slider {
   cursor:pointer;
 }
@@ -143,64 +121,15 @@ rect.slider {
 }
 
 button,input {
-    outline:none;
-    border-radius:0.4vmin;
-    border:0.4vmin solid #ccc;
+  outline:none;
 }
-
 
 button {
   font-family: inherit;
-  font-size:2vmin;
-  padding:0.5vmin 1vmin;
-  font-weight:bold;
+  font-size: inherit;
+  color:inherit;
   cursor:pointer;
-  background-color:#fff;
-  transition:background-color 100ms ease;
-  -webkit-transition:background-color 100ms ease, color 100ms ease;
-  color:#777;
-}
-button:hover {
-    color:#555;
-}
-button:active {
-    background-color:#eee;
-    color: #333;
-}
-button label { cursor:pointer;}
-
-input[type="text"] {
-    margin-top:5px;
-}
-input[type="checkbox"] {
-    margin-top:5px;
-    height: 2vmin;
-    width: 2vmin;
-    display: none;
-    cursor:pointer;
-}
-
-input[type="checkbox"] + label:before {
-  font-family: FontAwesome;
-  content: "\f10c";
-  cursor:pointer;
-  position:absolute;
-  font-size: 2vmin;
-  margin-left:-3vmin;
-}
-
-input[type="checkbox"]:checked + label:before {
-  content: "\f058";
-}
-
-input[type="checkbox"] + label, input[type="checkbox"] + label:before, .toggle-axis-scale {
-  color:#999;
-  fill:#999;
-}
-
-input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:before, .toggle-axis-scale .active {
-  color:#2c7fb8;
-  fill:#2c7fb8;
+  background-color:transparent;
 }
 
 .slider-tab {
@@ -210,6 +139,14 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
   fill:#5bf;
 }
 
+.toggle-axis-scale {
+  color:#999;
+  fill:#999;
+}
+.toggle-axis-scale .active {
+  color:#2c7fb8;
+  fill:#2c7fb8;
+}
 .toggle-axis-scale {
   cursor:default;
 }

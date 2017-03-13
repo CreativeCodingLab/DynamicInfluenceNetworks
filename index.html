@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta charset="utf-8">
         <title>Dynamic Influence Map</title>
 
@@ -15,6 +16,7 @@
 
         <!-- CSS Src -->
         <link rel="stylesheet" href="./src/css/main.css" />
+        <link rel="stylesheet" href="./src/css/toolbar.css" />
 
         <!-- JS Src -->
         <!-- Main Script -->
@@ -31,9 +33,61 @@
 
     <body onload="App.init()" onresize="App.resize()">
         <div class="mainCol" id="forceDirectedDiv">
-            <div id="toolbar">
-                <div id="toolbar-inside">
-                </div>
+            <div id="toolbar" class="control">
+                <div id="toolbar-nav-left"></div>
+                <div id="toolbar-nav-right"></div>
+                <span>
+                    <h4>Dataset</h4>
+                    <div class="single-line">
+                        <form id="form">
+                            <input id="input" type="file" accept="application/zip,application/json" style="display:none;">
+                        </form>
+                        <div id="filename"></div>
+                        <button id="changeFile" onclick="document.getElementById('input').click();">File</button>
+                    </div>
+                </span>
+                <span>
+                    <h4>Number</h4>
+                    <div class="single-line">
+                        <input type="checkbox" id="sci">
+                        <label for="sci">
+                            Sci. notation
+                        </label>
+                    </div>
+                </span>
+                <span class="ui-labels">
+                    <h4>Labels</h4>
+                    <div class="single-line">
+                        <input type="checkbox" id="show-labels">
+                        <label for="show-labels"></label>
+                        <input type="range" value="50" id="label-size-slider">
+                    </div>
+                </span>
+                <span>
+                    <h4>Edges</h4>
+                    <div class="ui-influences">
+                        <input type="checkbox" id="hide-positive" checked>
+                        <label for="hide-positive">
+                            Positive
+                        </label>
+                        <br/>
+                        <input type="checkbox" id="hide-negative" checked>
+                        <label for="hide-negative">
+                            Negative
+                        </label>
+                    </div>
+                </span>
+                <span>
+                    <h4>Layout</h4>
+                    <div class ="ui-pin single-line">
+                        <button id="unpin">Unpin</button>
+                        <button id="pin">Pin</button>
+                    </div>
+                </span>
+                <span>
+                    <h4>Paint</h4>
+                </span>
+                <div id="toolbar-close"></div>
             </div>
             <div class="animationControls">
               <div class="animationSpeedDiv">
@@ -50,45 +104,6 @@
             </div>
         </div>
         <div class="sideCol">
-            <div class="row controls">
-                <div class="control">
-                    <p>
-                        <form id="form">
-                            <input id="input" type="file" accept="application/zip,application/json" style="display:none;">
-                        </form>
-                        <div id="filename"></div>
-                        <button id="changeFile"><label for="input">Change dataset</label></button>
-                        <button id="unpin">Unpin nodes</button>
-                    </p>
-                    <p class="columns">
-                        <span>
-                            <input type="checkbox" id="sci">
-                            <label for="sci">
-                                Scientific notation
-                            </label>
-                        </span>
-                        <span>
-                            <input type="checkbox" id="show-labels">
-                            <label for="show-labels">
-                                Show labels
-                            </label>
-                        </span>
-                        <span>
-                            <input type="checkbox" id="hide-negative">
-                            <label for="hide-negative">
-                                Hide negative influences
-                            </label>
-                        </span>
-                        <span>
-                            <input type="checkbox" id="hide-positive">
-                            <label for="hide-positive">
-                                Hide positive influences
-                            </label>
-                        </span>
-                     </p>
-                </div>
-            </div>
-
             <div class="row linegraph" id= "topVis">
             </div>
             <div class="row linegraph" id= "bottomVis">
