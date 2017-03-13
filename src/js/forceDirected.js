@@ -610,7 +610,6 @@ ForceDirectedGraph.prototype = {
             n.fx += d3.event.dx;
             n.fy += d3.event.dy;
           })
-          console.log(d);
         })
         .on('end', function(d) {
           if (!d3.event.active) {

@@ -1,13 +1,16 @@
 const PaintingManager = function() {
   let self = {
     inPaintingMode: true,
+    overrideExistingClusters: true,
 
     isPaintingCluster: false,
     currentClusterNumber: -1,
-    paintedClusters: []
+    paintedClusters: [],
+
+    paintedClusterColors: ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf']
   };
 
-  function startPaintingNewClsuter() {
+  function startPaintingNewCluster() {
     self.isPaintingCluster = true;
     self.currentClusterNumber++;
 
@@ -16,6 +19,8 @@ const PaintingManager = function() {
 
   function addNodeToPaintingCluster(node) {
     if (self.isPaintingCluster) {
+      node.paintedCluster = self.currentClusterNumber;
+
       self.paintedClusters[self.currentClusterNumber].push(node);
     }
   }
@@ -24,7 +29,7 @@ const PaintingManager = function() {
     self.isPaintingCluster = false;
   }
 
-  /* === GETTERS && SETTERS === */
+  /* ========================= GETTERS && SETTERS =========================== */
   function setPaintingMode(isPainting) {
     self.inPaintingMode = isPainting;
   }
@@ -37,6 +42,10 @@ const PaintingManager = function() {
     return self.isPaintingCluster;
   }
 
+  function isOverridingExistingClusters() {
+    return self.overrideExistingClusters;
+  }
+
   function getCurrentClusterNumber() {
     return self.currentClusterNumber;
   }
@@ -45,8 +54,12 @@ const PaintingManager = function() {
     return self.paintedClusters;
   }
 
+  function getClusterColor(clusterNumber) {
+    return self.paintedClusterColors[clusterNumber % self.paintedClusterColors.length];
+  }
+
   return {
-    startPaintingNewClsuter: startPaintingNewClsuter,
+    startPaintingNewCluster: startPaintingNewCluster,
     addNodeToPaintingCluster: addNodeToPaintingCluster,
     stopPaintingCluster: stopPaintingCluster,
     // setters/getters
@@ -54,9 +67,11 @@ const PaintingManager = function() {
     isInPaintingMode: isInPaintingMode,
 
     isPaintingCluster: isPaintingCluster,
+    isOverridingExistingClusters: isOverridingExistingClusters,
 
     getCurrentClusterNumber: getCurrentClusterNumber,
 
-    getPaintedClusters: getPaintedClusters
+    getPaintedClusters: getPaintedClusters,
+    getClusterColor: getClusterColor
   };
 };
