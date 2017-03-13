@@ -12,6 +12,8 @@ function ForceDirectedGraph(args) {
 
   this.maxInfl = Math.abs(sortedLinks[0].value);
 
+  this.paintingManager = new PaintingManager();
+
   this.legend = {};
 
   this.legend.nodeSizeDomain =
@@ -771,10 +773,17 @@ ForceDirectedGraph.prototype = {
 
       })
       .on('click', function(d) {
-        d3.select(this)
+        // if painting mode, add node to paintedClusters
+        if (self.paintingManager.isPaintingCluster()) {
+          self.paintingManager.addNodeToPaintingCluster(d);
+          console.log("added to painting cluster", self.paintingManager.getCurrentClusterNumber());
+        } else {
+          d3.select(this)
           .style("fill", (d) => self.clusterColor(d.cluster))
           .style("stroke", "white");
-        d.fx = d.fy = null;
+          d.fx = d.fy = null;
+        }
+
       })
       .call(drag);
 
