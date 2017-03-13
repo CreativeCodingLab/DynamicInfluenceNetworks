@@ -25,6 +25,7 @@ const PaintingManager = function() {
         });
       }
       node.paintedCluster = self.currentClusterNumber;
+      node.isPainted = true;
 
       self.paintedClusters[self.currentClusterNumber].push(node);
     }
@@ -38,6 +39,7 @@ const PaintingManager = function() {
     _.forEach(self.paintedClusters, function (cluster, i) {
       _.forEach(cluster, function(node) {
         delete node.paintedCluster;
+        delete node.isPainted;
       });
     });
 

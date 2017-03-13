@@ -1022,9 +1022,19 @@ ForceDirectedGraph.prototype = {
           })
       }
 
-      node.style("fill", (d,i,el) => {
-            return (d3.select(el[i]).classed('rule-text')) ?
+      node.style("fill", function(d) {
+            return (d3.select(this).classed('rule-text') || d.isPainted) ?
               'white' : self.clusterColor(d.cluster);
+          })
+          .style("stroke", function(d) {
+            return d.isPainted ? self.clusterColor(d.cluster) :
+              d._fixed ? "#404040" : "white";
+          })
+          .style("stroke-width", function(d) {
+            return d.isPainted ? 3 : 1.5;
+          })
+          .style("stroke-opacity", function(d) {
+            return d.isPainted ? 1 : 0.5;
           })
           .attr("transform", (d,i,el) => {
             return (d3.select(el[i]).classed('rule-text')) ?
@@ -1055,7 +1065,7 @@ ForceDirectedGraph.prototype = {
         .attr("cx", (d) => {
           var ext = d3.extent(d, node => node.x);
           if (isNaN(ext[0])  || isNaN(ext[1])) {
-            console.log(d);
+              console.log(d);
           }
 
           return (ext[1] + ext[0]) / 2;
