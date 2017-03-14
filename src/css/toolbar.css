@@ -248,6 +248,16 @@ input[type="checkbox"]:checked + label[for="show-labels"]:before {
 .ui-theme .neg {
   background-image: linear-gradient(to top, #d9ef8b, #a6d96a, #66bd63, #1a9850);
 }
+.ui-theme .theme-color:before {
+  color:white;
+  font-weight: bold;
+}
+.ui-theme .pos:before {
+  content:'–';
+}
+.ui-theme .neg:before {
+  content:'+';
+}
 
 /* legend */
 .ui-legend .legend-type {

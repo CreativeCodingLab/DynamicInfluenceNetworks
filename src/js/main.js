@@ -14,6 +14,7 @@ var App = App || {};
     var url = document.URL.split('?')[1] || "flux_0.json";
     App.loadData(url, true);
 
+    new Toolbar(App);
     App.animation = new AnimationManager();
   }
 
@@ -28,7 +29,7 @@ var App = App || {};
       }
     }
 
-    ['timeSlider', 'infSlider'/*, 'visSlider'*/].forEach(function(slider) {
+    ['timeSlider', 'infSlider'].forEach(function(slider) {
       if (App[slider]) {
         App[slider].resize();
       }

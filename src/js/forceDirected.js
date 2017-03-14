@@ -77,7 +77,6 @@ ForceDirectedGraph.prototype = {
     // colors from
     // http://colorbrewer2.org/#type=diverging&scheme=RdYlGn&n=9
 
-
     // stroke gradients
     function createSVGLinearGradient(colors, id, defs) {
       var left = defs.append('linearGradient')
@@ -729,6 +728,7 @@ ForceDirectedGraph.prototype = {
           d3.select(this)
             .style("fill", self.clusterColor(d.cluster))
             .style("stroke", "#404040");
+          d._fixed = true;
           d.fx = d3.event.x,
           d.fy = d3.event.y;
         })
@@ -839,6 +839,7 @@ ForceDirectedGraph.prototype = {
           .style("fill", (d) => self.clusterColor(d.cluster))
           .style("stroke", "white");
           d.fx = d.fy = null;
+          d._fixed = false;
         }
 
       })
@@ -857,6 +858,7 @@ ForceDirectedGraph.prototype = {
       })
     .merge(text)
       .text(d => d.name)
+      .style('font-size', App.property.labelFontSize)
       .style('opacity', function(d) {
         if (App.property.label == true) {
           if (App.property.node == true && d.cluster === 0) {
