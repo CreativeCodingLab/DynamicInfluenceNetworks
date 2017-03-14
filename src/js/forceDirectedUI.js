@@ -103,6 +103,22 @@ function Toolbar(App) {
       .style("stroke-dasharray", null);
   };
 
+  // paint clusters
+  document.getElementById('paint-start').onclick = function() {
+    document.querySelector('.ui-mark').classList.add('active');
+    App.panels.forceDirected.paintingManager.startPaintingNewCluster();
+  }
+  document.getElementById('paint-stop').onclick = function() {
+    document.querySelector('.ui-mark').classList.remove('active');
+    App.panels.forceDirected.paintingManager.stopPaintingCluster();
+  }
+  document.getElementById('paint-new').onclick = function() {
+    App.panels.forceDirected.paintingManager.startPaintingNewCluster();
+  }
+  document.getElementById('paint-reset').onclick = function() {
+    App.panels.forceDirected.paintingManager.unPaintAllNodes();
+  }
+
   // change colors
   document.getElementById('theme').onclick = function() {
     var theme = this.checked ? {

@@ -1,7 +1,7 @@
-const PaintingManager = function() {
+const PaintingManager = function(graph) {
   let self = {
     inPaintingMode: true,
-    overrideExistingClusters: false,
+    overrideExistingClusters: true,
 
     isPaintingCluster: false,
     currentClusterNumber: -1,
@@ -29,6 +29,8 @@ const PaintingManager = function() {
       node.isPainted = true;
 
       self.paintedClusters[self.currentClusterNumber].push(node);
+      graph.defineClusters();
+      graph.drawGraph();
     }
   }
 
@@ -47,6 +49,12 @@ const PaintingManager = function() {
     self.currentClusterNumber = -1;
 
     self.paintedClusters = [];
+    graph.defineClusters();
+    graph.drawGraph();
+
+    if (self.isPaintingCluster) {
+      self.startPaintingNewCluster();
+    }
   }
 
   /* ========================= GETTERS && SETTERS =========================== */

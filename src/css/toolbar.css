@@ -230,8 +230,23 @@ input[type="checkbox"]:checked + label[for="show-labels"]:before {
 /* pinning nodes */
 .ui-pin button {
   width:50%;
-  padding:0 1vmin;
-  border:0.2vmin solid #ddd;
+}
+
+/* marks */
+.ui-mark button {
+  width:100%;
+  display:block;
+}
+#paint-stop, #paint-new {
+  display:none;
+  width:50%;
+}
+
+.ui-mark.active #paint-start {
+  display:none;
+}
+.ui-mark.active #paint-new, .ui-mark.active #paint-stop {
+  display:inline;
 }
 
 /* color theme */
@@ -302,6 +317,13 @@ input[type="checkbox"]:checked + label[for="show-labels"]:before {
 }
 .legend-type.inf div:nth-of-type(3) {
   height:0.6vmin;
+}
+
+/* buttons */
+#toolbar button {
+  padding:0 1vmin;
+  border:0.2vmin solid #ddd;
+  margin-bottom: 0.5vmin;
 }
 
 /* checkbox labels */

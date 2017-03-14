@@ -12,7 +12,7 @@ function ForceDirectedGraph(args) {
 
   this.maxInfl = Math.abs(sortedLinks[0].value);
 
-  this.paintingManager = new PaintingManager();
+  this.paintingManager = new PaintingManager(this);
 
   // initialize color palette
   let avaliableColors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a'];
@@ -810,19 +810,14 @@ ForceDirectedGraph.prototype = {
         // if painting mode, add node to paintedClusters
         if (self.paintingManager.isPaintingCluster()) {
           self.paintingManager.addNodeToPaintingCluster(d);
-
-
-          self.defineClusters();
-          self.drawClusters();
-          // console.log("added to painting cluster", self.paintingManager.getCurrentClusterNumber());
-        } else {
-          d3.select(this)
-          .style("fill", (d) => self.clusterColor(d.cluster))
-          .style("stroke", "white");
-          d.fx = d.fy = null;
-          d._fixed = false;
         }
-
+        else {
+          d3.select(this)
+            .style("fill", (d) => self.clusterColor(d.cluster))
+            .style("stroke", "white");
+            d.fx = d.fy = null;
+            d._fixed = false;
+        }
       })
       .call(drag);
 
