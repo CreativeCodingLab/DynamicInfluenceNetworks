@@ -3,8 +3,8 @@ function Toolbar(App) {
     sci: false,
     label: false,
     labelFontSize:14,
-    green: false,
-    red: false
+    green: true,
+    red: true
   };
 
   // --- toolbar --- //

@@ -404,26 +404,7 @@ LineGraph.prototype = {
                 .style('display','none');
               this.axisHelper
                 .style('display','none');
-              d3.selectAll('.link-1')
-                .transition()
-                .duration(400)
-                .style('stroke-opacity', (j) => {
-                  if(App.property.green == true && App.property.red == true) {
-                    return 0;
-                  }
-                  else if( App.property.green == true && j.value > 0 ) {
-                    return 0;
-                  }
-                 else if( App.property.red == true && j.value < 0) {
-                    return 0;
-                  }
-                  else if( Math.abs(j.value) < App.panels.forceDirected.visThreshold) {
-                    return 0;
-                  }
-                  else { 
-                    return 1;
-                  } 
-              })
+              App.panels.forceDirected.updateEdgeVisibility();
               links.style('stroke-opacity',0.0);
               d3.select(d3.event.target)
                 .style('stroke-opacity', 0.0)

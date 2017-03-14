@@ -799,26 +799,7 @@ ForceDirectedGraph.prototype = {
           .style('stroke-opacity', 0.6);
       })
       .on("mouseout", function() {
-        self.linkGroup.selectAll('.link-1')
-          .transition()
-          .duration(400)
-          .style('stroke-opacity', (d) => {
-            if(App.property.green == true && App.property.red == true) {
-              return 0;
-            }
-            else if( App.property.green == true && d.value > 0 ) {
-              return 0;
-            }
-            else if( App.property.red == true && d.value < 0) {
-              return 0;
-            }
-            else if( Math.abs(d.value) < self.visThreshold) {
-              return 0;
-            }
-            else {
-              return 1;
-            }
-          });
+        self.updateEdgeVisibility();
 
         self.linkGroup.selectAll(".link-2")
           .style('stroke-opacity', 0).interrupt();
@@ -908,25 +889,6 @@ ForceDirectedGraph.prototype = {
     var mainLink = this.linkGroup.selectAll('.link-1')
       .data(this.links)
 
-    mainLink
-        .style('stroke-opacity', (d) => {
-          if(App.property.green == true && App.property.red == true) {
-            return 0;
-          }
-          else if( App.property.green == true && d.value > 0 ) {
-            return 0;
-          }
-          else if( App.property.red == true && d.value < 0) {
-            return 0;
-          }
-          else if( Math.abs(d.value) < this.visThreshold) {
-            return 0;
-          }
-          else {
-            return 1;
-          }
-        });
-
     mainLink.exit().remove();
     mainLink.enter().append('path')
         .attr('class', 'link link-1')
@@ -943,49 +905,68 @@ ForceDirectedGraph.prototype = {
     var hoverLink = this.linkGroup.selectAll('.link-2')
       .data(this.links);
 
-    hoverLink
-        .attr('pointer-events', (d) => {
-          if(App.property.green == true &&
-             App.property.red == true) {
-            return 'none';
-          }
-          else if(App.property.green == true && d.value > 0) {
-            return 'none';
-          }
-          else if( App.property.red == true && d.value < 0) {
-            return 'none';
-          }
-          else if( Math.abs(d.value) < this.visThreshold) {
-            return 'none';
-          }
-          else {
-            return 'all';
-          }
-        });
-
     hoverLink.exit().remove();
     hoverLink.enter().append('path')
-          .attr("class", "link link-2")
-          .attr('fill','none')
-          .attr("value", d => d.value)
-          .style("stroke-opacity", 0)
-          .style("stroke-width", 8)
-          .on("mouseover", (d, i) => {
-            if (self._isDragging) return;
-            d3.select(d3.event.target)
-              .style('stroke-opacity',0.5)
-              .raise();
-            self.showTip(d, 'path');
-          })
-          .on("mouseout", (d, i) => {
+        .attr("class", "link link-2")
+        .attr('fill','none')
+        .attr("value", d => d.value)
+        .style("stroke-opacity", 0)
+        .style("stroke-width", 8)
+        .on("mouseover", (d, i) => {
+          if (self._isDragging) return;
+          d3.select(d3.event.target)
+            .style('stroke-opacity',0.5)
+            .raise();
+          self.showTip(d, 'path');
+        })
+        .on("mouseout", (d, i) => {
 
-            d3.select(d3.event.target)
-              .transition()
-              .style('stroke-opacity',0);
-            self.hideTip();
-          });
+          d3.select(d3.event.target)
+            .transition()
+            .style('stroke-opacity',0);
+          self.hideTip();
+        });
+
+    this.updateEdgeVisibility();
   },
 
+  updateEdgeVisibility: function() {
+    var threshold = this.threshold;
+
+    // link visibility
+    d3.selectAll('.link-1')
+      .style('stroke-opacity', (d) => {
+        if( !App.property.green && d.value > 0 ) {
+          return 0;
+        }
+        else if( !App.property.red && d.value < 0) {
+          return 0;
+        }
+        else if( Math.abs(d.value) < this.visThreshold) {
+          return 0;
+        }
+        else {
+          return 1;
+        }
+      });
+
+    // mouseover functionality
+    d3.selectAll('.link-2')
+      .attr('pointer-events', (d) => {
+        if( !App.property.green && d.value > 0 ) {
+          return 'none';
+        }
+        else if( !App.property.red && d.value < 0) {
+          return 'none';
+        }
+        else if( Math.abs(d.value) < this.visThreshold) {
+          return 'none';
+        }
+        else {
+          return 'all';
+        }
+      });
+  },
 
   // the big workhorse of the simulation ???
   createForceLayout: function() {
