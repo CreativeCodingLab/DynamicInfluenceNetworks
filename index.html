@@ -28,6 +28,7 @@
         <script src="./src/js/forceDirectedUI.js"></script>
         <script src="./src/js/sliderUI.js"></script>
         <script src="./src/js/animation.js" charset="utf-8"></script>
+        <script src="./src/js/paintingManager.js" charset="utf-8"></script>
 
     </head>
 
@@ -47,7 +48,7 @@
                     </div>
                 </span>
                 <span>
-                    <h4>Number</h4>
+                    <h4>Numbers</h4>
                     <div class="single-line">
                         <input type="checkbox" id="sci">
                         <label for="sci">
@@ -63,9 +64,9 @@
                         <input type="range" value="50" id="label-size-slider">
                     </div>
                 </span>
-                <span>
+                <span class="ui-influences">
                     <h4>Edges</h4>
-                    <div class="ui-influences">
+                    <div>
                         <input type="checkbox" id="hide-positive" checked>
                         <label for="hide-positive">
                             Positive
@@ -77,15 +78,44 @@
                         </label>
                     </div>
                 </span>
-                <span>
+                <span class="ui-pin">
                     <h4>Layout</h4>
-                    <div class ="ui-pin single-line">
+                    <div class="single-line">
                         <button id="unpin">Unpin</button>
                         <button id="pin">Pin</button>
                     </div>
                 </span>
                 <span>
-                    <h4>Paint</h4>
+                    <h4>Mark</h4>
+                </span>
+                <span class="ui-theme">
+                    <h4>Colors</h4>
+                    <div>
+                        <div class="theme-color pos"></div>
+                        <div class="theme-color neg"></div>
+                        <br/>
+                        <input type="checkbox" id="theme">
+                        <label for="theme">
+                            Color safe
+                        </label>
+                    </div>
+                </span>
+                <span class="ui-legend">
+                    <h4>Legend</h4>
+                    <div class="legend-type hits">
+                        Num. hits
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="legend-type inf">
+                        Amt. influence
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                 </span>
                 <div id="toolbar-close"></div>
             </div>

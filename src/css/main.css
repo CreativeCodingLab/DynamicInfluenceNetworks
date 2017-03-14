@@ -88,12 +88,12 @@ body {
   position:absolute;
 }
 
-#legend {
+/*#legend {
   top: 5px;
   background-color: rgba(25,25,25,0);
   pointer-events: all;
 }
-
+*/
 
 rect.slider {
   cursor:pointer;

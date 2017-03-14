@@ -4,8 +4,22 @@
 }
 #toolbar.closed ~ #tip, #toolbar.closed ~ #legendContainer {
   transition:transform 200ms ease;
-  transform: translateY(0vmin);
+  transform: translateY(3.5vmin);
 }
+#toolbar.closed {
+  transform:translate(0,-1vmin);
+  height: 4.5vmin;
+  opacity:0.8;
+}
+#toolbar.closed #toolbar-close:before {
+  content:'\f107';
+  transform:translate(-50%,1vmin);
+  background:rgba(0,0,0,0.5);
+}
+#toolbar.closed > span { transform:translateX(0) !important; }
+#toolbar.closed > span > div { display:none; }
+#toolbar.closed #toolbar-nav-left:before, #toolbar.closed #toolbar-nav-right:before { display:none; }
+
 #toolbar {
   z-index:1000;
   display:block !important;
@@ -20,14 +34,7 @@
   font-size: 2vmin;
   color:#555;
   white-space: nowrap;
-  transition:transform 200ms ease, background-color 100ms ease;
-}
-
-#toolbar.closed {
-  transform:translate(0,-12vmin);
-}
-#toolbar.closed #toolbar-close:before {
-  content:'\f107';
+  transition:transform 200ms ease, background-color 100ms ease, height 200ms ease;
 }
 
 #toolbar-nav-left, #toolbar-nav-right {
@@ -81,6 +88,7 @@
   width:8vmin;
   margin:0;
   border-radius:0 0 5% 5%;
+  transition:transform 200ms ease;
 }
 
 #toolbar > * {
@@ -224,6 +232,66 @@ input[type="checkbox"]:checked + label[for="show-labels"]:before {
   width:50%;
   padding:0 1vmin;
   border:0.2vmin solid #ddd;
+}
+
+/* color theme */
+.ui-theme .theme-color {
+  width:2.5vmin;
+  height:3vmin;
+  margin:0 0.5vmin;
+  display:inline-block;
+  position:relative;
+}
+.ui-theme .pos {
+  background-image: linear-gradient(to top, #fee08b, #fdae61, #f46d43, #d73027);
+}
+.ui-theme .neg {
+  background-image: linear-gradient(to top, #d9ef8b, #a6d96a, #66bd63, #1a9850);
+}
+
+/* legend */
+.ui-legend .legend-type {
+  float:right;
+  clear:right;
+}
+.ui-legend .legend-type div {
+  display:inline-block;
+}
+.legend-type.hits div {
+  width:2vmin;
+  height:2vmin;
+  background:#1f77b4;
+  border-radius:50%;
+}
+.legend-type.hits div:first-of-type {
+  width:0.5vmin;
+  height:0.5vmin;
+  margin:0 0.75vmin;
+}
+.legend-type.hits div:nth-of-type(2) {
+  width:1vmin;
+  height:1vmin;
+  margin:0 0.5vmin;
+}
+.legend-type.hits div:nth-of-type(3) {
+  width:1.5vmin;
+  height:1.5vmin;
+  margin:0 0.25vmin;
+}
+
+.legend-type.inf div {
+  width:2vmin;
+  background:#66bd63;
+  height:0.8vmin;
+}
+.legend-type.inf div:first-of-type {
+  height:0.2vmin;
+}
+.legend-type.inf div:nth-of-type(2) {
+  height:0.4vmin;
+}
+.legend-type.inf div:nth-of-type(3) {
+  height:0.6vmin;
 }
 
 /* checkbox labels */

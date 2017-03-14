@@ -2,21 +2,21 @@ var App = App || {};
 window.addEventListener('load', function() {
     // --- toolbar --- //
     document.getElementById('toolbar-close').onclick = function() {
-      document.getElementById('toolbar').classList.toggle("closed");
+      document.getElementById('toolbar').classList.toggle('closed');
     }
 
     var dx = 0;
     document.getElementById('toolbar-nav-left').onclick = function() {
-      var interval = window.innerWidth / 10;
+      var interval = window.innerWidth / 5;
       dx = Math.min(dx + interval, 0);
       document.querySelectorAll('#toolbar>span').forEach(span => span.style.transform = 'translateX(' + dx + 'px)');
     }
     document.getElementById('toolbar-nav-right').onclick = function() {
-      var interval = window.innerWidth / 10;
+      var interval = window.innerWidth / 5;
       var xMax = document.getElementById('toolbar-nav-right').getBoundingClientRect().right;
       var xSpan = document.querySelector('#toolbar>span:last-of-type').getBoundingClientRect().right;
 
-      dx -= Math.min(interval, xSpan - xMax);
+      dx = Math.min(dx - Math.min(interval, xSpan - xMax), 0);
 
       document.querySelectorAll('#toolbar>span').forEach(span => span.style.transform = 'translateX(' + dx + 'px)');
     }

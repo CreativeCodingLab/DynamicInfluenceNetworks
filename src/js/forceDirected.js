@@ -12,16 +12,7 @@ function ForceDirectedGraph(args) {
 
   this.maxInfl = Math.abs(sortedLinks[0].value);
 
-  this.legend = {};
-
-  this.legend.nodeSizeDomain =
-    d3.extent(Object.keys(this.filteredData), (d) => {
-        return this.filteredData[d].hits;
-      });
-  this.legend.nodeSizeRange = [4, 14];
-
-  this.legend.linkSizeDomain = d3.extent(this.links.map(d => Math.abs(d.value)));
-  this.legend.linkSizeRange = d3.extent(d3.range(0.4, this.links.length > 200 ? 1 : 4, 0.05));
+  this.paintingManager = new PaintingManager();
 
   // initialize color palette
   let avaliableColors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a'];
@@ -54,7 +45,6 @@ function ForceDirectedGraph(args) {
 
   // update graph
   this.drawGraph();
-  this.createLegend();
 };
 
 ForceDirectedGraph.prototype = {
@@ -153,6 +143,7 @@ ForceDirectedGraph.prototype = {
     /* Initialize tooltip for nodes */
     this.tip = d3.select('#forceDirectedDiv').append('div').attr('id', 'tip');
   },
+
   resize:function() {
     var rect = this.svg.node().parentNode.getBoundingClientRect();
     if (rect.width && rect.height) {
@@ -175,9 +166,6 @@ ForceDirectedGraph.prototype = {
       .attr('height', this.height)
 
     var containerWidth = this.svg.node().parentNode.getBoundingClientRect().width;
-
-    this.legend.container
-        .style("width", containerWidth + "px");
 
     // reheat simulation
     if (this.simulation) {
@@ -445,12 +433,79 @@ ForceDirectedGraph.prototype = {
         clusters[0].push(data[n]);
       }
     }
+
     clusters.forEach((cluster,i) => {
         cluster.forEach(n => {
           n.cluster = i;
         });
         cluster.sort((a,b) => b.hits - a.hits);
       });
+
+    // integrate painted clusters into master list
+    let self = this;
+
+    // if we will view painted clusters
+    if (this.paintingManager.isInPaintingMode()) {
+
+      if (this.paintingManager.isOverridingExistingClusters() ){
+        // remove painted nodes from calculated clusters
+        let reducedClusters =
+        _.map(clusters, function(c, i) {
+
+          let reduced = _.map(c);
+
+          _.forEach(self.paintingManager.getPaintedClusters(), function(pc) {
+              reduced = _.differenceBy(reduced, pc, 'name');
+          });
+
+          return reduced;
+
+          // return _.uniqBy(reduced, 'name');
+        });
+
+        // assign new cluster numbers for painted clusters
+        _.forEach(self.paintingManager.getPaintedClusters(), function (pc, i) {
+          _.forEach(pc, function(node) {
+            node.cluster = node.paintedCluster + reducedClusters.length;
+          });
+        });
+
+        clusters = _.concat(reducedClusters, self.paintingManager.getPaintedClusters());
+
+      } else {
+        // remove calculated clustered nodes from painted clusters
+        // remove painted nodes from calculated clusters
+
+        // note: nodes still need to be removed from the '0' cluster
+        let unclusteredReducedSet = _.map(clusters[0]);
+
+        _.forEach(self.paintingManager.getPaintedClusters(), function(pc) {
+            unclusteredReducedSet = _.differenceBy(unclusteredReducedSet, pc, 'name');
+        });
+        clusters[0] = unclusteredReducedSet;
+
+        let reducedClusters =
+        _.map(self.paintingManager.getPaintedClusters(), function(pc) {
+          let reduced = _.map(pc);
+
+          _.forEach(_.drop(clusters), function(c) {
+            reduced = _.differenceBy(reduced, c, 'name');
+              // reduced = _.concat(reduced, _.differenceBy(pc, c, 'name'));
+          });
+
+          return reduced;
+        });
+
+        // assign new cluster numbers for painted clusters
+        _.forEach(reducedClusters, function (c, i) {
+          _.forEach(c, function(node) {
+            node.cluster = node.paintedCluster + clusters.length;
+          });
+        });
+
+        clusters = _.concat(clusters, reducedClusters);
+      }
+    }
 
     let newColors = new Array(clusters.length);
     let similarities = new Array(clusters.length);
@@ -509,6 +564,7 @@ ForceDirectedGraph.prototype = {
     }
     this.clusterColors = newColors;
     this.clusters = clusters;
+
     if (this.simulation && alpha !== 0) {
       this.simulation.alpha(alpha || 0.15).restart();
     }
@@ -608,7 +664,6 @@ ForceDirectedGraph.prototype = {
             n.fx += d3.event.dx;
             n.fy += d3.event.dy;
           })
-          // console.log(d);
         })
         .on('end', function(d) {
           if (!d3.event.active) {
@@ -771,10 +826,21 @@ ForceDirectedGraph.prototype = {
 
       })
       .on('click', function(d) {
-        d3.select(this)
+        // if painting mode, add node to paintedClusters
+        if (self.paintingManager.isPaintingCluster()) {
+          self.paintingManager.addNodeToPaintingCluster(d);
+
+
+          self.defineClusters();
+          self.drawClusters();
+          // console.log("added to painting cluster", self.paintingManager.getCurrentClusterNumber());
+        } else {
+          d3.select(this)
           .style("fill", (d) => self.clusterColor(d.cluster))
           .style("stroke", "white");
-        d.fx = d.fy = null;
+          d.fx = d.fy = null;
+        }
+
       })
       .call(drag);
 
@@ -964,9 +1030,19 @@ ForceDirectedGraph.prototype = {
           })
       }
 
-      node.style("fill", (d,i,el) => {
-            return (d3.select(el[i]).classed('rule-text')) ?
+      node.style("fill", function(d) {
+            return (d3.select(this).classed('rule-text') || d.isPainted) ?
               'white' : self.clusterColor(d.cluster);
+          })
+          .style("stroke", function(d) {
+            return d.isPainted ? self.clusterColor(d.cluster) :
+              d._fixed ? "#404040" : "white";
+          })
+          .style("stroke-width", function(d) {
+            return d.isPainted ? 3 : 1.5;
+          })
+          .style("stroke-opacity", function(d) {
+            return d.isPainted ? 1 : 0.5;
           })
           .attr("transform", (d,i,el) => {
             return (d3.select(el[i]).classed('rule-text')) ?
@@ -997,7 +1073,7 @@ ForceDirectedGraph.prototype = {
         .attr("cx", (d) => {
           var ext = d3.extent(d, node => node.x);
           if (isNaN(ext[0])  || isNaN(ext[1])) {
-            console.log(d);
+              // console.log(d);
           }
 
           return (ext[1] + ext[0]) / 2;
@@ -1005,7 +1081,7 @@ ForceDirectedGraph.prototype = {
         .attr("cy", (d) => {
           var ext = d3.extent(d, node => node.y);
           if (isNaN(ext[0])  || isNaN(ext[1])) {
-            console.log(d);
+            // console.log(d);
           }
 
           return (ext[1] + ext[0]) / 2;
@@ -1022,7 +1098,7 @@ ForceDirectedGraph.prototype = {
           });
 
           if (isNaN(radius)) {
-            console.log(d);
+            // console.log(d);
           }
 
           return radius + circlePadding;
@@ -1184,427 +1260,5 @@ ForceDirectedGraph.prototype = {
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
     this.simulation.alpha(0.001).restart();
-  },
-
-  createLegend:function() {
-    var self = this;
-
-    var containerWidth = d3.select("#forceDirectedDiv").node().getBoundingClientRect().width;
-
-    this.legend.container = d3.select("#legendContainer")
-        .style("width", containerWidth + "px");
-
-    this.legend.aspect = 183 / 265;
-    this.legend.height = this.legend.container.node().getBoundingClientRect().height * 0.4;
-    this.legend.width = this.legend.height * this.legend.aspect;
-
-    // var divPeekWidth = (this.legend.width / 8);
-    var peekWidth = (183 / 8);
-
-    this.legend.pinned = false;
-
-    this.legend.div = this.legend.container
-      .append("div")
-      .attr("id", "legend")
-      .style("width", this.legend.width + "px")
-      .style("height", this.legend.height + "px")
-      .style("right", (this.legend.width / 8) - this.legend.width + "px")
-      .on("click", function() {
-        self.legend.pinned = !self.legend.pinned;
-
-        if(self.legend.pinned) {
-          d3.select(this)
-            .style("border", "2px solid #74add1")
-            .style("background-color", "rgba(25,25,25,0.9)");
-
-          self.legend.svg.select(".arrow1").transition().duration(250)
-            .style("opacity", 0);
-
-          self.legend.svg.select(".arrow2").transition().duration(250)
-            .style("opacity", 0);
-        } else {
-          d3.select(this)
-            .style("border", "none")
-            .style("background-color", "rgba(25,25,25,0.75)");
-
-          self.legend.svg.select(".arrow1").transition().duration(250)
-            .style("opacity", 1);
-
-          self.legend.svg.select(".arrow2").transition().duration(250)
-            .style("opacity", 1);
-        }
-
-      })
-      .on("mouseover", function() {
-        if (!self.legend.pinned){
-          d3.select(this).transition().duration(500)
-          .style("right", "5px")
-          .style("background-color", "rgba(25,25,25,0.75)");
-
-          self.legend.svg.select(".peekBar")
-            .style("opacity", 0);
-
-          self.legend.svg.select(".arrow1").transition().duration(500)
-            .attr("transform", "translate(" + peekWidth/3 + "," + peekWidth / 4 + ")");
-
-          self.legend.svg.select(".arrow2").transition().duration(500)
-            .attr("transform", "translate(" + (peekWidth/3) + "," + (265 - 3 * peekWidth/4) + ")");
-        }
-      })
-      .on("mouseout", function() {
-        if (!self.legend.pinned){
-          d3.select(this).transition().duration(250)
-            .style("right", (self.legend.width / 8) - self.legend.width + "px")
-            .style("background-color", "rgba(25,25,25,0)");
-
-          self.legend.svg.select(".peekBar").transition().duration(10).delay(250)
-          .style("opacity", 0.25);
-
-          self.legend.svg.select(".arrow1").transition().duration(250)
-            .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (3 * peekWidth / 4) + ") rotate(180)");
-
-          self.legend.svg.select(".arrow2").transition().duration(250)
-            .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (265 - peekWidth/4) + ") rotate(180)");
-        }
-      });
-
-
-    this.legend.width = this.legend.div.node().getBoundingClientRect().width;
-    this.legend.height = this.legend.div.node().getBoundingClientRect().height;
-
-    this.legend.svg = this.legend.div
-      .append("svg")
-      .attr("width", "100%")
-      .attr("height", "100%")
-      .style("pointer-events", "none")
-      .style("font-family", "Helvetica, sans-serif");
-
-    this.legend.svg
-      .attr("viewBox", "0 0 183 265");
-
-
-    var defs = this.legend.svg.append("defs");
-
-    var red = defs.append('linearGradient')
-        .attr('id','redLgd')
-        .attr('x1',0)
-        .attr('y1',0)
-        .attr('x2',1)
-        .attr('y2',0);
-
-    red.append('stop')
-      .attr('offset','0%')
-      .attr('stop-color','#fee08b');
-    red.append('stop')
-      .attr('offset','33%')
-      .attr('stop-color', "#fdae61");
-    red.append('stop')
-      .attr('offset','66%')
-      .attr('stop-color','#f46d43');
-    red.append('stop')
-      .attr('offset','100%')
-      .attr('stop-color', "#d73027");
-
-
-    var green = defs.append('linearGradient')
-        .attr('id','greenLgd')
-        .attr('x1',0)
-        .attr('y1',0)
-        .attr('x2',1)
-        .attr('y2',0);
-
-    green.append('stop')
-      .attr('offset','0%')
-      .attr('stop-color','#d9ef8b');
-    green.append('stop')
-      .attr('offset','33%')
-      .attr('stop-color', "#a6d96a");
-    green.append('stop')
-      .attr('offset','66%')
-      .attr('stop-color','#66bd63');
-    green.append('stop')
-      .attr('offset','100%')
-      .attr('stop-color', "#1a9850");
-
-
-    var peekCoords = [
-      [0, 0],
-      [0, peekWidth],
-      [3 * peekWidth/4, peekWidth],
-      [3 * peekWidth/4, 265 - peekWidth],
-      [0, 265 - peekWidth],
-      [0, 265],
-      [peekWidth, 265],
-      [peekWidth, 0]
-    ];
-
-    // draw arrow background
-    this.legend.svg
-      .append("path")
-      .attr("class", "peekBar")
-      .attr("d", "M " + peekCoords.map(el => el.join(",")).join("L") + "Z")
-      .style("opacity", 0.25);
-
-    // draw arrows to pull out and push in
-    this.legend.svg
-      .append("path")
-      .attr("class", "arrow1")
-      .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (3 * peekWidth / 4) + ") rotate(180)")
-      .attr("d", "M 0 0 L " + (peekWidth/3) + " " + (peekWidth/4) + " L 0 " + (peekWidth/2) + " Z")
-      .style("fill", "white");
-
-    this.legend.svg
-      .append("path")
-      .attr("class", "arrow2")
-      .attr("transform", "translate(" + (2 * peekWidth/3) + "," + (265 - peekWidth/4) + ") rotate(180)")
-      .attr("d", "M 0 0 L " + (peekWidth/3) + " " + (peekWidth/4) + " L 0 " + (peekWidth/2) + " Z")
-      .style("fill", "white");
-
-    // now make legend in this section
-    var margin = {
-      left: peekWidth + 2,
-      right: peekWidth + 2,
-      top: peekWidth + 2,
-      bottom: peekWidth + 2
-    };
-
-    // legend title
-    this.legend.svg.append("text")
-      .attr("class", "legendTitle")
-      .text("Legend")
-      .attr("x", 183/2)
-      .attr("y", 20)
-      .style("font-size", "14px")
-      .style("fill", "white")
-      .style("text-anchor", "middle")
-      .style("font-weight", "bold");
-
-    // node size scale
-    var hitsDomain = this.legend.nodeSizeDomain;
-    var radiusRange = this.legend.nodeSizeRange;
-    var nodeCircleTop = 25 + radiusRange[1];
-
-    var backgroundCoords = [
-      [(margin.left + radiusRange[0]), nodeCircleTop + radiusRange[1]],
-      [183 - margin.right - radiusRange[1], nodeCircleTop + radiusRange[1]],
-      [183 - margin.right - radiusRange[1], nodeCircleTop - radiusRange[1]],
-      [(margin.left + radiusRange[0]), nodeCircleTop + radiusRange[1] - 2*radiusRange[0]]
-    ];
-
-    nodeSizeGroup = this.legend.svg.append("g")
-      .attr("class", "legendNodeSizeG")
-      .attr("transform", "translate(0, 22)");
-
-    nodeSizeGroup.append("text")
-      .attr("class", "legendNodeSize")
-      .text("Rule # Hits")
-      .attr("x", 183/2)
-      .attr("y", 20)
-      .style("fill", "white")
-      .style("font-size", "12px")
-      .style("text-anchor", "middle");
-
-    // background of circles
-    nodeSizeGroup.append("path")
-      .attr("class", "legendNodeSize")
-      .attr("d", "M " + backgroundCoords.map(c => c.join(",")).join("L") + "Z")
-      .style("stroke", "white")
-      .style("fill", Object.keys(self.colorPalette)[1])
-      .style("opacity", 0.25);
-
-    // left circle
-    nodeSizeGroup.append("circle")
-      .attr("class", "legendNodeSize")
-      .attr("cx", margin.left + radiusRange[0])
-      .attr("cy", nodeCircleTop + radiusRange[1] - radiusRange[0])
-      .attr("r", radiusRange[0])
-      .style("fill", Object.keys(self.colorPalette)[1])
-      .style("stroke", "white");
-
-    // right circle
-    nodeSizeGroup.append("circle")
-      .attr("class", "legendNodeSize")
-      .attr("cx", 183 - margin.right - radiusRange[1])
-      .attr("cy", nodeCircleTop)
-      .attr("r", radiusRange[1])
-      .style("fill", Object.keys(self.colorPalette)[1])
-      .style("stroke", "white");
-
-     // left label
-     nodeSizeGroup.append("text")
-      .attr("class", "legendNodeSize")
-      .text(hitsDomain[0])
-      .attr("x", margin.left)
-      .attr("y", nodeCircleTop + radiusRange[1] + 12)
-      .style("fill", "white")
-      .style("font-size", "10px")
-      .style("text-anchor", "start");
-
-     // right label
-     nodeSizeGroup.append("text")
-      .attr("class", "legendNodeSize")
-      .text(hitsDomain[1])
-      .attr("x", 183 - margin.right)
-      .attr("y", nodeCircleTop + radiusRange[1] + 12)
-      .style("fill", "white")
-      .style("font-size", "10px")
-      .style("text-anchor", "end");
-
-
-    // node coloring
-    var numNodeCircles = 6;
-    var nodeCircleMargin = 7;
-    var nodeCircleSpacing = (183 - margin.left - margin.right) / numNodeCircles;
-    var nodeCircleRadius = (183 - margin.left - margin.right - (nodeCircleMargin * (numNodeCircles - 1))) / (2 * numNodeCircles);
-
-    var nodeColorGroup = this.legend.svg.append("g")
-      .attr("class", "legendNodeColorG")
-      .attr("transform", "translate(0, 88)");
-
-    nodeColorGroup.append("text")
-      .text("Rule Cluster")
-      .attr("x", 183/2)
-      .attr("y", 20)
-      .style("fill", "white")
-      .style("font-size", "12px")
-      .style("text-anchor", "middle");
-
-    nodeColorGroup.selectAll(".legendNodeColor")
-      .data(d3.range(numNodeCircles))
-    .enter().append("circle")
-      .attr("class", "legendNodeColor")
-      .attr("cx", (d, i) => margin.left + (i * nodeCircleSpacing) + nodeCircleRadius)
-      .attr("cy", nodeCircleTop)
-      .attr("r", nodeCircleRadius)
-      .style("fill", (d, i) => Object.keys(self.colorPalette)[i])
-      .style("stroke", "white");
-
-    // link color/direction
-    var linkColorGroup = this.legend.svg.append("g")
-      .attr("class", "legendLinkColorG")
-      .attr("transform", "translate(0, 146)");
-
-    linkColorGroup.append("text")
-      .attr("class", "legendLinkColor")
-      .text("Link Color")
-      .attr("x", 183/2)
-      .attr("y", 20)
-      .style("fill", "white")
-      .style("font-size", "12px")
-      .style("text-anchor", "middle");
-
-    // positive
-    linkColorGroup.append("rect")
-      .attr("class", "legendLinkColor")
-      .attr("x", (margin.left + 10))
-      .attr("y", 27)
-      .attr("width", (183-margin.right-margin.left-10))
-      .attr("height", 5)
-      .style("fill", "url(#greenLgd)");
-
-    linkColorGroup.append("text")
-      .attr("class", "legendLinkColor")
-      .text("+")
-      .attr("x", margin.left + 5)
-      .attr("y", 35)
-      .style("fill", "white")
-      .style("font-size", "12px")
-      .style("text-anchor", "middle");
-
-    // negative
-    linkColorGroup.append("rect")
-      .attr("class", "legendLinkColor")
-      .attr("x", (margin.left + 10))
-      .attr("y", 39)
-      .attr("width", (183-margin.right-margin.left-10))
-      .attr("height", 5)
-      .style("fill", "url(#redLgd)");
-
-    linkColorGroup.append("text")
-      .attr("class", "legendLinkColor")
-      .text("-")
-      .attr("x", margin.left + 5)
-      .attr("y", 47)
-      .style("fill", "white")
-      .style("font-size", "12px")
-      .style("text-anchor", "middle");
-
-    // direction arrow
-    linkColorGroup.append("line")
-      .attr("class", "legendLinkDir")
-      .attr("x1", (margin.left + 10))
-      .attr("x2", (183-margin.right))
-      .attr("y1", 55)
-      .attr("y2", 55)
-      .style("stroke", "lightgray");
-
-    linkColorGroup.append("line")
-      .attr("class", "legendLinkDir")
-      .attr("x1", (183-margin.right - 5))
-      .attr("x2", (183-margin.right))
-      .attr("y1", 60)
-      .attr("y2", 55)
-      .style("stroke", "lightgray");
-
-    linkColorGroup.append("line")
-      .attr("class", "legendLinkDir")
-      .attr("x1", (183-margin.right - 5))
-      .attr("x2", (183-margin.right))
-      .attr("y1", 50)
-      .attr("y2", 55)
-      .style("stroke", "lightgray");
-
-    // link width
-    var linkSizeDomain = this.legend.linkSizeDomain;
-    var linkSizeRange = this.legend.linkSizeRange;
-    var linkTop = 25 + linkSizeRange[1];
-
-    var linkSizeCoords = [
-      [(margin.left + linkSizeRange[0]), linkTop + linkSizeRange[1]],
-      [183 - margin.right - linkSizeRange[1], linkTop + linkSizeRange[1]],
-      [183 - margin.right - linkSizeRange[1], linkTop - linkSizeRange[1]],
-      [(margin.left + linkSizeRange[0]), linkTop + linkSizeRange[1] - 2*linkSizeRange[0]]
-    ];
-
-    var linkSizeGroup = this.legend.svg.append("g")
-      .attr("class", "legendLinkSizeG")
-      .attr("transform", "translate(0, 204)");
-
-    linkSizeGroup.append("text")
-      .attr("class", "legendLinkSize")
-      .text("Link Influence")
-      .attr("x", 183/2)
-      .attr("y", 20)
-      .style("fill", "white")
-      .style("font-size", "12px")
-      .style("text-anchor", "middle");
-
-
-    linkSizeGroup.append("path")
-      .attr("class", "legendLinkSize")
-      .attr("d", "M " + linkSizeCoords.map(c => c.join(",")).join("L") + "Z")
-      .style("fill", "url(#greenLgd)")
-      // .style("fill", "#66bd63");
-
-
-    // left label
-     linkSizeGroup.append("text")
-      .attr("class", "legendNodeSize")
-      .text(linkSizeDomain[0])
-      .attr("x", margin.left)
-      .attr("y", linkTop + linkSizeRange[1] + 12)
-      .style("fill", "white")
-      .style("font-size", "10px")
-      .style("text-anchor", "start");
-
-     // right label
-     linkSizeGroup.append("text")
-      .attr("class", "legendNodeSize")
-      .text(linkSizeDomain[1])
-      .attr("x", 183 - margin.right)
-      .attr("y", linkTop + linkSizeRange[1] + 12)
-      .style("fill", "white")
-      .style("font-size", "10px")
-      .style("text-anchor", "end");
   }
 }

@@ -152,7 +152,6 @@ var App = App || {};
     App.panels.forceDirected.simulation.stop();
     App.panels.forceDirected.svg.selectAll('*').remove();
     App.panels.forceDirected.tip.remove();
-    App.panels.forceDirected.legend.container.remove();
 
     // remove line graphs
     d3.select('#topVis').selectAll('*').remove();
