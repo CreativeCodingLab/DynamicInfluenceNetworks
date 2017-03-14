@@ -12,6 +12,8 @@ function ForceDirectedGraph(args) {
 
   this.maxInfl = Math.abs(sortedLinks[0].value);
 
+  this.paintingManager = new PaintingManager();
+
   this.legend = {};
 
   this.legend.nodeSizeDomain =
@@ -153,6 +155,7 @@ ForceDirectedGraph.prototype = {
     /* Initialize tooltip for nodes */
     this.tip = d3.select('#forceDirectedDiv').append('div').attr('id', 'tip');
   },
+
   resize:function() {
     var rect = this.svg.node().parentNode.getBoundingClientRect();
     if (rect.width && rect.height) {
@@ -445,12 +448,79 @@ ForceDirectedGraph.prototype = {
         clusters[0].push(data[n]);
       }
     }
+
     clusters.forEach((cluster,i) => {
         cluster.forEach(n => {
           n.cluster = i;
         });
         cluster.sort((a,b) => b.hits - a.hits);
       });
+
+    // integrate painted clusters into master list
+    let self = this;
+
+    // if we will view painted clusters
+    if (this.paintingManager.isInPaintingMode()) {
+
+      if (this.paintingManager.isOverridingExistingClusters() ){
+        // remove painted nodes from calculated clusters
+        let reducedClusters =
+        _.map(clusters, function(c, i) {
+
+          let reduced = _.map(c);
+
+          _.forEach(self.paintingManager.getPaintedClusters(), function(pc) {
+              reduced = _.differenceBy(reduced, pc, 'name');
+          });
+
+          return reduced;
+
+          // return _.uniqBy(reduced, 'name');
+        });
+
+        // assign new cluster numbers for painted clusters
+        _.forEach(self.paintingManager.getPaintedClusters(), function (pc, i) {
+          _.forEach(pc, function(node) {
+            node.cluster = node.paintedCluster + reducedClusters.length;
+          });
+        });
+
+        clusters = _.concat(reducedClusters, self.paintingManager.getPaintedClusters());
+
+      } else {
+        // remove calculated clustered nodes from painted clusters
+        // remove painted nodes from calculated clusters
+
+        // note: nodes still need to be removed from the '0' cluster
+        let unclusteredReducedSet = _.map(clusters[0]);
+
+        _.forEach(self.paintingManager.getPaintedClusters(), function(pc) {
+            unclusteredReducedSet = _.differenceBy(unclusteredReducedSet, pc, 'name');
+        });
+        clusters[0] = unclusteredReducedSet;
+
+        let reducedClusters =
+        _.map(self.paintingManager.getPaintedClusters(), function(pc) {
+          let reduced = _.map(pc);
+
+          _.forEach(_.drop(clusters), function(c) {
+            reduced = _.differenceBy(reduced, c, 'name');
+              // reduced = _.concat(reduced, _.differenceBy(pc, c, 'name'));
+          });
+
+          return reduced;
+        });
+
+        // assign new cluster numbers for painted clusters
+        _.forEach(reducedClusters, function (c, i) {
+          _.forEach(c, function(node) {
+            node.cluster = node.paintedCluster + clusters.length;
+          });
+        });
+
+        clusters = _.concat(clusters, reducedClusters);
+      }
+    }
 
     let newColors = new Array(clusters.length);
     let similarities = new Array(clusters.length);
@@ -509,6 +579,7 @@ ForceDirectedGraph.prototype = {
     }
     this.clusterColors = newColors;
     this.clusters = clusters;
+
     if (this.simulation && alpha !== 0) {
       this.simulation.alpha(alpha || 0.15).restart();
     }
@@ -770,10 +841,21 @@ ForceDirectedGraph.prototype = {
 
       })
       .on('click', function(d) {
-        d3.select(this)
+        // if painting mode, add node to paintedClusters
+        if (self.paintingManager.isPaintingCluster()) {
+          self.paintingManager.addNodeToPaintingCluster(d);
+
+
+          self.defineClusters();
+          self.drawClusters();
+          // console.log("added to painting cluster", self.paintingManager.getCurrentClusterNumber());
+        } else {
+          d3.select(this)
           .style("fill", (d) => self.clusterColor(d.cluster))
           .style("stroke", "white");
-        d.fx = d.fy = null;
+          d.fx = d.fy = null;
+        }
+
       })
       .call(drag);
 
@@ -966,9 +1048,19 @@ ForceDirectedGraph.prototype = {
           })
       }
 
-      node.style("fill", (d,i,el) => {
-            return (d3.select(el[i]).classed('rule-text')) ?
+      node.style("fill", function(d) {
+            return (d3.select(this).classed('rule-text') || d.isPainted) ?
               'white' : self.clusterColor(d.cluster);
+          })
+          .style("stroke", function(d) {
+            return d.isPainted ? self.clusterColor(d.cluster) :
+              d._fixed ? "#404040" : "white";
+          })
+          .style("stroke-width", function(d) {
+            return d.isPainted ? 3 : 1.5;
+          })
+          .style("stroke-opacity", function(d) {
+            return d.isPainted ? 1 : 0.5;
           })
           .attr("transform", (d,i,el) => {
             return (d3.select(el[i]).classed('rule-text')) ?
@@ -999,7 +1091,7 @@ ForceDirectedGraph.prototype = {
         .attr("cx", (d) => {
           var ext = d3.extent(d, node => node.x);
           if (isNaN(ext[0])  || isNaN(ext[1])) {
-            console.log(d);
+              // console.log(d);
           }
 
           return (ext[1] + ext[0]) / 2;
@@ -1007,7 +1099,7 @@ ForceDirectedGraph.prototype = {
         .attr("cy", (d) => {
           var ext = d3.extent(d, node => node.y);
           if (isNaN(ext[0])  || isNaN(ext[1])) {
-            console.log(d);
+            // console.log(d);
           }
 
           return (ext[1] + ext[0]) / 2;
@@ -1024,7 +1116,7 @@ ForceDirectedGraph.prototype = {
           });
 
           if (isNaN(radius)) {
-            console.log(d);
+            // console.log(d);
           }
 
           return radius + circlePadding;
