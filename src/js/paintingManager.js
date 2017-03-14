@@ -53,7 +53,7 @@ const PaintingManager = function(graph) {
     graph.drawGraph();
 
     if (self.isPaintingCluster) {
-      self.startPaintingNewCluster();
+      startPaintingNewCluster();
     }
   }
 
