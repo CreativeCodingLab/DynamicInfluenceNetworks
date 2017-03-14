@@ -1,7 +1,7 @@
 const PaintingManager = function() {
   let self = {
     inPaintingMode: true,
-    overrideExistingClusters: true,
+    overrideExistingClusters: false,
 
     isPaintingCluster: false,
     currentClusterNumber: -1,
@@ -12,7 +12,10 @@ const PaintingManager = function() {
 
   function startPaintingNewCluster() {
     self.isPaintingCluster = true;
-    self.currentClusterNumber++;
+
+    // get rid of any empty clusters
+    self.paintedClusters = _.filter(self.paintedClusters, el => el.length);
+    self.currentClusterNumber = self.paintedClusters.length;
 
     self.paintedClusters.push([]);
   }
@@ -43,6 +46,8 @@ const PaintingManager = function() {
       });
     });
 
+    self.currentClusterNumber = -1;
+
     self.paintedClusters = [];
   }
 
@@ -57,6 +62,10 @@ const PaintingManager = function() {
 
   function isPaintingCluster() {
     return self.isPaintingCluster;
+  }
+
+  function setOverrideExistingClusters(override) {
+    self.overrideExistingClusters = override;
   }
 
   function isOverridingExistingClusters() {
@@ -85,7 +94,9 @@ const PaintingManager = function() {
     isInPaintingMode: isInPaintingMode,
 
     isPaintingCluster: isPaintingCluster,
+
     isOverridingExistingClusters: isOverridingExistingClusters,
+    setOverrideExistingClusters: setOverrideExistingClusters,
 
     getCurrentClusterNumber: getCurrentClusterNumber,
 

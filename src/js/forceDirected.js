@@ -155,6 +155,7 @@ ForceDirectedGraph.prototype = {
     /* Initialize tooltip for nodes */
     this.tip = d3.select('#forceDirectedDiv').append('div').attr('id', 'tip');
   },
+
   resize:function() {
     var rect = this.svg.node().parentNode.getBoundingClientRect();
     if (rect.width && rect.height) {
@@ -447,6 +448,7 @@ ForceDirectedGraph.prototype = {
         clusters[0].push(data[n]);
       }
     }
+
     clusters.forEach((cluster,i) => {
         cluster.forEach(n => {
           n.cluster = i;
@@ -459,19 +461,23 @@ ForceDirectedGraph.prototype = {
 
     // if we will view painted clusters
     if (this.paintingManager.isInPaintingMode()) {
-      let keptClusters;
 
       if (this.paintingManager.isOverridingExistingClusters() ){
         // remove painted nodes from calculated clusters
         let reducedClusters =
-        _.map(clusters, function(c) {
-          let reduced = _.map(c, _.clone);
+        _.map(clusters, function(c, i) {
+
+          let reduced = _.map(c);
+
           _.forEach(self.paintingManager.getPaintedClusters(), function(pc) {
-              reduced = _.concat(reduced, _.differenceBy(c, pc, 'name'));
+              reduced = _.differenceBy(reduced, pc, 'name');
           });
 
-          return _.uniqBy(reduced, 'name');
+          return reduced;
+
+          // return _.uniqBy(reduced, 'name');
         });
+
         // assign new cluster numbers for painted clusters
         _.forEach(self.paintingManager.getPaintedClusters(), function (pc, i) {
           _.forEach(pc, function(node) {
@@ -481,24 +487,40 @@ ForceDirectedGraph.prototype = {
 
         clusters = _.concat(reducedClusters, self.paintingManager.getPaintedClusters());
 
-
       } else {
         // remove calculated clustered nodes from painted clusters
         // remove painted nodes from calculated clusters
+
+        // note: nodes still need to be removed from the '0' cluster
+        let unclusteredReducedSet = _.map(clusters[0]);
+
+        _.forEach(self.paintingManager.getPaintedClusters(), function(pc) {
+            unclusteredReducedSet = _.differenceBy(unclusteredReducedSet, pc, 'name');
+        });
+        clusters[0] = unclusteredReducedSet;
+
         let reducedClusters =
         _.map(self.paintingManager.getPaintedClusters(), function(pc) {
-          let reduced = [];
-          _.forEach(clusters, function(c) {
-              reduced = _.concat(reduced, _.differenceBy(pc, c, 'name'));
+          let reduced = _.map(pc);
+
+          _.forEach(_.drop(clusters), function(c) {
+            reduced = _.differenceBy(reduced, c, 'name');
+              // reduced = _.concat(reduced, _.differenceBy(pc, c, 'name'));
           });
 
-          return _.uniqBy(reduced, 'name');
+          return reduced;
         });
+
+        // assign new cluster numbers for painted clusters
+        _.forEach(reducedClusters, function (c, i) {
+          _.forEach(c, function(node) {
+            node.cluster = node.paintedCluster + clusters.length;
+          });
+        });
+
         clusters = _.concat(clusters, reducedClusters);
       }
     }
-
-
 
     let newColors = new Array(clusters.length);
     let similarities = new Array(clusters.length);
@@ -822,7 +844,11 @@ ForceDirectedGraph.prototype = {
         // if painting mode, add node to paintedClusters
         if (self.paintingManager.isPaintingCluster()) {
           self.paintingManager.addNodeToPaintingCluster(d);
-          console.log("added to painting cluster", self.paintingManager.getCurrentClusterNumber());
+
+
+          self.defineClusters();
+          self.drawClusters();
+          // console.log("added to painting cluster", self.paintingManager.getCurrentClusterNumber());
         } else {
           d3.select(this)
           .style("fill", (d) => self.clusterColor(d.cluster))
@@ -1065,7 +1091,7 @@ ForceDirectedGraph.prototype = {
         .attr("cx", (d) => {
           var ext = d3.extent(d, node => node.x);
           if (isNaN(ext[0])  || isNaN(ext[1])) {
-              console.log(d);
+              // console.log(d);
           }
 
           return (ext[1] + ext[0]) / 2;
