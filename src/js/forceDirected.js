@@ -842,10 +842,7 @@ ForceDirectedGraph.prototype = {
       .style('font-size', App.property.labelFontSize)
       .style('opacity', function(d) {
         if (App.property.label == true) {
-          if (App.property.node == true && d.cluster === 0) {
-            return 0;
-          }
-          return 0.9;
+          return (App.property.node == true && d.cluster === 0) ? 0 : 1;
         }
         else {
           return 0;
@@ -1010,11 +1007,12 @@ ForceDirectedGraph.prototype = {
             d.x = clampX(d.x);
             d.y = clampY(d.y);
             return d;
-          })
+          });
       }
 
-      node.style("fill", function(d) {
-            return (d3.select(this).classed('rule-text') || d.isPainted) ?
+      node.filter('.rule-node')
+          .style("fill", function(d) {
+            return d.isPainted ? 
               'white' : self.clusterColor(d.cluster);
           })
           .style("stroke", function(d) {
@@ -1026,8 +1024,9 @@ ForceDirectedGraph.prototype = {
           })
           .style("stroke-opacity", function(d) {
             return d.isPainted ? 1 : 0.5;
-          })
-          .attr("transform", (d,i,el) => {
+          });
+
+      node.attr("transform", (d,i,el) => {
             return (d3.select(el[i]).classed('rule-text')) ?
               "translate(" + (d.x+d.radius+2) + "," + (d.y-d.radius) + ")" :
               "translate(" + d.x + "," + d.y + ")";

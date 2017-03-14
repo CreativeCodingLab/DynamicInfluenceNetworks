@@ -45,7 +45,7 @@ function Toolbar(App) {
           if (App.property.node == true && d.cluster === 0) {
             return 0;
           }
-          return 0.9;
+          return 1;
         })
     }
     else {

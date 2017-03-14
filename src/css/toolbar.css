@@ -238,7 +238,7 @@ input[type="checkbox"]:checked + label[for="show-labels"]:before {
 .ui-theme .theme-color {
   width:2.5vmin;
   height:3vmin;
-  margin:0 0.5vmin;
+  margin:0 0.5vmin 0.5vmin;
   display:inline-block;
   position:relative;
 }
