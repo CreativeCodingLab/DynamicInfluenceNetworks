@@ -6,8 +6,6 @@ const PaintingManager = function() {
     isPaintingCluster: false,
     currentClusterNumber: -1,
     paintedClusters: [],
-
-    paintedClusterColors: ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf']
   };
 
   function startPaintingNewCluster() {
@@ -80,10 +78,6 @@ const PaintingManager = function() {
     return self.paintedClusters;
   }
 
-  function getClusterColor(clusterNumber) {
-    return self.paintedClusterColors[clusterNumber % self.paintedClusterColors.length];
-  }
-
   return {
     startPaintingNewCluster: startPaintingNewCluster,
     addNodeToPaintingCluster: addNodeToPaintingCluster,
@@ -100,7 +94,6 @@ const PaintingManager = function() {
 
     getCurrentClusterNumber: getCurrentClusterNumber,
 
-    getPaintedClusters: getPaintedClusters,
-    getClusterColor: getClusterColor
+    getPaintedClusters: getPaintedClusters
   };
 };
