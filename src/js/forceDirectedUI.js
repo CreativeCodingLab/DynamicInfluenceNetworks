@@ -1,17 +1,38 @@
 function Toolbar(App) {
   App.property = {
-    sci: false,
-    label: false,
-    labelFontSize:14,
-    green: true,
-    red: true
+    sci: document.getElementById('sci').checked,
+    label: document.getElementById('show-labels').checked,
+    labelFontSize: 8 + 0.12 * document.getElementById('label-size-slider').value,
+    green: document.getElementById('hide-positive').checked,
+    red: document.getElementById('hide-negative').checked
   };
 
   // --- toolbar --- //
   // open toolbar
-  document.getElementById('toolbar-close').onclick = function() {
-    document.getElementById('toolbar').classList.toggle('closed');
-  };
+  document.addEventListener('click', function(e) {
+    var target = e.target;
+    switch (target.nodeName.toLowerCase()) {
+      case 'h4':
+        target = target.parentNode;
+        if (target.classList.contains('active') && target.classList.contains('ui')) {
+          target.classList.remove('active');
+          break;
+        }
+      case 'span':
+        if (target.classList.contains('ui')) {
+          document.querySelectorAll('.ui.active').forEach(el => el.classList.remove('active'));
+          target.classList.add('active');
+          break;
+        }
+      default:
+        while (target !== document.body) {
+          target = target.parentNode;
+          if (target.id === 'toolbar') { return; }
+        }
+        document.querySelectorAll('.ui.active').forEach(el => el.classList.remove('active'));
+        break;
+    }
+  });
 
   // navigate toolbar
   var dx = 0;
@@ -149,9 +170,9 @@ function Toolbar(App) {
         ]
       };
     d3.select('.theme-color.neg')
-      .style('background-image', 'linear-gradient(to top,' + theme.red.join(',') + ')');
+      .style('background-image', 'linear-gradient(to right,' + theme.red.join(',') + ')');
     d3.select('.theme-color.neg')
-      .style('background-image', 'linear-gradient(to top,' + theme.green.join(',') + ')');
+      .style('background-image', 'linear-gradient(to right,' + theme.green.join(',') + ')');
     d3.selectAll('#redLeft stop')
       .attr('stop-color', (d,i) => theme.red[i]);
     d3.selectAll('#greenLeft stop')
