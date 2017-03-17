@@ -266,7 +266,7 @@ ForceDirectedGraph.prototype = {
           sp.append('span')
           .text(num)
           .style('color', function() {
-              return num < 0 ? '#f66' : '#4c4';
+              return flux.flux < 0 ? '#f66' : '#4c4';
             });
         })
 
@@ -299,7 +299,7 @@ ForceDirectedGraph.prototype = {
           sp.append('span')
           .text(num)
           .style('color', function() {
-              return num < 0 ? '#f66' : '#4c4';
+              return flux.flux < 0 ? '#f66' : '#4c4';
             });
         })
 

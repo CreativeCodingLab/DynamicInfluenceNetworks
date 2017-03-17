@@ -217,7 +217,7 @@ var App = App || {};
       this.setTitle('Influence > ' + inf.toPrecision(3));
 
       if (this.activeTab == 1) {
-        App.panels.forceDirected.visThreshold = inf;
+        inf === this.domain[0] ? App.panels.forceDirected.visThreshold = 0 : App.panels.forceDirected.visThreshold = inf;
         App.panels.forceDirected.updateEdgeVisibility();
       }
       else {
