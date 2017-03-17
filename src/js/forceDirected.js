@@ -923,8 +923,6 @@ ForceDirectedGraph.prototype = {
   },
 
   updateEdgeVisibility: function() {
-    var threshold = this.threshold;
-
     // link visibility
     d3.selectAll('.link-1')
       .style('stroke-opacity', (d) => {
