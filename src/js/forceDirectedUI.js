@@ -129,12 +129,32 @@ function Toolbar(App) {
 
   // paint clusters
   var lastPaintingColor = null;
-  document.getElementById('paint-start').onchange = function() {
-    // preset to default painting color
-    console.log(App.panels.forceDirected.paintingManager.getCurrentClusterNumber());
+  function setActiveColor(clusterNumber) {
+    console.log(App.panels.forceDirected.paintingManager.getPaintedClusters());
+    lastPaintingColor = clusterNumber;
+    var className = 'cs' + clusterNumber;
+    document.querySelectorAll('.cs').forEach(cs => {
+      cs.classList.toggle('active', cs.classList.contains(className));
+    });
 
+    App.panels.forceDirected.paintingManager.startPaintingNewCluster(/*lastPaintingColor*/);
+  }
+  document.getElementById('paint-start').onchange = function() {
+    document.getElementById('palette').classList.toggle('active', this.checked);
     if (this.checked) {
-      App.panels.forceDirected.paintingManager.startPaintingNewCluster();
+
+      // preset to default painting color
+      if (lastPaintingColor === null) {
+        if (App.panels.forceDirected.clusterColors) {
+          lastPaintingColor = d3.schemeCategory20.findIndex(c => App.panels.forceDirected.clusterColors.indexOf(c === -1));
+          if (lastPaintingColor === null) { lastPaintingColor = 19; }
+        }
+        else {
+          lastPaintingColor = d3.schemeCategory20[App.panels.forceDirected.clusters.length];
+        }
+      }
+
+      setActiveColor(lastPaintingColor);
     }
     else {
       App.panels.forceDirected.paintingManager.stopPaintingCluster();
@@ -143,6 +163,13 @@ function Toolbar(App) {
   document.getElementById('paint-reset').onclick = function() {
     App.panels.forceDirected.paintingManager.unPaintAllNodes();
   }
+
+  document.querySelectorAll('#palette .cs').forEach(cs => {
+    cs.onclick = function() {
+      var i = +this.className.match(/\d+/);
+      setActiveColor(i);
+    }
+  });
 
   // change colors
   document.getElementById('theme').onclick = function() {

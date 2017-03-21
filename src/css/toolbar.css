@@ -20,6 +20,13 @@
 
   font-size: 2vmin;
 
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+     -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                not supported by any browser */
+  -webkit-touch-callout: none; /* iOS Safari */
+   -khtml-user-select: none; /* Konqueror */
   pointer-events:none;
 }
 
@@ -272,15 +279,20 @@ input[type="checkbox"]:checked + label[for="hide-negative"]:before {
   width:100%;
 }
 
-.ui-mark button.cs {
+#toolbar button.cs {
   display:inline-block;
-  width: 2vmin;
-  height: 2vmin;
-  padding: 0.3vmin;
-  opacity:0.5;
+  border:0.4vmin solid transparent;
+  width: 2.3vmin;
+  height: 2.3vmin;
+  padding:0;
+  opacity:0.7;
 }
-.ui-mark button.cs.active, .ui-mark button.cs:hover {
+#toolbar button.cs:hover {
   opacity:1;
+}
+#toolbar button.cs.active {
+  opacity:1;
+  border-color:#444;
 }
 
 input[type="checkbox"] + label[for="paint-start"]:before {
@@ -307,8 +319,15 @@ input[type="checkbox"]:checked + label[for="paint-start"]:before {
 }
 
 #palette {
-  width:15vmin;
+  text-align: left;
+  width:21vmin;
   white-space: initial;
+  height:0;
+  overflow:hidden;
+}
+
+#palette.active {
+  height:100%;
 }
 
 /* color theme */
@@ -447,3 +466,31 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
 .cs17 { background-color: #dbdb8d; }
 .cs18 { background-color: #17becf; }
 .cs19 { background-color: #9edae5; }
+.cs20 { position:relative; }
+
+.cs20:after,
+.cs20.active:after {
+  border-color: transparent;
+}
+.cs20:after {
+  content: '';
+  border: 0.2vmin solid #f55;
+  display:block;
+  position:absolute;
+  width:1.95vmin;
+  height:1.95vmin;
+  top:0;
+  left:0;
+  margin-left:-0.3vmin;
+  margin-top:-0.3vmin;
+}
+.cs20:before {
+  content: '';
+  border-left: 0.2vmin solid #f55;
+  transform: rotate(45deg);
+  margin-top:-0.3vmin;
+  margin-left:0.5vmin;
+  padding:0;
+  height:3vmin;
+  display:block;
+}

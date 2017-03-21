@@ -8,14 +8,19 @@ const PaintingManager = function(graph) {
     paintedClusters: [],
   };
 
-  function startPaintingNewCluster() {
+  function startPaintingNewCluster(clusterNumber) {
     self.isPaintingCluster = true;
 
     // get rid of any empty clusters
     self.paintedClusters = _.filter(self.paintedClusters, el => el.length);
-    self.currentClusterNumber = self.paintedClusters.length;
 
-    self.paintedClusters.push([]);
+    if (isNaN(clusterNumber)) {
+      self.currentClusterNumber = self.paintedClusters.length;
+      self.paintedClusters.push([]);
+    }
+    else {
+      self.currentClusterNumber = clusterNumber;
+    }
   }
 
   function addNodeToPaintingCluster(node) {
