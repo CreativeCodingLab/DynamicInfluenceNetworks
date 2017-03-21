@@ -224,8 +224,8 @@ LineGraph.prototype = {
                     .tickFormat(d => {
                         d = Math.floor(d);
                         var data = App.dataset[d];
-                        if (data && data.timeWindow && data.timeWindow[1]) {
-                            return Number(data.timeWindow[1].toFixed(1));
+                        if (data && data.timeWindow && data.timeWindow[0]) {
+                            return Number(data.timeWindow[0].toFixed(1));
                         }
                         return d;
                     })
@@ -370,6 +370,7 @@ LineGraph.prototype = {
 
                 var offset = pt.x - this.margin.left;
                 var i = Math.round(this.x.invert(offset));
+                if (!d[i]) { return; }
                 var bbox = this.textbox.select('text')
                     .text(d[0].name + ': ' + (App.property.sci ?
                                     Number(d[i].flux.toPrecision(3)).toExponential() :
@@ -382,7 +383,7 @@ LineGraph.prototype = {
                 this.axisHelper
                     .attr('transform','translate('+pt.x+',0)')
                 .select('text')
-                    .text('t=' + Number(App.dataset[i].timeWindow[1].toFixed(3)))
+                    .text('t=' + Number(App.dataset[i].timeWindow[0].toFixed(3)))
                     .attr('transform',() => {
                         var y = this.margin.top;
                         if (pt.y < y + 30) { y += 30; }
@@ -400,6 +401,8 @@ LineGraph.prototype = {
                     .attr('y',bbox.y-2);
             })
             .on('mouseout', (d,i) => {
+              d3.selectAll('.link-1')
+                .interrupt();
               this.textbox
                 .style('display','none');
               this.axisHelper
