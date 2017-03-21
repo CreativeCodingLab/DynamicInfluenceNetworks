@@ -344,6 +344,7 @@ LineGraph.prototype = {
                   });                
               }
               links.style('stroke-opacity', j => {
+                if (!j.target) { console.log('WARNING: merge hover',j); return 0; }
                 if (this.outgoing) {
                     return (d[0].name === j.target.name &&
                             this.rule.name === j.source.name) ? 0.6 : 0;
@@ -401,8 +402,6 @@ LineGraph.prototype = {
                     .attr('y',bbox.y-2);
             })
             .on('mouseout', (d,i) => {
-              d3.selectAll('.link-1')
-                .interrupt();
               this.textbox
                 .style('display','none');
               this.axisHelper

@@ -925,6 +925,7 @@ ForceDirectedGraph.prototype = {
   updateEdgeVisibility: function() {
     // link visibility
     d3.selectAll('.link-1')
+      .interrupt()
       .style('stroke-opacity', (d) => {
         if( !App.property.green && d.value > 0 ) {
           return 0;
@@ -942,6 +943,7 @@ ForceDirectedGraph.prototype = {
 
     // mouseover functionality
     d3.selectAll('.link-2')
+      .interrupt()
       .attr('pointer-events', (d) => {
         if( !App.property.green && d.value > 0 ) {
           return 'none';
