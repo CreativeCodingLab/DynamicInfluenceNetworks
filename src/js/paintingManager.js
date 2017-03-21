@@ -28,6 +28,8 @@ const PaintingManager = function(graph) {
       node.paintedCluster = self.currentClusterNumber;
       node.isPainted = true;
 
+      console.log('adding node', node.paintedCluster, node);
+
       self.paintedClusters[self.currentClusterNumber].push(node);
       graph.defineClusters();
       graph.drawGraph();

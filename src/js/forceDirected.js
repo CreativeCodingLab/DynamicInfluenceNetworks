@@ -15,10 +15,10 @@ function ForceDirectedGraph(args) {
   this.paintingManager = new PaintingManager(this);
 
   // initialize color palette
-  let avaliableColors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a'];
+  let availableColors = ['#aec7e8','#ff7f0e','#ffbb78','#2ca02c','#98df8a','#d62728','#ff9896','#9467bd','#c5b0d5','#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
   this.colorPalette = {};
 
-  for (let color of avaliableColors) {
+  for (let color of availableColors) {
     this.colorPalette[color] = {
       inUse: false,
       currentClusterNumber: -1
@@ -1220,22 +1220,31 @@ ForceDirectedGraph.prototype = {
     if (data) { App.data = data; }
 
     // reprocess and cluster data
-    this.simulation.stop();
-    var oldData = this.filteredData;
+    this.oldData = this.oldData || {};
+    for (var key in this.filteredData) {
+      this.oldData[key] = this.filteredData[key];
+    }
+
     this.filterData(App.data);
 
     for (var key in this.filteredData) {
-      if (oldData[key]) {
-        this.filteredData[key].x = oldData[key].x;
-        this.filteredData[key].y = oldData[key].y;
-        this.filteredData[key].fx = oldData[key].fx;
-        this.filteredData[key].fy = oldData[key].fy;
+      var d = this.filteredData[key];
+      if (this.oldData[key]) {
+        d.x = this.oldData[key].x;
+        d.y = this.oldData[key].y;
+        d.fx = this.oldData[key].fx;
+        d.fy = this.oldData[key].fy;
+      }
+      else if (App.property.pin) {
+        d._fixed = true;
+        d.fx = d.fx || d.x;
+        d.fy = d.fy || d.y;
       }
     }
 
     this.maxInfl = d3.max(this.links, d => Math.abs(d.value));
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
-    this.simulation.alpha(0.001).restart();
+    this.simulation.alpha(0.1).restart();
   }
 }

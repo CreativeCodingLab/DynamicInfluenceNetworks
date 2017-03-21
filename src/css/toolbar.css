@@ -19,6 +19,12 @@
   color:#555;
 
   font-size: 2vmin;
+
+  pointer-events:none;
+}
+
+#toolbar > * {
+  pointer-events:auto;
 }
 
 #toolbar-nav-left, #toolbar-nav-right {
@@ -260,28 +266,50 @@ input[type="checkbox"]:checked + label[for="hide-negative"]:before {
   content: "\f06e";
 }
 
-/* pinning nodes */
-.ui-pin button {
-  width:50%;
-}
-
-/* marks */
+/* pinning and marking nodes */
 .ui-mark button {
   display:block;
-
   width:100%;
 }
-/*#paint-stop, #paint-new {
-  display:none;
-  width:50%;
+
+.ui-mark button.cs {
+  display:inline-block;
+  width: 2vmin;
+  height: 2vmin;
+  padding: 0.3vmin;
+  opacity:0.5;
+}
+.ui-mark button.cs.active, .ui-mark button.cs:hover {
+  opacity:1;
 }
 
-.ui-mark.active #paint-start {
-  display:none;
+input[type="checkbox"] + label[for="paint-start"]:before {
+  font-family:FontAwesome;
+  margin-left:-1.3vmin;
+  font-size:2.2vmin;
+  content: '\f044';
 }
-.ui-mark.active #paint-new, .ui-mark.active #paint-stop {
+input[type="checkbox"]:checked + label[for="paint-start"]:before {
+  font-family: FontAwesome;
+  font-size:2.2vmin;
+  content: '\f046';
+}
+#toolbar button#paint-reset {
+  border:none;
   display:inline;
-}*/
+  padding:0;
+  width:initial;
+  margin-left:2.8vmin;
+}
+#paint-reset:before {
+  font-family: FontAwesome;
+  content: '\f0e2';
+}
+
+#palette {
+  width:15vmin;
+  white-space: initial;
+}
 
 /* color theme */
 .ui-theme .theme-color {

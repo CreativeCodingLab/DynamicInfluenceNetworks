@@ -4,7 +4,8 @@ function Toolbar(App) {
     label: document.getElementById('show-labels').checked,
     labelFontSize: 8 + 0.12 * document.getElementById('label-size-slider').value,
     green: document.getElementById('hide-positive').checked,
-    red: document.getElementById('hide-negative').checked
+    red: document.getElementById('hide-negative').checked,
+    pin: false
   };
 
   // --- toolbar --- //
@@ -97,6 +98,7 @@ function Toolbar(App) {
 
   // pin and unpin nodes
   document.getElementById('unpin').onclick = function() {
+    App.property.pin = false;
     for (var node in App.panels.forceDirected.filteredData) {
         App.panels.forceDirected.filteredData[node]._fixed = false;
         App.panels.forceDirected.filteredData[node].fx = null;
@@ -113,6 +115,7 @@ function Toolbar(App) {
   };
 
   document.getElementById('pin').onclick = function() {
+    App.property.pin = true;
     for (var node in App.panels.forceDirected.filteredData) {
         App.panels.forceDirected.filteredData[node]._fixed = true;
         App.panels.forceDirected.filteredData[node].fx = App.panels.forceDirected.filteredData[node].x;
@@ -125,16 +128,17 @@ function Toolbar(App) {
   };
 
   // paint clusters
-  document.getElementById('paint-start').onclick = function() {
-    document.querySelector('.ui-mark').classList.add('active');
-    App.panels.forceDirected.paintingManager.startPaintingNewCluster();
-  }
-  document.getElementById('paint-stop').onclick = function() {
-    document.querySelector('.ui-mark').classList.remove('active');
-    App.panels.forceDirected.paintingManager.stopPaintingCluster();
-  }
-  document.getElementById('paint-new').onclick = function() {
-    App.panels.forceDirected.paintingManager.startPaintingNewCluster();
+  var lastPaintingColor = null;
+  document.getElementById('paint-start').onchange = function() {
+    // preset to default painting color
+    console.log(App.panels.forceDirected.paintingManager.getCurrentClusterNumber());
+
+    if (this.checked) {
+      App.panels.forceDirected.paintingManager.startPaintingNewCluster();
+    }
+    else {
+      App.panels.forceDirected.paintingManager.stopPaintingCluster();
+    }
   }
   document.getElementById('paint-reset').onclick = function() {
     App.panels.forceDirected.paintingManager.unPaintAllNodes();
