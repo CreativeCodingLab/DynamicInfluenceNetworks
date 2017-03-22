@@ -480,7 +480,7 @@ ForceDirectedGraph.prototype = {
         // assign new cluster numbers for painted clusters
         _.forEach(self.paintingManager.getPaintedClusters(), function (pc, i) {
           _.forEach(pc, function(node) {
-            node.cluster = node.paintedCluster + reducedClusters.length;
+            node.cluster = i + reducedClusters.length;
           });
         });
 
@@ -733,6 +733,8 @@ ForceDirectedGraph.prototype = {
     circles.exit().remove();
 
     circles.style("fill", (d) => {
+      console.log(d);
+
       return d[0].isPainted ? d[0].paintedCluster :
         d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
     })
