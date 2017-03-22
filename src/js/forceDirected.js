@@ -717,8 +717,8 @@ ForceDirectedGraph.prototype = {
   },
 
   drawClusters: function() {
-    // console.log("drawClusters");
-    let clusters = this.clusters.filter(c => c.length && !(c[0].isPainted && c.paintedCluster === undefined));
+    let clusters = this.clusters.filter(c => c.length && !(c[0].isPainted && c[0].paintedCluster === undefined));
+
     let filteredData = this.filteredData;
     var radiusScale = d3.scaleLinear()
       .domain(d3.extent(Object.keys(filteredData), (d) => {

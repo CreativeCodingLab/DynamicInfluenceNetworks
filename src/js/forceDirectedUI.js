@@ -136,7 +136,6 @@ function Toolbar(App) {
   // paint clusters
   var lastPaintingColor = null;
   function setActiveColor(clusterNumber) {
-    console.log(App.panels.forceDirected.paintingManager.getPaintedClusters());
     lastPaintingColor = clusterNumber;
     var className = 'cs' + clusterNumber;
     document.querySelectorAll('.cs').forEach(cs => {
