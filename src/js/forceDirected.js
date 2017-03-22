@@ -733,8 +733,6 @@ ForceDirectedGraph.prototype = {
     circles.exit().remove();
 
     circles.style("fill", (d) => {
-      console.log(d);
-
       return d[0].isPainted ? d[0].paintedCluster :
         d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
     })
@@ -747,10 +745,12 @@ ForceDirectedGraph.prototype = {
     .enter().append("circle")
       .attr("class", "clusterCircle")
       .style("fill", (d) => {
-        return d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
+        return d[0].isPainted ? d[0].paintedCluster :
+          d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
       })
       .style("stroke", (d) => {
-        return d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
+          return d[0].isPainted ? d[0].paintedCluster :
+            d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
       })
       .style("stroke-dasharray", "2, 2")
       .style("fill-opacity", 0.3)

@@ -42,9 +42,7 @@ const PaintingManager = function(graph) {
       node.isPainted = true;
 
       console.log('adding node', node.paintedCluster, node);
-
-      console.log(self.paintedClusters, self.currentPaintingCluster);
-
+      
       self.paintedClusters[self.currentPaintingCluster].push(node);
       graph.defineClusters();
       graph.drawGraph();
@@ -106,7 +104,7 @@ const PaintingManager = function(graph) {
   function getPaintedClusters() {
     return _.map(Object.keys(self.paintedClusters), function(color) {
       return self.paintedClusters[color];
-    })
+    });
   }
 
   return {
