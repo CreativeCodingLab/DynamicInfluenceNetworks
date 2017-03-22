@@ -49,7 +49,16 @@ function Slider(options) {
         .ticks(4)
         .tickSize(8);
 
-    if (!log) { this.axis.tickFormat(d => parseInt(App.format.start+d)); }
+    if (!log) {
+        this.axis.tickFormat(d => {
+            d = Math.floor(d);
+            var data = App.dataset[d];
+            if (data && data.timeWindow && data.timeWindow[0]) {
+                return Number(data.timeWindow[0].toFixed(1));
+            }
+            return d;
+        });
+    }
 
     this.svg.style("font-size", '13px');
 

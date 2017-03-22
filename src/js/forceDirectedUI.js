@@ -15,6 +15,12 @@ function Toolbar(App) {
     switch (target.nodeName.toLowerCase()) {
       case 'h4':
         target = target.parentNode;
+
+        if (target.id === 'help') {
+          target.classList.toggle('active');
+          break;
+        }
+
         if (target.classList.contains('active') && target.classList.contains('ui')) {
           target.classList.remove('active');
           break;
@@ -247,18 +253,34 @@ function Toolbar(App) {
 
     var file = files[0];
     if (file) {
+      d3.select('.ui-data')
+        .classed('error', false)
+        .classed('loading', true)
+        .classed('done', false);
+
       // check if file is zip or json
       if (file.type === 'application/zip') {
         d3.select('#filename')
-          .text('Reading file: ' +file.name);
+          .text(file.name);
         readZipFile(file);
       }
       else if (file.type === 'application/json') {
         d3.select('#filename')
-          .text('Reading file: ' +file.name);
+          .text(file.name);
         readJsonFile(file);
       }
     }
+  }
+
+  function FileException(err) {
+    d3.select('.ui-data')
+      .classed('error', true)
+      .classed('loading', false)
+      .classed('done', false);
+    d3.select('#filename')
+      .text(err.message);
+
+    this.error = err.error;
   }
 
   function readJsonFile(file) {
@@ -269,9 +291,10 @@ function Toolbar(App) {
         App.resetData([parsedJson]);
       }
       catch (err) {
-        d3.select('#filename')
-          .text('Error parsing file');
-        console.log('error parsing file', err)
+        throw new FileException({
+          message: "Error parsing file",
+          error: err
+        });
       }
     }
     fr.readAsText(file);
@@ -303,15 +326,17 @@ function Toolbar(App) {
               parseFiles(children);
           }
           else {
-            d3.select('#filename')
-              .text('Could not find a .json file');
-            console.log('no json files found');
+            throw new FileException({
+              message: "Could not find a .json file",
+              error: 'no json files found'
+            });
           }
 
       }, function(err) {
-          d3.select('#filename')
-            .text('Could not read zip file');
-          console.log('error',err);
+        throw new FileException({
+          message: "Could not read zip file",
+          error: err
+        });
       });
   }
 

@@ -107,6 +107,10 @@ var App = App || {};
   };
 
   App.handleData = function(dataset) {
+    d3.select('.ui-data')
+      .classed('error', false)
+      .classed('loading', false)
+      .classed('done', true);
     App.dataset = dataset.map(json => {
 
       var obj = {};

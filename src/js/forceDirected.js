@@ -878,29 +878,17 @@ ForceDirectedGraph.prototype = {
         else return 0.5;
       })
       .on('mouseover', this._isDragging ? null : function(d) {
-        d3.select('.node-to-graph')
-          .classed('node-to-graph',false);
-        d3.select(this)
-          .classed('node-to-graph',true);
         self.showTip(d, 'rule');
 
-        if (App.panels.topVis) { App.panels.topVis.updateRule(d); }
-        if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d); }
-
         self.linkGroup.selectAll('.link-1')
-          .transition()
-          .duration(400)
           .style('stroke-opacity',function() {
             var opacity = d3.select(this).style('stroke-opacity');
             return Math.min(0.4, opacity);
           });
 
-        var links = self.linkGroup.selectAll(".link-2").filter(function(link) {
+        self.linkGroup.selectAll(".link-2").filter(function(link) {
           return link.source.name === d.name;
-        });
-        links.raise();
-        links
-          .transition()
+        })
           .style('stroke-opacity', 0.6);
       })
       .on("mouseout", function() {
@@ -910,6 +898,15 @@ ForceDirectedGraph.prototype = {
           .style('stroke-opacity', 0).interrupt();
         self.hideTip();
 
+      })
+      .on('contextmenu', function(d) {
+        d3.event.preventDefault();
+        d3.select('.node-to-graph')
+          .classed('node-to-graph',false);
+        d3.select(this)
+          .classed('node-to-graph',true);
+        if (App.panels.topVis) { App.panels.topVis.updateRule(d); }
+        if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d); }
       })
       .on('click', function(d) {
         // if painting mode, add node to paintedClusters
@@ -1250,74 +1247,74 @@ ForceDirectedGraph.prototype = {
 
     // Initial clustering forces:
     function clustering(alpha) {
-        var clusters = self.clusters;
-        nodeArr.forEach(function(d) {
-          if (d.cluster > 0) {
-            var cluster = clusters[d.cluster][0];
-            if (cluster === d) return;
-            var x = d.x - cluster.x,
-                y = d.y - cluster.y,
+      var clusters = self.clusters;
+      nodeArr.forEach(function(d) {
+        if (d.cluster > 0) {
+          var cluster = clusters[d.cluster][0];
+          if (cluster === d) return;
+          var x = d.x - cluster.x,
+              y = d.y - cluster.y,
+              l = Math.sqrt(x * x + y * y),
+              r = d.radius + cluster.radius;
+          if (x === 0 && y === 0 || (isNaN(x) || isNaN(y))) return;
+          if (l !== r) {
+            l = (l - r) / l * alpha;
+            d.x -= x *= l;
+            d.y -= y *= l;
+            cluster.x += x;
+            cluster.y += y;
+          }
+        }
+      });
+    }
+
+    function collide(alpha) {
+      var padding = 30;
+      var clusterPadding = 50; // separation between different-color circles
+      var repulsion = 3;
+      var maxRadius = 100;
+      var quadtree = d3.quadtree()
+          .x((d) => d.x)
+          .y((d) => d.y)
+          .addAll(nodeArr);
+
+      nodeArr.forEach(function(d) {
+        if (d.cluster === 0) return;
+        var r = d.radius + maxRadius + Math.max(padding, clusterPadding),
+            nx1 = d.x - r,
+            nx2 = d.x + r,
+            ny1 = d.y - r,
+            ny2 = d.y + r;
+        quadtree.visit(function(quad, x1, y1, x2, y2) {
+          if (quad.data && (quad.data !== d)) {
+
+            var link = self.links.find(link => link.target == quad.data && link.source == d);
+            if (!link) { return;}
+
+            var x = d.x - quad.data.x,
+                y = d.y - quad.data.y,
                 l = Math.sqrt(x * x + y * y),
-                r = d.radius + cluster.radius;
-            if (x === 0 && y === 0 || (isNaN(x) || isNaN(y))) return;
-            if (l !== r) {
+                r = d.radius + quad.data.radius;
+
+            if (d.cluster === quad.data.cluster) {
+              r += (link.value < 0) ? padding*repulsion : padding;
+            }
+            else {
+              r += clusterPadding;
+            }
+
+            if (l < r && l > 0) {
               l = (l - r) / l * alpha;
               d.x -= x *= l;
               d.y -= y *= l;
-              cluster.x += x;
-              cluster.y += y;
+              quad.data.x += x;
+              quad.data.y += y;
             }
           }
+          return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
         });
+      });
     }
-
-      function collide(alpha) {
-        var padding = 30;
-        var clusterPadding = 50; // separation between different-color circles
-        var repulsion = 3;
-        var maxRadius = 100;
-        var quadtree = d3.quadtree()
-            .x((d) => d.x)
-            .y((d) => d.y)
-            .addAll(nodeArr);
-
-        nodeArr.forEach(function(d) {
-          if (d.cluster === 0) return;
-          var r = d.radius + maxRadius + Math.max(padding, clusterPadding),
-              nx1 = d.x - r,
-              nx2 = d.x + r,
-              ny1 = d.y - r,
-              ny2 = d.y + r;
-          quadtree.visit(function(quad, x1, y1, x2, y2) {
-            if (quad.data && (quad.data !== d)) {
-
-              var link = self.links.find(link => link.target == quad.data && link.source == d);
-              if (!link) { return;}
-
-              var x = d.x - quad.data.x,
-                  y = d.y - quad.data.y,
-                  l = Math.sqrt(x * x + y * y),
-                  r = d.radius + quad.data.radius;
-
-              if (d.cluster === quad.data.cluster) {
-                r += (link.value < 0) ? padding*repulsion : padding;
-              }
-              else {
-                r += clusterPadding;
-              }
-
-              if (l < r && l > 0) {
-                l = (l - r) / l * alpha;
-                d.x -= x *= l;
-                d.y -= y *= l;
-                quad.data.x += x;
-                quad.data.y += y;
-              }
-            }
-            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-          });
-        });
-      }
   }, // end createForceLayout
 
   // to be called externally: change the source data
