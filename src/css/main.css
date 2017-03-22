@@ -17,8 +17,52 @@ body {
   font-family: 'istok web','source sans', 'helvetica neue', helvetica, arial, sans-serif;
 }
 
-#toolbar {
+#help {
+  position:absolute;
+  z-index:1000;
+  top:0;
+  right:0;
+  padding:1vmin 2.1vmin;
+  font-size:1.8vmin;
+  font-weight:400;
+}
+#help h4 {
+  margin:0;
+  text-align: right;
+  cursor:pointer;
+  letter-spacing:0.05em;
+  text-transform: uppercase;
+}
+#help h4:after {
+  font-family:FontAwesome;
+  font-size:1.3em;
+  content:'\f059';
+}
+#help.active h4:after {
+  content:'\f00d';
+}
+
+#help > div {
+  background-color: #fdfdf9;
+  padding:2vmin;
+  border-radius:0.8vmin;
+  border:0.2vmin solid #dcb;
   display:none;
+  max-width:25vw;
+}
+
+#help.active > div {
+  display:block;
+}
+
+#help blockquote {
+  margin: 1.2em 0;
+  border-left: 0.2vmin dashed #aaa;
+  padding-left: 1.5vw;
+}
+
+#topVis {
+  margin-top: 3vmin;
 }
 
 .linegraph {
@@ -40,6 +84,7 @@ body {
   overflow:auto;
 
   width:30%;
+  height:100%;
   margin:0;
 
   border-left:1px solid #eee;
