@@ -364,8 +364,6 @@ ForceDirectedGraph.prototype = {
       }
     }
 
-    console.log(links);
-
     this.filteredData = filteredData,
     this.links = links;
   },
