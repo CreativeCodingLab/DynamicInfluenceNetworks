@@ -357,13 +357,7 @@ ForceDirectedGraph.prototype = {
         outf: data[key].outf.filter(l => l.flux !== 0)
       }
 
-      newNode.inf.forEach(l => {
-        links.push({
-          source: key,
-          target: l.name,
-          value: l.flux
-        });
-      })
+      links = _.concat(links, this.extractLinksFromNode(newNode, key));
 
       if (newNode.inf.length > 0 || newNode.outf.length > 0) {
         filteredData[key] = newNode;
@@ -372,6 +366,20 @@ ForceDirectedGraph.prototype = {
 
     this.filteredData = filteredData,
     this.links = links;
+  },
+
+  extractLinksFromNode: function(node, name) {
+    let nodeLinks = [];
+
+    node.inf.forEach(l => {
+      nodeLinks.push({
+        source: name,
+        target: l.name,
+        value: l.flux
+      });
+    });
+
+    return nodeLinks;
   },
 
   // cluster data based on threshold(s) of influence
@@ -385,13 +393,20 @@ ForceDirectedGraph.prototype = {
 
     var clusters = [];
     var data = this.filteredData;
+    var links;
+
+    if (this.clusteringGlobally) {
+      links = this.windowLinks;
+    } else {
+      links = this.links;
+    }
 
     // clear clusters
     for (var n in data) {
       data[n].cluster = undefined;
     }
 
-    this.links.forEach(link => {
+    links.forEach(link => {
       if (Math.abs(link.value) >= threshold) {
         var source = data[link.source] || link.source,
             target = data[link.target] || link.target,
@@ -601,8 +616,96 @@ ForceDirectedGraph.prototype = {
           return color;
         }
       }
-      return "#bababa"; // no more
+      return "#9e9e9e"; // no more
     }
+  },
+
+  // start and end time in terms of array index into App.dataset
+  averageInfluencesOverTime: function(start, end) {
+    let rules = {};
+
+    for (let rule of Object.keys(App.data)) {
+      // make sekeleton to aggregate influences
+      rules[rule] = {
+        inf: {}, // influence on other rules
+        outf: {} // influence of other rules on this
+      };
+    }
+
+    for (let time = start; time <= end; time++) {
+      for (let rule of Object.keys(App.dataset[time].data)) {
+
+        // aggregate inf
+        for (let infRule of App.dataset[time].data[rule].inf) {
+          if (!rules[rule].inf[infRule.name]) {
+            rules[rule].inf[infRule.name] = 0;
+          }
+          rules[rule].inf[infRule.name] += infRule.flux;
+        }
+
+        // aggregate outf
+        for (let outfRule of App.dataset[time].data[rule].outf) {
+          if (!rules[rule].outf[outfRule.name]) {
+            rules[rule].outf[outfRule.name] = 0;
+          }
+          rules[rule].outf[outfRule.name] += outfRule.flux;
+        }
+
+      }
+    }
+
+    // average influences by amount of timesteps (end - start + 1)
+    let numTimesteps = end - start + 1;
+
+    for (let rule of Object.keys(rules)) {
+      // average inf
+      for (let infRule of Object.keys(rules[rule].inf)) {
+        rules[rule].inf[infRule] /= numTimesteps;
+      }
+
+      // average outf
+      for (let outfRule of Object.keys(rules[rule].outf)) {
+        rules[rule].outf[outfRule] /= numTimesteps;
+      }
+    }
+
+    this.windowRules = rules;
+    this.windowLinks = [];
+
+    for (let rule of Object.keys(rules)) {
+      let infArray = [];
+      let outfArray = [];
+
+      for (let infRule of Object.keys(rules[rule].inf)) {
+        if (rules[rule].inf[infRule] != 0) {
+          infArray.push({
+            name: infRule,
+            flux: rules[rule].inf[infRule]
+          });
+        }
+      }
+
+      for (let outfRule of Object.keys(rules[rule].outf)) {
+        if (rules[rule].outf[outfRule] != 0) {
+          outfArray.push({
+            name: outfRule,
+            flux: rules[rule].outf[outfRule]
+          });
+        }
+      }
+
+      let ruleWithInf = {
+        inf: infArray
+      };
+
+      this.windowLinks = _.concat(this.windowLinks, this.extractLinksFromNode(ruleWithInf, rule));
+    }
+
+    // return to stay a bit consistent
+    return {
+      links: this.windowLinks,
+      nodes: this.windowRules
+    };
   },
 
   // update function
@@ -1004,7 +1107,7 @@ ForceDirectedGraph.prototype = {
 
       node.filter('.rule-node')
           .style("fill", function(d) {
-            return d.isPainted ? 
+            return d.isPainted ?
               'white' : self.clusterColor(d.cluster);
           })
           .style("stroke", function(d) {
