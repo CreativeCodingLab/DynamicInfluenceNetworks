@@ -4,22 +4,30 @@ const PaintingManager = function(graph) {
     overrideExistingClusters: true,
 
     isPaintingCluster: false,
-    currentClusterNumber: -1,
-    paintedClusters: [],
+    currentPaintingCluster: -1,
+    paintedClusters: {},
+
+    paintingColors: d3.schemeCategory20
   };
 
   function startPaintingNewCluster(clusterNumber) {
     self.isPaintingCluster = true;
 
     // get rid of any empty clusters
-    self.paintedClusters = _.filter(self.paintedClusters, el => el.length);
+    self.paintedClusters = _.pickBy(self.paintedClusters, function(l) {
+      return l.length > 0;
+    });
 
     if (isNaN(clusterNumber)) {
-      self.currentClusterNumber = self.paintedClusters.length;
-      self.paintedClusters.push([]);
+      self.currentPaintingCluster = getColor(Object.keys(self.paintedClusters).length);
+
     }
     else {
-      self.currentClusterNumber = clusterNumber;
+      self.currentPaintingCluster = getColor(clusterNumber);
+    }
+
+    if (!self.paintedClusters[self.currentPaintingCluster]) {
+      self.paintedClusters[self.currentPaintingCluster] = [];
     }
   }
 
@@ -30,12 +38,14 @@ const PaintingManager = function(graph) {
           return n.name === node.name;
         });
       }
-      node.paintedCluster = self.currentClusterNumber;
+      node.paintedCluster = self.currentPaintingCluster;
       node.isPainted = true;
 
       console.log('adding node', node.paintedCluster, node);
 
-      self.paintedClusters[self.currentClusterNumber].push(node);
+      console.log(self.paintedClusters, self.currentPaintingCluster);
+
+      self.paintedClusters[self.currentPaintingCluster].push(node);
       graph.defineClusters();
       graph.drawGraph();
     }
@@ -53,7 +63,7 @@ const PaintingManager = function(graph) {
       });
     });
 
-    self.currentClusterNumber = -1;
+    self.currentPaintingCluster = -1;
 
     self.paintedClusters = [];
     graph.defineClusters();
@@ -62,6 +72,10 @@ const PaintingManager = function(graph) {
     if (self.isPaintingCluster) {
       startPaintingNewCluster();
     }
+  }
+
+  function getColor(index) {
+    return self.paintingColors[index];
   }
 
   /* ========================= GETTERS && SETTERS =========================== */
@@ -85,12 +99,14 @@ const PaintingManager = function(graph) {
     return self.overrideExistingClusters;
   }
 
-  function getCurrentClusterNumber() {
-    return self.currentClusterNumber;
+  function getCurrentPaintingCluster() {
+    return self.currentPaintingCluster;
   }
 
   function getPaintedClusters() {
-    return self.paintedClusters;
+    return _.map(Object.keys(self.paintedClusters), function(color) {
+      return self.paintedClusters[color];
+    })
   }
 
   return {
@@ -107,7 +123,7 @@ const PaintingManager = function(graph) {
     isOverridingExistingClusters: isOverridingExistingClusters,
     setOverrideExistingClusters: setOverrideExistingClusters,
 
-    getCurrentClusterNumber: getCurrentClusterNumber,
+    getCurrentPaintingCluster: getCurrentPaintingCluster,
 
     getPaintedClusters: getPaintedClusters
   };

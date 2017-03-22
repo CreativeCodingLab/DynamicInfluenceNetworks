@@ -513,7 +513,7 @@ ForceDirectedGraph.prototype = {
         // assign new cluster numbers for painted clusters
         _.forEach(reducedClusters, function (c, i) {
           _.forEach(c, function(node) {
-            node.cluster = node.paintedCluster + clusters.length;
+            node.cluster = i + clusters.length;
           });
         });
 
@@ -733,10 +733,12 @@ ForceDirectedGraph.prototype = {
     circles.exit().remove();
 
     circles.style("fill", (d) => {
-      return d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
+      return d[0].isPainted ? d[0].paintedCluster :
+        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
     })
     .style("stroke", (d) => {
-      return d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
+      return d[0].isPainted ? d[0].paintedCluster :
+        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
     });
 
     circles
@@ -1114,7 +1116,7 @@ ForceDirectedGraph.prototype = {
               'white' : self.clusterColor(d.cluster);
           })
           .style("stroke", function(d) {
-            return d.isPainted ? self.clusterColor(d.cluster) :
+            return d.isPainted ? d.paintedCluster :
               d._fixed ? "#404040" : "white";
           })
           .style("stroke-width", function(d) {

@@ -137,7 +137,7 @@ function Toolbar(App) {
       cs.classList.toggle('active', cs.classList.contains(className));
     });
 
-    App.panels.forceDirected.paintingManager.startPaintingNewCluster(/*lastPaintingColor*/);
+    App.panels.forceDirected.paintingManager.startPaintingNewCluster(lastPaintingColor);
   }
   document.getElementById('paint-start').onchange = function() {
     document.getElementById('palette').classList.toggle('active', this.checked);
