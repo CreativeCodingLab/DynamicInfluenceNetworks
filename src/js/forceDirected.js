@@ -719,6 +719,24 @@ ForceDirectedGraph.prototype = {
   drawClusters: function() {
     let clusters = this.clusters.filter(c => c.length && !(c[0].isPainted && c[0].paintedCluster === undefined));
 
+    // let clusters = this.clusters.filter(c => {
+    //   if (!c.length || (c[0].isPainted && c[0].paintedCluster === undefined)) {
+    //     return false;
+    //   }
+    //   let d = c[0];
+    //   if (d.paintedCluster && this.clusterColors) {
+    //     let existingClusterIndex = this.clusterColors.indexOf(d.paintedCluster);
+    //     if (existingClusterIndex > -1) {
+    //       this.clusters[existingClusterIndex] = this.clusters[existingClusterIndex].concat(c);
+    //       c.forEach(node => node.cluster = existingClusterIndex);
+    //       return false;
+    //     }
+    //   }
+    //   return true;
+    // })
+
+    // this.overriddenClusters = clusters;
+
     let filteredData = this.filteredData;
     var radiusScale = d3.scaleLinear()
       .domain(d3.extent(Object.keys(filteredData), (d) => {
@@ -1328,6 +1346,7 @@ ForceDirectedGraph.prototype = {
 
     this.filterData(App.data);
 
+    var paintedClusters = [];
     for (var key in this.filteredData) {
       var d = this.filteredData[key];
       if (this.oldData[key]) {
@@ -1335,8 +1354,11 @@ ForceDirectedGraph.prototype = {
         d.y = this.oldData[key].y;
         d.fx = this.oldData[key].fx;
         d.fy = this.oldData[key].fy;
-        d.isPainted = this.oldData[key].isPainted;
-        d.paintedCluster = this.oldData[key].paintedCluster;
+        if (this.oldData[key].isPainted) {
+          d.isPainted = true;
+          d.paintedCluster = this.oldData[key].paintedCluster;
+          paintedClusters.push(d);
+        }
       }
       else if (App.property.pin) {
         d._fixed = true;
@@ -1344,6 +1366,7 @@ ForceDirectedGraph.prototype = {
         d.fy = d.fy || d.y;
       }
     }
+    this.paintingManager.setPaintedClusters(paintedClusters);
 
     this.maxInfl = d3.max(this.links, d => Math.abs(d.value));
     this.defineClusters(this.threshold, 0);

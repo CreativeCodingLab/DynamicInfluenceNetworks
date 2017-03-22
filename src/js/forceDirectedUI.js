@@ -167,6 +167,11 @@ function Toolbar(App) {
   }
   document.getElementById('paint-reset').onclick = function() {
     App.panels.forceDirected.paintingManager.unPaintAllNodes();
+    App.panels.forceDirected.paintingManager.stopPaintingCluster();
+    var paintStart = document.getElementById('paint-start');
+    if (paintStart && paintStart.checked) {
+      paintStart.click();
+    }
   }
 
   document.querySelectorAll('#palette .cs').forEach(cs => {

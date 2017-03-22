@@ -105,6 +105,15 @@ const PaintingManager = function(graph) {
     });
   }
 
+  function setPaintedClusters(clusters) {
+    self.paintedClusters = {};
+
+    clusters.forEach(node => {
+      self.paintedClusters[node.paintedCluster] = self.paintedClusters[node.paintedCluster] || [];
+      self.paintedClusters[node.paintedCluster].push(node);
+    });
+  }
+
   return {
     startPaintingNewCluster: startPaintingNewCluster,
     addNodeToPaintingCluster: addNodeToPaintingCluster,
@@ -121,6 +130,7 @@ const PaintingManager = function(graph) {
 
     getCurrentPaintingCluster: getCurrentPaintingCluster,
 
-    getPaintedClusters: getPaintedClusters
+    getPaintedClusters: getPaintedClusters,
+    setPaintedClusters: setPaintedClusters
   };
 };
