@@ -350,7 +350,7 @@ input[type="checkbox"]:checked + label[for="paint-start"]:before {
 }
 
 /* color theme */
-.ui-theme .theme-color {
+.ui-legend .theme-color {
   position:relative;
 
   display:inline-block;
@@ -361,10 +361,10 @@ input[type="checkbox"]:checked + label[for="paint-start"]:before {
 
   vertical-align: middle;
 }
-.ui-theme .pos {
+.ui-legend .pos {
   background-image: linear-gradient(to right, #fee08b, #fdae61, #f46d43, #d73027);
 }
-.ui-theme .neg {
+.ui-legend .neg {
   background-image: linear-gradient(to right, #d9ef8b, #a6d96a, #66bd63, #1a9850);
 }
 

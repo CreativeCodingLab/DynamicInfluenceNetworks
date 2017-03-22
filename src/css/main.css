@@ -47,12 +47,15 @@ body {
   padding:2vmin;
   border-radius:0.8vmin;
   border:0.2vmin solid #dcb;
-  display:none;
+  transform:scaleY(0);
+  transform-origin:top;
+  transition:transform 200ms ease;
   max-width:25vw;
 }
 
 #help.active > div {
   display:block;
+  transform:scaleY(1);
 }
 
 #help blockquote {
@@ -61,7 +64,7 @@ body {
   padding-left: 1.5vw;
 }
 
-#topVis {
+#help+* {
   margin-top: 3vmin;
 }
 

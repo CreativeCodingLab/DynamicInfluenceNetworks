@@ -718,7 +718,7 @@ ForceDirectedGraph.prototype = {
 
   drawClusters: function() {
     // console.log("drawClusters");
-    let clusters = this.clusters.filter(c => c.length);
+    let clusters = this.clusters.filter(c => c.length && !(c[0].isPainted && c.paintedCluster === undefined));
     let filteredData = this.filteredData;
     var radiusScale = d3.scaleLinear()
       .domain(d3.extent(Object.keys(filteredData), (d) => {
@@ -728,30 +728,27 @@ ForceDirectedGraph.prototype = {
 
     var self = this;
 
+    function getFill(d) {
+      return d[0].isPainted ? d[0].paintedCluster :
+        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";      
+    }
+    function getStroke(d) {
+      return d[0].isPainted ? d[0].paintedCluster :
+        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";      
+    }
+
     var circles = this.clusterCircleGroup.selectAll(".clusterCircle").data(clusters);
 
     circles.exit().remove();
 
-    circles.style("fill", (d) => {
-      return d[0].isPainted ? d[0].paintedCluster :
-        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
-    })
-    .style("stroke", (d) => {
-      return d[0].isPainted ? d[0].paintedCluster :
-        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
-    });
-
     circles
-    .enter().append("circle")
+      .style("fill", getFill)
+      .style("stroke", getStroke);
+
+    circles.enter().append("circle")
       .attr("class", "clusterCircle")
-      .style("fill", (d) => {
-        return d[0].isPainted ? d[0].paintedCluster :
-          d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
-      })
-      .style("stroke", (d) => {
-          return d[0].isPainted ? d[0].paintedCluster :
-            d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
-      })
+      .style("fill", getFill)
+      .style("stroke", getStroke)
       .style("stroke-dasharray", "2, 2")
       .style("fill-opacity", 0.3)
       .call(d3.drag()
@@ -1251,21 +1248,21 @@ ForceDirectedGraph.prototype = {
     function clustering(alpha) {
       var clusters = self.clusters;
       nodeArr.forEach(function(d) {
-        if (d.cluster > 0) {
-          var cluster = clusters[d.cluster][0];
-          if (cluster === d) return;
-          var x = d.x - cluster.x,
-              y = d.y - cluster.y,
-              l = Math.sqrt(x * x + y * y),
-              r = d.radius + cluster.radius;
-          if (x === 0 && y === 0 || (isNaN(x) || isNaN(y))) return;
-          if (l !== r) {
-            l = (l - r) / l * alpha;
-            d.x -= x *= l;
-            d.y -= y *= l;
-            cluster.x += x;
-            cluster.y += y;
-          }
+        if (d.cluster === 0 || (d.isPainted && d.paintedCluster === undefined)) { return; }
+
+        var cluster = clusters[d.cluster][0];
+        if (cluster === d) return;
+        var x = d.x - cluster.x,
+            y = d.y - cluster.y,
+            l = Math.sqrt(x * x + y * y),
+            r = d.radius + cluster.radius;
+        if (x === 0 && y === 0 || (isNaN(x) || isNaN(y))) return;
+        if (l !== r) {
+          l = (l - r) / l * alpha;
+          d.x -= x *= l;
+          d.y -= y *= l;
+          cluster.x += x;
+          cluster.y += y;
         }
       });
     }
@@ -1281,7 +1278,7 @@ ForceDirectedGraph.prototype = {
           .addAll(nodeArr);
 
       nodeArr.forEach(function(d) {
-        if (d.cluster === 0) return;
+        if (d.cluster === 0 || (d.isPainted && d.paintedCluster === undefined)) { return; }
         var r = d.radius + maxRadius + Math.max(padding, clusterPadding),
             nx1 = d.x - r,
             nx2 = d.x + r,
@@ -1338,6 +1335,8 @@ ForceDirectedGraph.prototype = {
         d.y = this.oldData[key].y;
         d.fx = this.oldData[key].fx;
         d.fy = this.oldData[key].fy;
+        d.isPainted = this.oldData[key].isPainted;
+        d.paintedCluster = this.oldData[key].paintedCluster;
       }
       else if (App.property.pin) {
         d._fixed = true;
