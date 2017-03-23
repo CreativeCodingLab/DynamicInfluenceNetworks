@@ -107,6 +107,10 @@ body {
   height: 30vh;
 }
 
+.focusslider {
+  height: 10vh;
+}
+
 .mainCol {
   position:relative;
 
