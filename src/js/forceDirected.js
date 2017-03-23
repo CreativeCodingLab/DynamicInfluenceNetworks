@@ -907,6 +907,7 @@ ForceDirectedGraph.prototype = {
         d3.select('#linegraph-help').style('display','none');
         if (App.panels.topVis) { App.panels.topVis.updateRule(d); }
         if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d); }
+        if (App.panels.focusSlider) { App.panels.focusSlider.update(); }
       })
       .on('click', function(d) {
         // if painting mode, add node to paintedClusters

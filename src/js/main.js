@@ -56,6 +56,7 @@ var App = App || {};
     // line graphs
     App.panels.topVis = new LineGraph('#topVis', {out: false});
     App.panels.bottomVis = new LineGraph('#bottomVis', {out: true});
+    App.panels.focusSlider = new FocusSlider('#focusSlider');
   }
 
   App.loadData = function(file, isSeries) {

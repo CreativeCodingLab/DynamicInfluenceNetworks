@@ -63,6 +63,13 @@ function LineGraph(selector, options) {
         .attr('class', 'graph')
         .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
+    var zoom = this.zoom = d3.zoom()
+        .scaleExtent([1, 50])
+        .translateExtent([[0, 0], [this.width, this.height]])
+        .extent([[0, 0], [this.width, this.height]])
+        .on("zoom", this.zoomed.bind(this));
+
+    this.svg.call(zoom);
     graph.append('g')
         .attr('class','axis-x')
     graph.append('g')
@@ -211,6 +218,7 @@ LineGraph.prototype = {
         this.x = d3.scaleLinear()
                 .domain([0, App.dataset.length - 1])
                 .range([0, this.width]);
+        
 
         this.drawAxes();
         this.drawPaths();
@@ -477,5 +485,16 @@ LineGraph.prototype = {
         this.svg.select('.log')
             .classed('active',false);
         this.updateGraph();
+    },
+    zoomed: function() {
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
+        this.x = d3.event.transform.rescaleX(this.x);
+        this.drawAxes();
+        this.drawPaths();
+        this.drawMarkers();
+        //this.x.domain(t.rescaleX(App.panels.focusSlider.x).domain());
+        console.log("zoomed");
+        return;
     }
+
 }
