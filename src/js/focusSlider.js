@@ -83,13 +83,18 @@ FocusSlider.prototype = {
         var botVis = App.panels.bottomVis;
         if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
         var s = d3.event.selection || this.x.range();
-        topVis.x.domain(s.map(this.x.invert, this.x));
-        topVis.updateFluxs();
-        topVis.updateGraph();
-        botVis.x.domain(s.map(this.x.invert, this.x));
-        botVis.updateFluxs();
-        botVis.updateGraph();
+        var domain = s.map(this.x.invert, this.x);
 
+        if (domain[0] !== domain[1]) {
+            topVis.x.domain(domain);
+            topVis.updateFluxs();
+            topVis.updateGraph();
+            botVis.x.domain(domain);
+            botVis.updateFluxs();
+            botVis.updateGraph();
+
+            App.phenotype.updateDomain(domain);
+        }
     },
     update: function() {
         this.x = d3.scaleLinear()

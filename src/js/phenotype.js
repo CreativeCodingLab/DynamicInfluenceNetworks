@@ -4,6 +4,8 @@ function Phenotype(path) {
     this.svg = this.container.append('svg');
 
     var margin = {top: 5, left: 50, bottom: 20};
+    var xAxis = this.svg.append('g');
+    var yAxis = this.svg.append('g');
 
     this.axisHelper = this.svg.append('line')
         .attr('x1', margin.left)
@@ -37,6 +39,8 @@ function Phenotype(path) {
     this.resize();
 
     var csv_ = null;
+    var categories = null;
+    var data = null;
     d3.csv(path, (csv) => {
         csv_ = csv;
         if (!csv) { 
@@ -44,7 +48,7 @@ function Phenotype(path) {
             return;
         }
 
-        var data = {};
+        data = {};
 
         csv.columns.forEach(column => data[column] = []);
 
@@ -55,13 +59,12 @@ function Phenotype(path) {
         })
 
         // calculate axes
-        var categories = csv.columns.filter(d => d !== '[T]');
+        categories = csv.columns.filter(d => d !== '[T]');
         var values = [].concat.apply([], categories.map(d => data[d]));
         var domain = d3.extent(data['[T]'], d => +d);
         var range = d3.extent(values, d => +d);
 
-        var xAxis = this.svg.append('g')
-            .attr('transform', 'translate(0,' + (this.height - margin.bottom) + ')')
+        xAxis.attr('transform', 'translate(0,' + (this.height - margin.bottom) + ')')
             .call(d3.axisBottom(
                 d3.scaleLinear()
                     .domain(domain)
@@ -70,8 +73,7 @@ function Phenotype(path) {
             .select('path')
                 .attr('stroke', 'none');
 
-        var yAxis = this.svg.append('g')
-            .attr('transform', 'translate('+ margin.left + ',0)')
+        yAxis.attr('transform', 'translate('+ margin.left + ',0)')
             .call(d3.axisLeft(
                 d3.scaleLinear()
                     .domain(range)
@@ -88,6 +90,7 @@ function Phenotype(path) {
 
         categories.forEach((column, i) => {
             this.svg.append('path')
+                .attr('class', 'category')
                 .attr('fill', 'none')
                 .style('stroke', d3.schemeCategory10[i])
                 .style('stroke-width', 0.5)
@@ -101,5 +104,26 @@ function Phenotype(path) {
             this.axisHelper
                 .attr('transform','translate('+ i * (this.width - margin.left - 1) / App.dataset.length +',0)');
         }
+    }
+
+    this.updateDomain = function(domain) {
+        xAxis.call(d3.axisBottom(
+                d3.scaleLinear()
+                    .domain(domain)
+                    .range([margin.left, this.width - 1])
+                ) )
+            .select('path')
+                .attr('stroke', 'none');
+
+        var line = d3.line()
+            .curve(d3.curveCatmullRom)
+            .x((d, i) => i * (this.width - margin.left - 1) / (domain[1] - domain[0]) + margin.left)
+            .y(d => d * (this.height - margin.bottom - margin.top) + margin.top);
+
+        this.svg.selectAll('.category')
+            .attr('d', (d, i) => {
+                var column = categories[i];
+                return line(data[column].slice(domain[0], domain[1]+1));
+            });
     }
 }
