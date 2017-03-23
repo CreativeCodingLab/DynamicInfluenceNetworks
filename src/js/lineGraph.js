@@ -65,8 +65,6 @@ function LineGraph(selector, options) {
 
     var zoom = this.zoom = d3.zoom()
         .scaleExtent([1, 50])
-        .translateExtent([[0, 0], [this.width, this.height]])
-        .extent([[0, 0], [this.width, this.height]])
         .on("zoom", this.zoomed.bind(this));
 
     this.svg.call(zoom);
@@ -133,7 +131,7 @@ LineGraph.prototype = {
         this.svg.select('.toggle-axis-scale')
             .style('display','block');
 
-        var infMap = this.outgoing ?
+        var infMap = this.infMap = this.outgoing ?
             App.dataset.map(dataset => {
                 var obj = dataset.data[d.name];
                 if (obj && obj.inf) { return obj.inf; }
@@ -145,16 +143,29 @@ LineGraph.prototype = {
                 return [];
             });
 
-        var fluxs = {};
+        this.updateFluxs();
+        this.updateGraph();
+    },
+    updateFluxs: function() {
+        var infMap = this.infMap;
+        var fluxs = {}; 
+
+        if(!this.x) {
+            this.x = d3.scaleLinear()
+                .domain([0, App.dataset.length - 1])
+                .range([0, this.width]);
+        }
+
         infMap.forEach((step, i) => {
             step.forEach(inf => {
                 fluxs[inf.name] = fluxs[inf.name] || [];
-
-                fluxs[inf.name].push( {
+                if (i >= this.x.domain()[0] && i <= this.x.domain()[1]) {
+                    fluxs[inf.name].push( {
                     name: inf.name,
                     i: i,
                     flux: inf.flux
-                } )
+                   });
+                }
             });
         });
 
@@ -163,8 +174,6 @@ LineGraph.prototype = {
                 min = Math.abs(d3.min(fluxs[i], d => d.flux));
             return max || min;
         }).map(i => fluxs[i]);
-
-        this.updateGraph();
     },
     updateGraph: function() {
         var fluxs = this.fluxs;
@@ -214,10 +223,6 @@ LineGraph.prototype = {
                     .domain([ymin, ymax])
                     .range([this.height, 0]);
         }
-
-        this.x = d3.scaleLinear()
-                .domain([0, App.dataset.length - 1])
-                .range([0, this.width]);
         
 
         this.drawAxes();
@@ -488,10 +493,11 @@ LineGraph.prototype = {
     },
     zoomed: function() {
         if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
-        this.x = d3.event.transform.rescaleX(this.x);
-        this.drawAxes();
-        this.drawPaths();
-        this.drawMarkers();
+        var t = d3.event.transform;
+        var original = [0, App.dataset.length - 1];
+        this.x.domain(original.map(x => x / t.k));
+        this.updateFluxs();
+        this.updateGraph();
         //this.x.domain(t.rescaleX(App.panels.focusSlider.x).domain());
         console.log("zoomed");
         return;
