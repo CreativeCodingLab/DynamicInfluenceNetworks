@@ -15,7 +15,6 @@ function Phenotype(path) {
         this.height = vh;
 
         this.svg
-            .style('margin-left', '15px')
             .style("font-size", "12px")
             .attr('width', w)
             .attr('height', h)
@@ -41,34 +40,44 @@ function Phenotype(path) {
         })
 
         // calculate axes
-        function values(d) {
-            return Object.keys(d)
-                .filter(key => key !== '[T]')
-                .map(y => +d[y]);
-        }
-        var ymin = d3.min( csv, d => d3.min(values(d)) );
-        var ymax = d3.max( csv, d => d3.max(values(d)) );
+        var categories = csv.columns.filter(d => d !== '[T]');
+        var values = [].concat.apply([], categories.map(d => data[d]));
+        var range = d3.extent(values, d => +d);
 
-        var xmin = d3.min( data['[T]'].map(x => +x) );
-        var xmax = d3.max( data['[T]'].map(x => +x) );
+        var margin = {top: 10, left: 75, bottom: 20};
 
+        var axisX = this.svg.append('g')
+            .attr('transform', 'translate(0,' + (this.height - margin.bottom) + ')')
+            .call(d3.axisBottom(
+                d3.scaleLinear()
+                    .domain([0, csv.length - 1])
+                    .range([margin.left, this.width - 1])
+                ) )
+            .select('path')
+                .attr('stroke', 'none');
+
+        var axisY = this.svg.append('g')
+            .attr('transform', 'translate('+ margin.left + ',0)')
+            .call(d3.axisLeft(
+                d3.scaleLinear()
+                    .domain(range)
+                    .range([margin.top, this.height - margin.bottom])
+                ) )
+            .select('path')
+                .attr('stroke', 'none');
 
         // draw paths
         var line = d3.line()
             .curve(d3.curveCatmullRom)
-            .x((d, i) => i * this.width / xmax / 10)
-            .y(d => d * this.height);
+            .x((d, i) => i * (this.width - margin.left - 1) / (csv.length - 1) + margin.left)
+            .y(d => d * (this.height - margin.bottom - margin.top) + margin.top);
 
-        csv.columns.forEach((column, i) => {
+        categories.forEach((column, i) => {
             this.svg.append('path')
                 .attr('fill', 'none')
-                .style('stroke',color(i))
+                .style('stroke', d3.schemeCategory10[i])
                 .style('stroke-width', 0.5)
                 .attr('d', line(data[column]));
-        })
+        });
     })
-
-    function color(i) {
-        return d3.schemeCategory20[i];
-    }
 }
