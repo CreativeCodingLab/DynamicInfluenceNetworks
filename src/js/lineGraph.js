@@ -80,7 +80,7 @@ LineGraph.prototype = {
         var h = this.container.getBoundingClientRect().height;
 
         var aspect = w / h;
-        var vw = 320;
+        var vw = 280;
         var vh = vw / aspect;
 
         this.width = vw - this.margin.right - this.margin.left;

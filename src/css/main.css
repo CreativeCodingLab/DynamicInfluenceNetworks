@@ -84,6 +84,19 @@ body {
 
 .row {
   margin-bottom:2vh;
+  position:relative;
+}
+
+.row .datalog {
+  position:absolute;
+  right:4vmin;
+  top:0.5vmin;
+}
+.row .datalog:after {
+  cursor:pointer;
+  font-family:FontAwesome;
+  content:'\f15c';
+  position:absolute;
 }
 
 .phenograph {

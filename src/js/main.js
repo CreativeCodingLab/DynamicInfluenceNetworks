@@ -176,17 +176,19 @@ var App = App || {};
         domain: [ 0, App.dataset.length-1 ],
         left: -300
       } );
+
       App.timeSlider.onDrag = function(x) {
         var t = Math.round(this.value);
         if (t != App.item) {
+          if (App.animation) {
+            App.animation.isPlaying = false;
+            d3.select('.ppIcon').classed('paused', false);
+          }
           App.item = t;
           var tw = App.dataset[t].timeWindow.map(n => Number(n.toFixed(2)));
           this.setTitle( 'Time: ' + tw[0] + '-' + tw[1]);
           App.data = App.dataset[t].data;
-          App.panels.forceDirected.updateData(App.data);
-          App.panels.topVis.drawMarkers();
-          App.panels.bottomVis.drawMarkers();
-          App.infSlider.setDomain(infDomain());
+          App.updateTimestep();
         }
       }
       App.timeSlider.onDragEnd = function() {
@@ -199,6 +201,14 @@ var App = App || {};
 
       App.animation.attachToSlider(App.timeSlider);
       // append slider to force directed
+    }
+
+    App.updateTimestep = function() {
+      App.panels.forceDirected.updateData(App.data);
+      App.panels.topVis.drawMarkers();
+      App.phenotype.drawMarkers();
+      App.panels.bottomVis.drawMarkers();
+      App.infSlider.setDomain(infDomain());
     }
 
     // set up an influence slider

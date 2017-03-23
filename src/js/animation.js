@@ -67,38 +67,41 @@ AnimationManager.prototype.togglePlay = function() {
 
   var that = this;
 
-  if (this.isPlaying) {
-    this.interval = setInterval(function() {
-      var startData = App.dataset[Math.floor(that.currentTime)];
-      var endData = App.dataset[Math.floor(that.currentTime) + 1];
+  function playFunc() {
+    var startData = App.dataset[Math.floor(that.currentTime)];
+    var endData = App.dataset[Math.floor(that.currentTime) + 1];
 
-      // console.log(this);
+    // console.log(this);
 
-      var timeRange = [
-        startData.timeWindow[1],
-        endData.timeWindow[1]
-      ];
+    var timeRange = [
+      startData.timeWindow[1],
+      endData.timeWindow[1]
+    ];
 
-      var ms_delt = that.updateTimestep * that.speed; // time elapsed this update
-      var t_delt = (timeRange[1] - timeRange[0]) * 1000; // total ms between timesteps
-      var t_pc = ms_delt / t_delt;
+    var ms_delt = that.updateTimestep * that.speed; // time elapsed this update
+    var t_delt = (timeRange[1] - timeRange[0]) * 1000; // total ms between timesteps
+    var t_pc = ms_delt / t_delt;
 
-      that.currentTime = (that.currentTime + t_pc) % that.totalTime;
-      // console.log(that.currentTime);
-      if (isNaN(that.currentTime)) {
-        that.currentTime = 0;
-      }
+    that.currentTime = (that.currentTime + t_pc) % that.totalTime;
+    // console.log(that.currentTime);
+    if (isNaN(that.currentTime)) {
+      that.currentTime = 0;
+    }
 
-      that.updateData();
+    that.updateData();
 
-    }, this.updateTimestep);
-  } else {
-    clearInterval(this.interval);
-    // restart simulation on pause
-    App.panels.forceDirected.simulation
-      .alpha(0.3)
-      .restart();
+    if (that.isPlaying) { 
+      setTimeout( playFunc, that.updateTimestep );
+    }
+    else {
+      // restart simulation on pause
+      App.panels.forceDirected.simulation
+        .alpha(0.3)
+        .restart();
+    }
   }
+
+  setTimeout( playFunc, this.updateTimestep );
 }
 
 AnimationManager.prototype.stepForward = function() {
@@ -179,14 +182,11 @@ AnimationManager.prototype.updateData = function() {
   }
 
   App.data = interpolatedData;
-  App.panels.forceDirected.updateData(App.data);
-
 
   // update other components in UI
   App.item = Math.round(this.currentTime);
   App.timeSlider.setPosition(this.currentTime);
-  App.panels.topVis.drawMarkers();
-  App.panels.bottomVis.drawMarkers();
+  App.updateTimestep();
 
   // h1: start hits, h2: end hits
   function interpolateHits(pcElap, h1, h2) {
