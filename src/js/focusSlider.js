@@ -72,11 +72,24 @@ FocusSlider.prototype = {
         if (!this.x) { return; }
         var bgraph = this.bgraph;
         var brush = this.brush = d3.brushX()
-            .extent([[0, 0], [this.width, this.height]]);
-            //.on("brush end", this.brushed.call(this));
+            .extent([[0, 0], [this.width, this.height]])
+            .on("brush end", this.brushed.bind(this));
         bgraph
             .call(brush)
             .call(brush.move, this.x.range());
+    },
+    brushed: function() {
+        var topVis = App.panels.topVis;
+        var botVis = App.panels.bottomVis;
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
+        var s = d3.event.selection || this.x.range();
+        topVis.x.domain(s.map(this.x.invert, this.x));
+        topVis.updateFluxs();
+        topVis.updateGraph();
+        botVis.x.domain(s.map(this.x.invert, this.x));
+        botVis.updateFluxs();
+        botVis.updateGraph();
+
     },
     update: function() {
         this.x = d3.scaleLinear()

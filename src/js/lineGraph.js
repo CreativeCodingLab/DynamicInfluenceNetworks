@@ -494,12 +494,12 @@ LineGraph.prototype = {
     zoomed: function() {
         if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
         var t = d3.event.transform;
-        var original = [0, App.dataset.length - 1];
-        this.x.domain(original.map(x => x / t.k));
-        this.updateFluxs();
-        this.updateGraph();
+        //var original = [0, App.dataset.length - 1];
+        //this.x.domain(original.map(x => x / t.k));
+        //this.updateFluxs();
+        //this.updateGraph();
         //this.x.domain(t.rescaleX(App.panels.focusSlider.x).domain());
-        console.log("zoomed");
+        //console.log("zoomed");
         return;
     }
 
