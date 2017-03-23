@@ -14,6 +14,7 @@ var App = App || {};
     var url = document.URL.split('?')[1] || "flux_0.json";
     App.loadData(url, true);
 
+    App.phenotype = new Phenotype('data/global.csv');
     new Toolbar(App);
     App.animation = new AnimationManager();
   }
@@ -33,7 +34,9 @@ var App = App || {};
       if (App[slider]) {
         App[slider].resize();
       }
-    })
+    });
+
+    App.phenotype.resize();
   }
 
   App.draw = function() {

@@ -719,24 +719,6 @@ ForceDirectedGraph.prototype = {
   drawClusters: function() {
     let clusters = this.clusters.filter(c => c.length && !(c[0].isPainted && c[0].paintedCluster === undefined));
 
-    // let clusters = this.clusters.filter(c => {
-    //   if (!c.length || (c[0].isPainted && c[0].paintedCluster === undefined)) {
-    //     return false;
-    //   }
-    //   let d = c[0];
-    //   if (d.paintedCluster && this.clusterColors) {
-    //     let existingClusterIndex = this.clusterColors.indexOf(d.paintedCluster);
-    //     if (existingClusterIndex > -1) {
-    //       this.clusters[existingClusterIndex] = this.clusters[existingClusterIndex].concat(c);
-    //       c.forEach(node => node.cluster = existingClusterIndex);
-    //       return false;
-    //     }
-    //   }
-    //   return true;
-    // })
-
-    // this.overriddenClusters = clusters;
-
     let filteredData = this.filteredData;
     var radiusScale = d3.scaleLinear()
       .domain(d3.extent(Object.keys(filteredData), (d) => {
@@ -922,6 +904,7 @@ ForceDirectedGraph.prototype = {
           .classed('node-to-graph',false);
         d3.select(this)
           .classed('node-to-graph',true);
+        d3.select('#linegraph-help').style('display','none');
         if (App.panels.topVis) { App.panels.topVis.updateRule(d); }
         if (App.panels.bottomVis) { App.panels.bottomVis.updateRule(d); }
       })
@@ -1109,13 +1092,13 @@ ForceDirectedGraph.prototype = {
         node
           .datum((d) => {
             var clampX = d3.scaleLinear()
-              .domain([16 + borderNodeMargin, self.width - 36 - borderNodeMargin])
-              .range([16 + borderNodeMargin, self.width - 36 - borderNodeMargin])
+              .domain([16 + borderNodeMargin, self.width - 16 - borderNodeMargin])
+              .range([16 + borderNodeMargin, self.width - 16 - borderNodeMargin])
               .clamp(true);
 
             var clampY = d3.scaleLinear()
-              .domain([16 + borderNodeMargin, self.height - 36 - borderNodeMargin])
-              .range([16 + borderNodeMargin, self.height - 36 - borderNodeMargin])
+              .domain([36 + borderNodeMargin, self.height - 36 - borderNodeMargin])
+              .range([36 + borderNodeMargin, self.height - 36 - borderNodeMargin])
               .clamp(true);
 
             d.x = clampX(d.x);

@@ -25,13 +25,19 @@ body {
   padding:1vmin 2.1vmin;
   font-size:1.8vmin;
   font-weight:400;
+  pointer-events:none;
 }
+#help.active {
+  pointer-events:auto;
+}
+
 #help h4 {
   margin:0;
   text-align: right;
   cursor:pointer;
   letter-spacing:0.05em;
   text-transform: uppercase;
+  pointer-events:auto;
 }
 #help h4:after {
   font-family:FontAwesome;
@@ -65,12 +71,27 @@ body {
 }
 
 #help+* {
-  margin-top: 3vmin;
+  margin-top: 5vh;
+}
+
+#linegraph-help {
+  color:#888;
+  padding:0 2vw;
+  text-align: center;
+  position:absolute;
+  top:30vh;
+}
+
+.row {
+  margin-bottom:2vh;
+}
+
+.phenograph {
+  height:20vh;
 }
 
 .linegraph {
   height: 30vh;
-  min-height: 30vh;
 }
 
 .mainCol {
