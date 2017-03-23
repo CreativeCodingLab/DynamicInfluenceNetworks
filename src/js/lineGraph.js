@@ -384,7 +384,7 @@ LineGraph.prototype = {
                 pt = pt.matrixTransform( svg.getScreenCTM().inverse() );
 
                 var offset = pt.x - this.margin.left;
-                var i = Math.round(this.x.invert(offset));
+                var i = Math.round(this.x.invert(offset))-this.x.domain()[0];
                 if (!d[i]) { return; }
                 var bbox = this.textbox.select('text')
                     .text(d[0].name + ': ' + (App.property.sci ?
@@ -398,7 +398,7 @@ LineGraph.prototype = {
                 this.axisHelper
                     .attr('transform','translate('+pt.x+',0)')
                 .select('text')
-                    .text('t=' + Number(App.dataset[i].timeWindow[0].toFixed(3)))
+                    .text('t=' + Number(App.dataset[i+this.x.domain()[0]].timeWindow[0].toFixed(3)))
                     .attr('transform',() => {
                         var y = this.margin.top;
                         if (pt.y < y + 30) { y += 30; }

@@ -84,7 +84,8 @@ FocusSlider.prototype = {
         if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
         var s = d3.event.selection || this.x.range();
         var domain = s.map(this.x.invert, this.x);
-
+        domain[0] = Math.round(domain[0]);
+        domain[1] = Math.round(domain[1]);
         if (domain[0] !== domain[1]) {
             topVis.x.domain(domain);
             topVis.updateFluxs();
