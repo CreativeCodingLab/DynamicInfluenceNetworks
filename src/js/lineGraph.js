@@ -81,7 +81,7 @@ function LineGraph(selector, options) {
 LineGraph.prototype = {
     constructor: LineGraph,
     resize: function() {
-        var w = this.container.getBoundingClientRect().width - 45;
+        var w = this.container.getBoundingClientRect().width - 20;
         var h = this.container.getBoundingClientRect().height;
 
         var aspect = w / h;
@@ -242,10 +242,9 @@ LineGraph.prototype = {
                         }
                         return d;
                     })
-                );
-
-        this.svg.select('.axis-x path')
-            .style('display','none');
+                )
+            .select('path')
+                .style('display','none');
 
         if (this.y) {
             var yAxis = d3.axisLeft(this.y).ticks(6);
@@ -265,7 +264,9 @@ LineGraph.prototype = {
             }
             this.svg.select('.axis-y-signed').selectAll('*').remove();
             this.svg.select('.axis-y')
-                .call(yAxis);            
+                .call(yAxis)
+                .select('path')
+                    .style('display', 'none');            
         }
         else {
             var self = this;
