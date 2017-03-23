@@ -293,6 +293,16 @@ input[type="checkbox"]:checked + label[for="hide-negative"]:before {
 }
 
 /* pinning and marking nodes */
+.ui-mark h4 span {
+  display:none;
+  vertical-align: middle;
+  width:1.5vmin;
+  height:1.5vmin;
+}
+.painting .ui-mark h4 span {
+  display:inline-block;
+  margin-left:1vmin;
+}
 .ui-mark button {
   display:block;
   width:100%;

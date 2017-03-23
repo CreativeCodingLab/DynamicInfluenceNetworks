@@ -143,9 +143,11 @@ function Toolbar(App) {
     });
 
     App.panels.forceDirected.paintingManager.startPaintingNewCluster(lastPaintingColor);
+    document.querySelector('.ui-mark h4 span').style.backgroundColor = d3.schemeCategory20[lastPaintingColor] || 'black';
   }
   document.getElementById('paint-start').onchange = function() {
     document.getElementById('palette').classList.toggle('active', this.checked);
+    document.body.classList.toggle('painting', this.checked);
     if (this.checked) {
 
       // preset to default painting color
@@ -155,7 +157,7 @@ function Toolbar(App) {
           if (lastPaintingColor === null) { lastPaintingColor = 19; }
         }
         else {
-          lastPaintingColor = d3.schemeCategory20[App.panels.forceDirected.clusters.length];
+          lastPaintingColor = App.panels.forceDirected.clusters.length;
         }
       }
 
