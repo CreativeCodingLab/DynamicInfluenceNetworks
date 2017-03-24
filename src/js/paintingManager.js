@@ -33,15 +33,25 @@ const PaintingManager = function(graph) {
 
   function addNodeToPaintingCluster(node) {
     if (self.isPaintingCluster) {
-      if (node.paintedCluster !== undefined) {
+      if (node.paintedCluster === self.currentPaintingCluster) {
+        // if it is being painted again with the same color, remove it from this clusterNumber
         _.remove(self.paintedClusters[node.paintedCluster], function(n) {
           return n.name === node.name;
         });
+
+        node.isPainted = false;
+      } else {
+        if (node.paintedCluster !== undefined) {
+          _.remove(self.paintedClusters[node.paintedCluster], function(n) {
+            return n.name === node.name;
+          });
+        }
+        node.paintedCluster = self.currentPaintingCluster;
+        node.isPainted = true;
+
+        self.paintedClusters[self.currentPaintingCluster].push(node);
       }
-      node.paintedCluster = self.currentPaintingCluster;
-      node.isPainted = true;
-      
-      self.paintedClusters[self.currentPaintingCluster].push(node);
+
       graph.defineClusters();
       graph.drawGraph();
     }
