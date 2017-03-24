@@ -3,7 +3,7 @@ function Phenotype(path) {
     this.container = d3.select('#phenoVis');
     var svg = this.container.append('svg');
 
-    var margin = {top: 5, left: 50, bottom: 20};
+    var margin = {top: 5, left: 50, bottom: 20, right: 20};
     var width = 280;
     var height = 200;
 
@@ -22,7 +22,7 @@ function Phenotype(path) {
         .on('mouseout', mouseout);
 
     this.resize = function() {
-        var w = this.container.node().getBoundingClientRect().width - 20;
+        var w = this.container.node().getBoundingClientRect().width - margin.right;
         var h = this.container.node().getBoundingClientRect().height;
 
         var aspect = w / h;
@@ -98,7 +98,16 @@ function Phenotype(path) {
                 d3.scaleLinear()
                     .domain(domain)
                     .range([margin.left, width - 1])
-                ) )
+                )
+                .tickFormat(d => {
+                    d = Math.floor(d);
+                    var data = App.dataset[d];
+                    if (data && data.timeWindow && data.timeWindow[0]) {
+                        return Number(data.timeWindow[0].toFixed(1));
+                    }
+                    return d;
+                })
+            )
             .select('path')
                 .attr('stroke', 'none');
 
@@ -127,7 +136,16 @@ function Phenotype(path) {
                 d3.scaleLinear()
                     .domain(domain)
                     .range([margin.left, width - 1])
-                ) )
+                )
+                .tickFormat(d => {
+                    d = Math.floor(d);
+                    var data = App.dataset[d];
+                    if (data && data.timeWindow && data.timeWindow[0]) {
+                        return Number(data.timeWindow[0].toFixed(1));
+                    }
+                    return d;
+                })
+            )
             .select('path')
                 .attr('stroke', 'none');
 

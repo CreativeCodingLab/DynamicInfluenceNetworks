@@ -13,8 +13,6 @@ var App = App || {};
   App.init = function() {
     var url = document.URL.split('?')[1] || "flux_0.json";
     App.loadData(url, true);
-
-    App.phenotype = new Phenotype('data/global.csv');
     new Toolbar(App);
     App.animation = new AnimationManager();
   }
@@ -57,6 +55,7 @@ var App = App || {};
     App.panels.topVis = new LineGraph('#topVis', {out: false});
     App.panels.bottomVis = new LineGraph('#bottomVis', {out: true});
     App.panels.focusSlider = new FocusSlider('#focusSlider');
+    App.phenotype = new Phenotype('data/global.csv');
   }
 
   App.loadData = function(file, isSeries) {
@@ -163,8 +162,7 @@ var App = App || {};
     App.panels.forceDirected.tip.remove();
 
     // remove line graphs
-    d3.select('#topVis').selectAll('*').remove();
-    d3.select('#bottomVis').selectAll('*').remove();
+    d3.selectAll('.row').selectAll('*').remove();
 
     App.handleData(dataset);
   };

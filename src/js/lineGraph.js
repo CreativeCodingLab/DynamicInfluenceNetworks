@@ -8,12 +8,10 @@ function LineGraph(selector, options) {
     this.svg.append('rect')
         .attr('fill','transparent');
 
-    this.margin = {top: 60, right: 20, bottom: 30, left: 60};
+    this.margin = {top: 40, right: 20, bottom: 30, left: 50};
 
     this.svg.append('text')
-        .attr('transform','translate(' + 10 + ',' + (this.margin.top/2 - 3) + ')')
-        .style('font-weight','bold')
-        .style('font-size','14px')
+        .attr('transform','translate(10, 15)')
         .attr('class','title');
 
     // log / linear toggle
@@ -21,7 +19,7 @@ function LineGraph(selector, options) {
     var toggle = this.svg.append('g')
         .attr('class','toggle-axis-scale')
         .style('display','none')
-        .attr('transform','translate( 10 ,' + (this.margin.top/2 + 15) + ')');
+        .attr('transform','translate(10, 30)');
 
     toggle.append('text')
         .text('log')
@@ -63,11 +61,6 @@ function LineGraph(selector, options) {
         .attr('class', 'graph')
         .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
-    var zoom = this.zoom = d3.zoom()
-        .scaleExtent([1, 50])
-        .on("zoom", this.zoomed.bind(this));
-
-    this.svg.call(zoom);
     graph.append('g')
         .attr('class','axis-x')
     graph.append('g')
@@ -81,7 +74,7 @@ function LineGraph(selector, options) {
 LineGraph.prototype = {
     constructor: LineGraph,
     resize: function() {
-        var w = this.container.getBoundingClientRect().width - 20;
+        var w = this.container.getBoundingClientRect().width;
         var h = this.container.getBoundingClientRect().height;
 
         var aspect = w / h;
@@ -92,7 +85,6 @@ LineGraph.prototype = {
         this.height = vh - this.margin.top - this.margin.bottom;
 
         this.svg
-            .style('margin-left', '15px')
             .style("font-size", "12px")
             .attr('width', w)
             .attr('height', h)
@@ -464,6 +456,7 @@ LineGraph.prototype = {
                 return (d.flux < 0) ? this.yneg(d.flux) : this.ypos(d.flux);
             })
             .style('fill', d => {
+                return 'black'; // TODO: FIX
                 if (!(rule = App.panels.forceDirected.filteredData[this.rule.name])) { return 'black'; }
                 var rule = App.panels.forceDirected.filteredData[d.name];
                 var c = d3.hsl(App.panels.forceDirected.clusterColor(rule.cluster))
@@ -491,17 +484,5 @@ LineGraph.prototype = {
         this.svg.select('.log')
             .classed('active',false);
         this.updateGraph();
-    },
-    zoomed: function() {
-        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
-        var t = d3.event.transform;
-        //var original = [0, App.dataset.length - 1];
-        //this.x.domain(original.map(x => x / t.k));
-        //this.updateFluxs();
-        //this.updateGraph();
-        //this.x.domain(t.rescaleX(App.panels.focusSlider.x).domain());
-        //console.log("zoomed");
-        return;
     }
-
 }
