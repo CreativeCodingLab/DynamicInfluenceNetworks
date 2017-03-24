@@ -40,6 +40,7 @@ const PaintingManager = function(graph) {
         });
 
         node.isPainted = false;
+        node.paintedCluster = undefined;
       } else {
         if (node.paintedCluster !== undefined) {
           _.remove(self.paintedClusters[node.paintedCluster], function(n) {

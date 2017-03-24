@@ -118,11 +118,7 @@ var App = App || {};
 
       var obj = {};
 
-      var w = [+json.bioBeginTime, +json.bioEndTime];
-      if (!isNaN(w[0]) && !isNaN(w[1])) {
-        obj.timeWindow = w,
-        obj.timeMean = (w[0]+w[1])/2;
-      }
+      obj.timeWindow = [+json.bioBeginTime, +json.bioEndTime];
 
       var data = {};
       for (var n in json.rules) {
