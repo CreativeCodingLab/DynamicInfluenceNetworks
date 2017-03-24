@@ -69,18 +69,13 @@ function Toolbar(App) {
       App.property.label = true;
       d3.selectAll('.rule-text')
         .transition()
-        .style('opacity', function(d) {
-          if (App.property.node == true && d.cluster === 0) {
-            return 0;
-          }
-          return 1;
-        })
+        .style('opacity', 1);
     }
     else {
      App.property.label = false;
      d3.selectAll('.rule-text')
         .transition()
-        .style('opacity', 0)
+        .style('opacity', d => (d.isPainted && d3.schemeCategory20.indexOf(d.paintedCluster) >= 8) ? 1 : 0);
     }
   };
 

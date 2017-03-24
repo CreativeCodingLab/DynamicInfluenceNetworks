@@ -754,19 +754,13 @@ ForceDirectedGraph.prototype = {
     var self = this;
 
     function getFill(d) {
-      if (d[0].isPainted && !(d3.schemeCategory20.indexOf(d[0].paintedCluster) >= 8)) {
+      if (d[0].isPainted && d3.schemeCategory20.indexOf(d[0].paintedCluster) < 8) {
         return d[0].paintedCluster;
       }
       else if (d[0].cluster !== 0) {
         return self.clusterColor(d[0].cluster);
       }
       return 'none';
-      // return d[0].isPainted ? d[0].paintedCluster :
-      //   d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
-    }
-    function getStroke(d) {
-      return d[0].isPainted ? d[0].paintedCluster :
-        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
     }
 
     var circles = this.clusterCircleGroup.selectAll(".clusterCircle").data(clusters);
@@ -775,12 +769,12 @@ ForceDirectedGraph.prototype = {
 
     circles
       .style("fill", getFill)
-      .style("stroke", getStroke);
+      .style("stroke", getFill);
 
     circles.enter().append("circle")
       .attr("class", "clusterCircle")
       .style("fill", getFill)
-      .style("stroke", getStroke)
+      .style("stroke", getFill)
       .style("stroke-dasharray", "2, 2")
       .style("fill-opacity", 0.3)
       .call(d3.drag()
@@ -971,8 +965,8 @@ ForceDirectedGraph.prototype = {
       .text(d => d.name)
       .style('font-size', App.property.labelFontSize)
       .style('opacity', function(d) {
-        if (App.property.label == true) {
-          return (App.property.node == true && d.cluster === 0) ? 0 : 1;
+        if (App.property.label == true || (d.isPainted && d3.schemeCategory20.indexOf(d.paintedCluster) >= 8)) {
+          return 1;
         }
         else {
           return 0;
