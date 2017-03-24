@@ -142,7 +142,6 @@ LineGraph.prototype = {
                 if (obj && obj.outf) { return obj.outf; }
                 return [];
             });
-
         this.updateFluxs();
         this.updateGraph();
     },
@@ -433,8 +432,8 @@ LineGraph.prototype = {
     // draw markers
     drawMarkers: function() {
         if (!(this.fluxs && this.x)) { return; }
-        var i = App.item || 0;
-
+        var i = App.item - this.x.domain()[0]|| 0;
+        
         // update title color
         var rule = App.panels.forceDirected.filteredData[this.rule.name];
         this.svg.select('.title')
@@ -456,7 +455,6 @@ LineGraph.prototype = {
             .attr('stroke-width',1)
             .attr('stroke','white')
             .attr('r',0)
-            .style('opacity',0)
         .merge(marker)
             .attr('cx', d => this.x(d.i) )
             .attr('cy', d => {
@@ -465,12 +463,14 @@ LineGraph.prototype = {
                 }
                 return (d.flux < 0) ? this.yneg(d.flux) : this.ypos(d.flux);
             })
-            .attr('fill', d => {
-                if (!rule) { return 'transparent'; }
-                var rule = App.panels.forceDirected.filteredData[ d.name];
-                return App.panels.forceDirected.clusterColor(rule.cluster);
+            .style('fill', d => {
+                if (!(rule = App.panels.forceDirected.filteredData[this.rule.name])) { return 'black'; }
+                var rule = App.panels.forceDirected.filteredData[d.name];
+                var c = d3.hsl(App.panels.forceDirected.clusterColor(rule.cluster))
+                if (c.l > 0.65) c.l = 0.65
+                return c.toString();
             })
-            .attr('r',3)
+            .attr('r',2)
             .style('opacity',1);
     },
 
