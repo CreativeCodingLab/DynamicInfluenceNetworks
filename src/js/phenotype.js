@@ -11,7 +11,7 @@ function Phenotype(path) {
     var yAxis = svg.append('g');
     var fx = d3.scaleLinear()
                 .domain([0, 1])
-                .range([0, height - margin.bottom - margin.top]);
+                .range([height - margin.bottom, margin.top]);
 
     var axisHelper = svg.append('line')
         .attr('x1', margin.left)
@@ -100,7 +100,7 @@ function Phenotype(path) {
         var domain = d3.extent(data['[T]'], d => +d);
         var range = d3.extent(values, d => +d);
         fx.domain(range)
-            .range([margin.top, height - margin.bottom - margin.top]);
+            .range([height - margin.bottom, margin.top]);
 
         xAxis.attr('transform', 'translate(0,' + (height - margin.bottom) + ')')
             .call(d3.axisBottom(
@@ -121,11 +121,7 @@ function Phenotype(path) {
                 .attr('stroke', 'none');
 
         yAxis.attr('transform', 'translate('+ margin.left + ',0)')
-            .call(d3.axisLeft(
-                d3.scaleLinear()
-                    .domain(range)
-                    .range([margin.top, height - margin.bottom])
-                ).ticks(2) )
+            .call(d3.axisLeft(fx).ticks(2))
             .select('path')
                 .attr('stroke', 'none');
     }
