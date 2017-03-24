@@ -139,6 +139,12 @@ ForceDirectedGraph.prototype = {
 
     this._isDragging = false;
 
+    this.clusterMode = "timestep";
+    this.globalClustering = null;
+
+    this.windowClustering = null;
+    this.windowClusteringRange = [10, 40];
+
     /* Initialize tooltip for nodes */
     this.tip = d3.select('#forceDirectedDiv').append('div').attr('id', 'tip');
   },
@@ -395,10 +401,24 @@ ForceDirectedGraph.prototype = {
     var data = this.filteredData;
     var links;
 
-    if (this.clusteringGlobally) {
-      links = this.windowLinks;
-    } else {
+    if (this.clusterMode === "timestep") {
       links = this.links;
+    } else if (this.clusterMode === "global") {
+      // check if global ilnks have been calculated
+      if (!this.globalClustering) {
+        this.globalClustering = this.averageInfluencesOverTime(0, App.dataset.length-1);
+      }
+      links = this.globalClustering.links;
+    } else if (this.clusterMode === "window") {
+      // check if window links have been calculated, or if they need to be because of a new range
+      if (!this.windowClustering ||
+        this.windowClustering.timeRange[0] != this.windowClusteringRange[0] ||
+        this.windowClustering.timeRange[1] != this.windowClusteringRange[1]) {
+
+        this.windowClustering = this.averageInfluencesOverTime(this.windowClusteringRange[0], this.windowClusteringRange[1]);
+      }
+
+      links = this.windowClustering.links;
     }
 
     // clear clusters
@@ -669,8 +689,8 @@ ForceDirectedGraph.prototype = {
       }
     }
 
-    this.windowRules = rules;
-    this.windowLinks = [];
+    let nodes = rules;
+    let links = [];
 
     for (let rule of Object.keys(rules)) {
       let infArray = [];
@@ -698,13 +718,14 @@ ForceDirectedGraph.prototype = {
         inf: infArray
       };
 
-      this.windowLinks = _.concat(this.windowLinks, this.extractLinksFromNode(ruleWithInf, rule));
+      links = _.concat(links, this.extractLinksFromNode(ruleWithInf, rule));
     }
 
     // return to stay a bit consistent
     return {
-      links: this.windowLinks,
-      nodes: this.windowRules
+      links: links,
+      nodes: nodes,
+      timeRange: [start, end]
     };
   },
 
@@ -730,11 +751,11 @@ ForceDirectedGraph.prototype = {
 
     function getFill(d) {
       return d[0].isPainted ? d[0].paintedCluster :
-        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";      
+        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
     }
     function getStroke(d) {
       return d[0].isPainted ? d[0].paintedCluster :
-        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";      
+        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
     }
 
     var circles = this.clusterCircleGroup.selectAll(".clusterCircle").data(clusters);
