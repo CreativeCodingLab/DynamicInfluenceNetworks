@@ -319,104 +319,104 @@ LineGraph.prototype = {
             .duration(500)
             .attr('d', (d) => line(d));
 
-        var links = d3.selectAll('.link-2')
+        // var links = d3.selectAll('.link-2')
 
-        var hoverPath = this.graph.selectAll('.flux-2')
-            .data(this.fluxs);
+        // var hoverPath = this.graph.selectAll('.flux-2')
+        //     .data(this.fluxs);
 
-        hoverPath.exit().remove();
-        hoverPath.enter().append('path')
-            .attr('class','flux-2')
-            .attr('fill', 'none')
-            .style('stroke-width', 8)
-            .style('stroke-opacity', 0)
-        .merge(hoverPath)
-            .style('stroke', hoverPath => {
-                return hoverPath[0].name === this.rule.name ? 'red' : '#888';
-            })
-            .attr('name', hoverPath => {
-                return hoverPath[0].name; 
-            })
-            .on('mouseover', (d,i) => {
-              // fade non-hovered influences (ignore for self-influence)
-              if (d[0].name !== this.rule.name) {
-                  d3.selectAll('.link-1')
-                    .transition()
-                    .duration(400)
-                    .style('stroke-opacity',function() {
-                        var opacity = d3.select(this).style('stroke-opacity');
-                        return Math.min(0.4, opacity);
-                  });                
-              }
-              links.style('stroke-opacity', j => {
-                if (!j || !j.target) { console.log('WARNING: merge hover',j); return 0; }
-                if (this.outgoing) {
-                    return (d[0].name === j.target.name &&
-                            this.rule.name === j.source.name) ? 0.6 : 0;
-                }
-                else {
-                    return (d[0].name === j.source.name &&
-                            this.rule.name === j.target.name) ? 0.6 : 0;
-                }
-              });
-              d3.select(d3.event.target).raise()
-                .style('stroke-opacity',0.6);
-              this.axisHelper.raise()
-                .style('display','block');
-              this.textbox.raise()
-                .style('display','block');
-            })
-            .on('mousemove', (d) => {
-                // rescale svg point
-                var svg = this.svg.node();
-                var pt = svg.createSVGPoint();
-                pt.x = d3.event.clientX;
-                pt.y = d3.event.clientY;
-                pt = pt.matrixTransform( svg.getScreenCTM().inverse() );
+        // hoverPath.exit().remove();
+        // hoverPath.enter().append('path')
+        //     .attr('class','flux-2')
+        //     .attr('fill', 'none')
+        //     .style('stroke-width', 8)
+        //     .style('stroke-opacity', 0)
+        // .merge(hoverPath)
+        //     .style('stroke', hoverPath => {
+        //         return hoverPath[0].name === this.rule.name ? 'red' : '#888';
+        //     })
+        //     .attr('name', hoverPath => {
+        //         return hoverPath[0].name; 
+        //     })
+        //     .on('mouseover', (d,i) => {
+        //       // fade non-hovered influences (ignore for self-influence)
+        //       if (d[0].name !== this.rule.name) {
+        //           d3.selectAll('.link-1')
+        //             .transition()
+        //             .duration(400)
+        //             .style('stroke-opacity',function() {
+        //                 var opacity = d3.select(this).style('stroke-opacity');
+        //                 return Math.min(0.4, opacity);
+        //           });                
+        //       }
+        //       links.style('stroke-opacity', j => {
+        //         if (!j || !j.target) { console.log('WARNING: merge hover',j); return 0; }
+        //         if (this.outgoing) {
+        //             return (d[0].name === j.target.name &&
+        //                     this.rule.name === j.source.name) ? 0.6 : 0;
+        //         }
+        //         else {
+        //             return (d[0].name === j.source.name &&
+        //                     this.rule.name === j.target.name) ? 0.6 : 0;
+        //         }
+        //       });
+        //       d3.select(d3.event.target).raise()
+        //         .style('stroke-opacity',0.6);
+        //       this.axisHelper.raise()
+        //         .style('display','block');
+        //       this.textbox.raise()
+        //         .style('display','block');
+        //     })
+        //     .on('mousemove', (d) => {
+        //         // rescale svg point
+        //         var svg = this.svg.node();
+        //         var pt = svg.createSVGPoint();
+        //         pt.x = d3.event.clientX;
+        //         pt.y = d3.event.clientY;
+        //         pt = pt.matrixTransform( svg.getScreenCTM().inverse() );
 
-                var offset = pt.x - this.margin.left;
-                var i = Math.round(this.x.invert(offset))-this.x.domain()[0];
-                if (!d[i]) { return; }
-                var bbox = this.textbox.select('text')
-                    .text(d[0].name + ': ' + (App.property.sci ?
-                                    Number(d[i].flux.toPrecision(3)).toExponential() :
-                                    Number(d[i].flux.toFixed(3))) )
-                    .node().getBBox();
+        //         var offset = pt.x - this.margin.left;
+        //         var i = Math.round(this.x.invert(offset))-this.x.domain()[0];
+        //         if (!d[i]) { return; }
+        //         var bbox = this.textbox.select('text')
+        //             .text(d[0].name + ': ' + (App.property.sci ?
+        //                             Number(d[i].flux.toPrecision(3)).toExponential() :
+        //                             Number(d[i].flux.toFixed(3))) )
+        //             .node().getBBox();
 
-                var diff = Math.min(this.width + this.margin.right - offset - bbox.width/2 - 7, 0);
+        //         var diff = Math.min(this.width + this.margin.right - offset - bbox.width/2 - 7, 0);
 
 
-                this.axisHelper
-                    .attr('transform','translate('+pt.x+',0)')
-                .select('text')
-                    .text('t=' + Number(App.dataset[i+this.x.domain()[0]].timeWindow[0].toFixed(3)))
-                    .attr('transform',() => {
-                        var y = this.margin.top;
-                        if (pt.y < y + 30) { y += 30; }
-                        var x = (diff < 0) ? -5 : 5;
-                        return 'translate(' + x + ',' + y + ')';
-                    })
-                    .attr('text-anchor',(diff < 0) ? 'end' : 'start');
+        //         this.axisHelper
+        //             .attr('transform','translate('+pt.x+',0)')
+        //         .select('text')
+        //             .text('t=' + Number(App.dataset[i+this.x.domain()[0]].timeWindow[0].toFixed(3)))
+        //             .attr('transform',() => {
+        //                 var y = this.margin.top;
+        //                 if (pt.y < y + 30) { y += 30; }
+        //                 var x = (diff < 0) ? -5 : 5;
+        //                 return 'translate(' + x + ',' + y + ')';
+        //             })
+        //             .attr('text-anchor',(diff < 0) ? 'end' : 'start');
 
-                this.textbox
-                    .attr('transform','translate(' + (pt.x + diff) + ',' + (pt.y - 15) + ')')
-                .select('rect')
-                    .attr('width',bbox.width+12)
-                    .attr('height',bbox.height+4)
-                    .attr('x',bbox.x-6)
-                    .attr('y',bbox.y-2);
-            })
-            .on('mouseout', (d,i) => {
-              this.textbox
-                .style('display','none');
-              this.axisHelper
-                .style('display','none');
-              App.panels.forceDirected.updateEdgeVisibility();
-              links.style('stroke-opacity',0.0);
-              d3.select(d3.event.target)
-                .style('stroke-opacity', 0.0)
-            })
-            .attr('d', (d) => line(d));
+        //         this.textbox
+        //             .attr('transform','translate(' + (pt.x + diff) + ',' + (pt.y - 15) + ')')
+        //         .select('rect')
+        //             .attr('width',bbox.width+12)
+        //             .attr('height',bbox.height+4)
+        //             .attr('x',bbox.x-6)
+        //             .attr('y',bbox.y-2);
+        //     })
+        //     .on('mouseout', (d,i) => {
+        //       this.textbox
+        //         .style('display','none');
+        //       this.axisHelper
+        //         .style('display','none');
+        //       App.panels.forceDirected.updateEdgeVisibility();
+        //       links.style('stroke-opacity',0.0);
+        //       d3.select(d3.event.target)
+        //         .style('stroke-opacity', 0.0)
+        //     })
+        //     .attr('d', (d) => line(d));
 
 
     },

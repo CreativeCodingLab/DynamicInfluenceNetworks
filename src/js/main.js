@@ -11,7 +11,7 @@ var App = App || {};
   };
 
   App.init = function() {
-    var url = document.URL.split('?')[1] || "flux_0.json";
+    var url = document.URL.split('?')[1] || "PreyPred/flux_0.json";
     App.loadData(url, true);
     new Toolbar(App);
     App.animation = new AnimationManager();
@@ -55,7 +55,7 @@ var App = App || {};
     App.panels.topVis = new LineGraph('#topVis', {out: false});
     App.panels.bottomVis = new LineGraph('#bottomVis', {out: true});
     App.panels.focusSlider = new FocusSlider('#focusSlider');
-    App.phenotype = new Phenotype('data/global.csv');
+    App.phenotype = new Phenotype('data/PreyPred/data.csv');
   }
 
   App.loadData = function(file, isSeries) {
