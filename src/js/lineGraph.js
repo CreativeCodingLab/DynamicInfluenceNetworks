@@ -349,7 +349,7 @@ LineGraph.prototype = {
                   });                
               }
               links.style('stroke-opacity', j => {
-                if (!j.target) { console.log('WARNING: merge hover',j); return 0; }
+                if (!j || !j.target) { console.log('WARNING: merge hover',j); return 0; }
                 if (this.outgoing) {
                     return (d[0].name === j.target.name &&
                             this.rule.name === j.source.name) ? 0.6 : 0;
@@ -423,48 +423,29 @@ LineGraph.prototype = {
 
     // draw markers
     drawMarkers: function() {
-        if (!(this.fluxs && this.x)) { return; }
-        var i = App.item - this.x.domain()[0]|| 0;
-        
-        // update title color
-        var rule = App.panels.forceDirected.filteredData[this.rule.name];
-        this.svg.select('.title')
-          .attr('fill', () => {
-            if (!rule) return 'black';
-            var c = d3.hsl(App.panels.forceDirected.clusterColor(rule.cluster));
+        if (!this.x) { return; }
+        var item = App.item || 0;
+        var domain = this.x.domain();
 
-            if (c.l > 0.65) c.l = 0.65;
-            return c.toString();
-          });
+        this.svg.select('.axis-current').remove();
+        if (item >= domain[0] && item <= domain[1]) {
 
-        var marker = this.graph.selectAll('.marker')
-            .data(this.fluxs.map(d => d[i]));
+            var scale = d3.scaleLinear()
+                .domain(domain)
+                .range([0, this.width])
+                .clamp(true);
 
-        marker.exit().remove();
-
-        marker.enter().append('circle')
-            .attr('class','marker')
-            .attr('stroke-width',1)
-            .attr('stroke','white')
-            .attr('r',0)
-        .merge(marker)
-            .attr('cx', d => this.x(d.i) )
-            .attr('cy', d => {
-                if (this.y) {
-                    return this.y(d.flux);
-                }
-                return (d.flux < 0) ? this.yneg(d.flux) : this.ypos(d.flux);
-            })
-            .style('fill', d => {
-                return 'black'; // TODO: FIX
-                if (!(rule = App.panels.forceDirected.filteredData[this.rule.name])) { return 'black'; }
-                var rule = App.panels.forceDirected.filteredData[d.name];
-                var c = d3.hsl(App.panels.forceDirected.clusterColor(rule.cluster))
-                if (c.l > 0.65) c.l = 0.65
-                return c.toString();
-            })
-            .attr('r',2)
-            .style('opacity',1);
+            this.svg.append('line')
+                .attr('class', 'axis-current')
+                .attr('stroke','grey')
+                .attr('pointer-events','none')
+                .style("stroke-dasharray", "2, 2")
+                .attr('y1',this.margin.top)
+                .attr('y2',this.margin.top + this.height)
+                .attr('x1',this.margin.left)
+                .attr('x2',this.margin.left)
+                .attr('transform', 'translate(' + scale(item) + ',0)');
+        }
     },
 
     setLog: function() {

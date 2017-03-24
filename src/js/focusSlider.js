@@ -83,6 +83,7 @@ FocusSlider.prototype = {
             }
             if (App.phenotype) {
                 App.phenotype.updateDomain(domain);
+                App.phenotype.drawMarkers();
             }
         }
     },
