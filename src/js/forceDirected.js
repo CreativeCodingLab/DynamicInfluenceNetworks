@@ -483,12 +483,15 @@ ForceDirectedGraph.prototype = {
 
       if (this.paintingManager.isOverridingExistingClusters() ){
         // remove painted nodes from calculated clusters
+        let paintedClusters = self.paintingManager.getPaintedClusters()
+          .filter((pc) => pc.length && d3.schemeCategory20.indexOf(pc[0].paintedCluster) < 8);
+
         let reducedClusters =
         _.map(clusters, function(c, i) {
 
           let reduced = _.map(c);
 
-          _.forEach(self.paintingManager.getPaintedClusters(), function(pc) {
+          _.forEach(paintedClusters, function(pc) {
               reduced = _.differenceBy(reduced, pc, 'name');
           });
 
@@ -498,13 +501,14 @@ ForceDirectedGraph.prototype = {
         });
 
         // assign new cluster numbers for painted clusters
-        _.forEach(self.paintingManager.getPaintedClusters(), function (pc, i) {
+
+        _.forEach(paintedClusters, function (pc, i) {
           _.forEach(pc, function(node) {
             node.cluster = i + reducedClusters.length;
           });
         });
 
-        clusters = _.concat(reducedClusters, self.paintingManager.getPaintedClusters());
+        clusters = _.concat(reducedClusters, paintedClusters);
 
       } else {
         // remove calculated clustered nodes from painted clusters
@@ -750,8 +754,15 @@ ForceDirectedGraph.prototype = {
     var self = this;
 
     function getFill(d) {
-      return d[0].isPainted ? d[0].paintedCluster :
-        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
+      if (d[0].isPainted && !(d3.schemeCategory20.indexOf(d[0].paintedCluster) >= 8)) {
+        return d[0].paintedCluster;
+      }
+      else if (d[0].cluster !== 0) {
+        return self.clusterColor(d[0].cluster);
+      }
+      return 'none';
+      // return d[0].isPainted ? d[0].paintedCluster :
+      //   d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
     }
     function getStroke(d) {
       return d[0].isPainted ? d[0].paintedCluster :
