@@ -67,8 +67,9 @@ ForceDirectedGraph.prototype = {
       .style("fill", "#444");
 
     this.svg.call(d3.zoom()
-        .scaleExtent([1 / 2, 4])
-        .on("zoom", this.zoomed.bind(this)));
+      .scaleExtent([1 / 2, 4])
+      .on("zoom", this.zoomed.bind(this)))
+      .on("dblclick.zoom", null);
 
     // init containers for legend and slider
     var container = d3.select("#forceDirectedDiv").append("div")
