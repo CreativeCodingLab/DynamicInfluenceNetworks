@@ -224,7 +224,6 @@ function Phenotype(path) {
             .clamp(true);
 
         axisHelper
-            .style('display','block')
             .attr('transform','translate('+ scale(svgX) +',0)');
     }
 

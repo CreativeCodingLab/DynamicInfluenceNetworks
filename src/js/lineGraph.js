@@ -3,7 +3,10 @@ function LineGraph(selector, options) {
     this.outgoing = (options && options.out === true);
     this.container = document.querySelector(selector) || document.body;
     this.svg = d3.select( this.container )
-                            .append('svg');
+        .append('svg')
+        .on('mouseover', this.mouseover.bind(this))
+        .on('mousemove', this.mousemove.bind(this))
+        .on('mouseout', this.mouseout.bind(this));
 
     this.svg.append('rect')
         .attr('fill','transparent');
@@ -282,12 +285,15 @@ LineGraph.prototype = {
             this.svg.select('.axis-y')
                 .call(d3.axisLeft(this.ypos)
                         .ticks(3)
-                        .tickFormat(formatTick));
+                        .tickFormat(formatTick))
+                .select('path')
+                    .style('display', 'none');
             this.svg.select('.axis-y-signed')
                 .call(d3.axisLeft(this.yneg)
                         .ticks(3)
-                        .tickFormat(formatTick));
-
+                        .tickFormat(formatTick))
+                .select('path')
+                    .style('display', 'none');
         }
     },
     // draw lines
@@ -465,5 +471,28 @@ LineGraph.prototype = {
         this.svg.select('.log')
             .classed('active',false);
         this.updateGraph();
+    },
+    mouseover: function() {
+        if (!this.fluxs) { return; }
+        this.axisHelper.style('display','block');
+    },
+    mousemove: function() {
+        var rect = this.svg.node().getBoundingClientRect();
+
+        var svgWidth = rect.width;
+        var svgX = d3.event.x - rect.left;
+
+        var graphOffset = this.margin.left * svgWidth/280;
+
+        var scale = d3.scaleLinear()
+            .domain([graphOffset, svgWidth - this.margin.right*svgWidth/280])
+            .range([this.margin.left, 280 - this.margin.right])
+            .clamp(true);
+
+        this.axisHelper
+            .attr('transform','translate('+ scale(svgX) +',0)');
+    },
+    mouseout: function() {
+        this.axisHelper.style('display','none');
     }
 }
