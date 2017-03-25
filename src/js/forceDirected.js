@@ -140,11 +140,11 @@ ForceDirectedGraph.prototype = {
 
     this._isDragging = false;
 
-    this.clusterMode = "timestep";
+    this.clusterMode = "timestep"; // or "global" or "window"
     this.globalClustering = null;
 
     this.windowClustering = null;
-    this.windowClusteringRange = [10, 40];
+    this.windowClusteringRange = 5; // # timesteps before and after current
 
     /* Initialize tooltip for nodes */
     this.tip = d3.select('#forceDirectedDiv').append('div').attr('id', 'tip');
@@ -406,17 +406,17 @@ ForceDirectedGraph.prototype = {
       links = this.links;
     } else if (this.clusterMode === "global") {
       // check if global ilnks have been calculated
-      if (!this.globalClustering) {
+      if (this.globalClustering == null) {
         this.globalClustering = this.averageInfluencesOverTime(0, App.dataset.length-1);
       }
       links = this.globalClustering.links;
     } else if (this.clusterMode === "window") {
       // check if window links have been calculated, or if they need to be because of a new range
-      if (!this.windowClustering ||
-        this.windowClustering.timeRange[0] != this.windowClusteringRange[0] ||
-        this.windowClustering.timeRange[1] != this.windowClusteringRange[1]) {
+      if (this.windowClustering == null ||
+        this.windowClustering.timeRange[0] != App.item - this.windowClusteringRange ||
+        this.windowClustering.timeRange[1] != App.item + this.windowClusteringRange) {
 
-        this.windowClustering = this.averageInfluencesOverTime(this.windowClusteringRange[0], this.windowClusteringRange[1]);
+        this.windowClustering = this.averageInfluencesOverTime(App.item - this.windowClusteringRange, App.item + this.windowClusteringRange);
       }
 
       links = this.windowClustering.links;
@@ -646,8 +646,10 @@ ForceDirectedGraph.prototype = {
   },
 
   // start and end time in terms of array index into App.dataset
-  averageInfluencesOverTime: function(start, end) {
+  averageInfluencesOverTime: function(startTime, endTime) {
     let rules = {};
+    let start = startTime < 0 ? 0: startTime;
+    let end = endTime >= App.dataset.length ? App.dataset.length - 1 : endTime;
 
     for (let rule of Object.keys(App.data)) {
       // make sekeleton to aggregate influences
@@ -730,7 +732,7 @@ ForceDirectedGraph.prototype = {
     return {
       links: links,
       nodes: nodes,
-      timeRange: [start, end]
+      timeRange: [startTime, endTime]
     };
   },
 
@@ -1346,7 +1348,7 @@ ForceDirectedGraph.prototype = {
   }, // end createForceLayout
 
   // to be called externally: change the source data
-  updateData:function(data) {
+  updateData: function(data) {
     if (data) { App.data = data; }
 
     // reprocess and cluster data
@@ -1383,5 +1385,15 @@ ForceDirectedGraph.prototype = {
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
     this.simulation.alpha(0.1).restart();
+  },
+
+  // change clustering mode between global, timestep, and window
+  setClusteringMode: function(newMode) {
+    this.clusterMode = newMode;
+  },
+
+  // this is a number where it will cluster around App.item +/- numTimesteps
+  setWindowClusteringRange: function(numTimesteps) {
+    this.windowClusteringRange = numTimesteps;
   }
 }
