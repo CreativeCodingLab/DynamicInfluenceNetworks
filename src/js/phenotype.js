@@ -99,7 +99,9 @@ function Phenotype(path) {
         var values = [].concat.apply([], categories.map(d => data[d]));
         var domain = d3.extent(data['[T]'], d => +d);
         var range = d3.extent(values, d => +d);
-        fx.domain(range)
+        
+        fx
+            .domain(range)
             .range([height - margin.bottom, margin.top]);
 
         xAxis.attr('transform', 'translate(0,' + (height - margin.bottom) + ')')
@@ -108,14 +110,14 @@ function Phenotype(path) {
                     .domain(domain)
                     .range([margin.left, width - 1])
                 )
-                // .tickFormat(d => {
-                //     d = Math.floor(d);
-                //     var data = App.dataset[d];
-                //     if (data && data.timeWindow && data.timeWindow[0]) {
-                //         return Number(data.timeWindow[0].toFixed(1));
-                //     }
-                //     return d;
-                // })
+                .tickFormat(d => {
+                    d = Math.floor(d);
+                    var data = App.dataset[d];
+                    if (data && data.timeWindow && data.timeWindow[0]) {
+                        return Number(data.timeWindow[0].toFixed(1));
+                    }
+                    return d;
+                })
             )
             .select('path')
                 .attr('stroke', 'none');
@@ -151,37 +153,62 @@ function Phenotype(path) {
         }
     }
 
-    this.updateDomain = function(domain) {
-        if (!domain) {
-            domain = [0, csv.length - 1];
-        }
+    this.updateDomain = function(brush) {
+        var domain = brush || [0, csv.length - 1];
         this.x = d3.scaleLinear()
             .domain(domain)
             .range([margin.left, width - 1]);
         xAxis.call(
             d3.axisBottom(this.x)
-                // .tickFormat(d => {
-                //     d = Math.floor(d);
-                //     var data = App.dataset[d];
-                //     if (data && data.timeWindow && data.timeWindow[0]) {
-                //         return Number(data.timeWindow[0].toFixed(1));
-                //     }
-                //     return d;
-                // })
+                .tickFormat(d => {
+                    d = Math.floor(d);
+                    var data = App.dataset[d];
+                    if (data && data.timeWindow && data.timeWindow[0]) {
+                        return Number(data.timeWindow[0].toFixed(1));
+                    }
+                    return d;
+                })
             )
-            .select('path')
-                .attr('stroke', 'none');
 
-        var line = d3.line()
-            .curve(d3.curveCatmullRom)
-            .x((d, i) => i * (width - margin.left - 1) / (domain[1] - domain[0]) + margin.left)
-            .y(d => fx(d));
+        if (!brush) {
+            var line = d3.line()
+                .curve(d3.curveCatmullRom)
+                .x((d, i) => i * (width - margin.left - 1) / (domain[1] - domain[0]) + margin.left)
+                .y(d => fx(d));
 
-        svg.selectAll('.category')
-            .attr('d', (d, i) => {
-                var column = categories[i];
-                return line(data[column].slice(domain[0], domain[1]+1));
-            });
+            svg.selectAll('.category')
+                .attr('d', (d, i) => {
+                    var column = categories[i];
+                    return line(data[column].slice(domain[0], domain[1]+1));
+                });
+        }
+        else {
+            var scaledDomain = [
+                App.dataset[domain[0]].timeWindow[0],
+                App.dataset[domain[1]].timeWindow[1]
+            ];
+
+            var startIndex = data['[T]'].findIndex(data => scaledDomain[0] <= data);
+            var endIndex = data['[T]'].findIndex(data => scaledDomain[1] <= data);
+
+            if (startIndex < 0) { startIndex = 0; }
+            if (endIndex < 0) { endIndex = csv.length - 1; }
+
+            var scale = d3.scaleLinear()
+                .domain([0, endIndex - startIndex])
+                .range([margin.left, width - 1]);
+
+            var line = d3.line()
+                .curve(d3.curveCatmullRom)
+                .x((d, i) => scale(i))
+                .y(d => fx(d));
+
+            svg.selectAll('.category')
+                .attr('d', (d, i) => {
+                    var column = categories[i];
+                    return line(data[column].slice(startIndex, endIndex + 1));
+                });
+        }
     }
 
     function mousemove() {
