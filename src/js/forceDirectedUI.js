@@ -307,6 +307,8 @@ function Toolbar(App) {
           // DFS for a json file, reading files before directories
           var parent = null;
 
+          var csv = fs.entries.find(entry => entry.name && entry.name.endsWith('.csv') && !entry.name.startsWith('.'));
+
           function findJson(root) {
               if ( root.children.some(entry => {
                   return entry.name.endsWith('.json') &&
@@ -324,7 +326,7 @@ function Toolbar(App) {
 
           if (parent) {
               var children = parent.children.filter( file => file.name.endsWith(".json") );
-              parseFiles(children);
+              parseFiles(children, csv);
           }
           else {
             throw new FileException({
@@ -341,7 +343,7 @@ function Toolbar(App) {
       });
   }
 
-  function parseFiles(files) {
+  function parseFiles(files, csv) {
       var series = files.filter(f => f.name.match(/\d+/));
       if (series.length < 1) {
           // read single file
@@ -355,11 +357,12 @@ function Toolbar(App) {
       }
 
       var datasets = [];
+      var parsedCSV = null;
 
       function getDatasets(i) {
         if (i >= series.length) {
           // stop
-          App.resetData(datasets);
+          App.resetData(datasets, parsedCSV);
           return;
         }
         series[i].getText(function(text) {
@@ -374,12 +377,47 @@ function Toolbar(App) {
             d3.select('#filename')
               .text('Error reading file...');
             console.log('error',e);
-            App.resetData(datasets);
+            App.resetData(datasets, parsedCSV);
           }
         })
       };
 
-      getDatasets(0);
+      function parseCSV() {
+        try {
+          csv.getText(function(text) {
+            var parsed = text.split('\n')
+              .filter(row => !row.startsWith('#') && row.indexOf(',') > -1)
+              .map(row => {
+                var entries = row.split(/\s*,\s*/)
+                return entries.map(e => e.replace(/"/g,''));
+              });
+
+            parsedCSV = parsed.slice(1)
+              .map((row) => {
+                var entries = {};
+                row.forEach((entry, i) => {
+                  entries[parsed[0][i]] = entry;
+                })
+                return entries;
+              });
+            parsedCSV.columns = parsed[0];
+            getDatasets(0);
+          });
+        }
+        catch (e) {
+          d3.select('#filename')
+            .text('Error reading CSV...');
+          console.log('error',e);          
+          getDatasets(0);
+        }
+      }
+
+      if (csv) {
+        parseCSV();
+      }
+      else {
+        getDatasets(0);
+      }
   }
 
 };

@@ -55,7 +55,9 @@ var App = App || {};
     App.panels.topVis = new LineGraph('#topVis', {out: false});
     App.panels.bottomVis = new LineGraph('#bottomVis', {out: true});
     App.panels.focusSlider = new FocusSlider('#focusSlider');
-    App.phenotype = new Phenotype('data/PreyPred/data.csv');
+    if (!App.phenotype) {
+      App.phenotype = new Phenotype('data/PreyPred/data.csv');
+    }
   }
 
   App.loadData = function(file, isSeries) {
@@ -150,8 +152,7 @@ var App = App || {};
     App.draw();
   };
 
-  App.resetData = function(dataset) {
-
+  App.resetData = function(dataset, csv) {
     // remove all children of svg
     App.panels.forceDirected.simulation.stop();
     App.panels.forceDirected.svg.selectAll('*').remove();
@@ -160,6 +161,9 @@ var App = App || {};
     // remove line graphs
     d3.selectAll('.row').selectAll('*').remove();
 
+    if (csv) {
+      App.phenotype.resetCSV(csv);
+    }
     App.handleData(dataset);
   };
 

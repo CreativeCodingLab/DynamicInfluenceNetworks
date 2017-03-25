@@ -211,7 +211,25 @@ function Phenotype(path) {
         }
     }
 
+    this.resetCSV = function(newCSV) {
+        csv = newCSV;
+
+        data = {};
+
+        csv.columns.forEach(column => data[column] = []);
+
+        csv.forEach(row => {
+            for (var entry in row) {
+                data[entry].push(row[entry]);
+            }
+        })
+
+        drawAxes();
+        this.updateDomain();
+    }
+
     function mousemove() {
+        if (!csv) { return; }
         var rect = svg.node().getBoundingClientRect();
         var svgWidth = rect.width;
         var svgX = d3.event.x - rect.left;
