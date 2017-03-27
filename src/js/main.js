@@ -223,6 +223,10 @@ var App = App || {};
       log: true,
       tabs: ['Clustering', 'Visibility']
     });
+
+    // insert value into input thing
+    document.getElementById('set-threshold').value = App.panels.forceDirected.threshold;
+
     App.infSlider.setPosition( App.panels.forceDirected.threshold );
     App.infSlider.onDrag = function(x, evt) {
       var inf = this.value;

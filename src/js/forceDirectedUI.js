@@ -58,6 +58,23 @@ function Toolbar(App) {
     document.querySelectorAll('#toolbar>span').forEach(span => span.style.transform = 'translateX(' + dx + 'px)');
   };
 
+  // set specifically the clustering threshold
+  document.getElementById('set-threshold').onkeyup = function(e) {
+    if (e.key == "Enter") { // enter
+      let inf = parseFloat(this.value);
+
+      // update clustering threshold
+      App.panels.forceDirected.threshold = inf;
+      App.panels.forceDirected.defineClusters(inf);
+      App.panels.forceDirected.drawGraph();
+      App.panels.topVis.drawMarkers();
+      App.panels.bottomVis.drawMarkers();
+
+      App.infSlider.setPosition(inf);
+      App.infSlider.setTitle('Influence > ' + inf.toPrecision(3));
+    }
+  };
+
   // toggle scientific notation
   document.getElementById('sci').onchange = function() {
     App.property.sci = this.checked;

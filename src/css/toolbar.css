@@ -180,6 +180,12 @@ input[type="checkbox"]:checked + label[for="show-labels"]:before {
   content: "\f06e";
 }
 
+/*Clustering controls*/
+.ui-clusters > div {
+  margin-top:0.5vmin;
+  margin-left:0.8vw;
+}
+
 /* range slider */
 .ui-labels > div {
   margin-top:0.5vmin;
