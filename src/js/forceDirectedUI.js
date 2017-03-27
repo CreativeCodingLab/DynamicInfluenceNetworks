@@ -63,6 +63,8 @@ function Toolbar(App) {
     if (e.key == "Enter") { // enter
       let inf = parseFloat(this.value);
 
+      e.preventDefault();
+
       // update clustering threshold
       App.panels.forceDirected.threshold = inf;
       App.panels.forceDirected.defineClusters(inf);
@@ -73,6 +75,43 @@ function Toolbar(App) {
       App.infSlider.setPosition(inf);
       App.infSlider.setTitle('Influence > ' + inf.toPrecision(3));
     }
+  };
+
+  document.getElementById('timestep-mode').onchange = function() {
+      App.panels.forceDirected.setClusteringMode("timestep");
+
+      App.panels.forceDirected.defineClusters(App.panels.forceDirected.threshold);
+      App.panels.forceDirected.drawGraph();
+  };
+
+  document.getElementById('global-mode').onchange = function() {
+      App.panels.forceDirected.setClusteringMode("global");
+
+      App.panels.forceDirected.defineClusters(App.panels.forceDirected.threshold);
+      App.panels.forceDirected.drawGraph();
+  };
+
+  document.getElementById('window-mode').onchange = function() {
+    App.panels.forceDirected.setClusteringMode("window");
+
+    App.panels.forceDirected.defineClusters(App.panels.forceDirected.threshold);
+    App.panels.forceDirected.drawGraph();
+  };
+
+  // window clustering range value
+  document.getElementById('set-timewindow').onkeyup = function(e) {
+
+    if (e.key == "Enter") { // enter
+      document.getElementById('window-mode').checked = true;
+
+      App.panels.forceDirected.setClusteringMode("window");
+      App.panels.forceDirected.setWindowClusteringRange(parseInt(this.value));
+      // automatically change to window mode in this case..
+      App.panels.forceDirected.defineClusters(App.panels.forceDirected.threshold);
+      App.panels.forceDirected.drawGraph();
+    }
+
+    e.preventDefault();
   };
 
   // toggle scientific notation

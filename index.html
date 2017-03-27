@@ -54,21 +54,23 @@
                   <div>
                     <div class="center">Threshold</div>
                     <input type="text" id="set-threshold">
-                    <!-- <div class="center">Mode</div>
-                    <form class="cluster-mode">
-                      <div class="center">
-                        <input name="mode" type="radio" id="timestep-mode">
-                      </div>
-                      <div class="center">
-                        <input name="mode" type="radio" id="global-mode">
-                      </div>
-                      <div class="center">
-                        <span>
-                          <input name="mode" type="radio" id="window-mode">
-                          <input type="text" id="set-window">
-                        </span>
-                      </div>
-                    </form> -->
+                    <div class="center">Mode</div>
+                    <div>
+                      <input name="mode" type="radio" id="timestep-mode" checked>
+                      <label for="global-mode">Timestep</label>
+                    </div>
+                    <div>
+                      <input name="mode" type="radio" id="global-mode">
+                      <label for="global-mode">Global</label>
+                    </div>
+                    <div>
+                        <input name="mode" type="radio" id="window-mode">
+                        <label for="window-mode">Windowed</label>
+                    </div>
+                    <div>
+                      <label for="set-window">Time +/-</label>
+                      <input type="text" id="set-timewindow" value="5">
+                    </div>
                   </div>
                 </span>
                 <span class="ui ui-labels">

@@ -186,6 +186,14 @@ input[type="checkbox"]:checked + label[for="show-labels"]:before {
   margin-left:0.8vw;
 }
 
+#set-threshold {
+  width: 4vw;
+}
+
+#set-timewindow {
+  width: 2vw;
+}
+
 /* range slider */
 .ui-labels > div {
   margin-top:0.5vmin;

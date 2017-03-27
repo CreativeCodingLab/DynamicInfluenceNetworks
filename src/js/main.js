@@ -242,6 +242,9 @@ var App = App || {};
         App.panels.forceDirected.drawGraph();
         App.panels.topVis.drawMarkers();
         App.panels.bottomVis.drawMarkers();
+
+        // insert value into input thing
+        document.getElementById('set-threshold').value = inf;
       }
     }
     App.infSlider.onTabClick = function(x) {
