@@ -5,6 +5,7 @@ var App = App || {};
 (function() {
   App.timeWindow = [0, 0];
   App.data = {};
+  App.item = 0; // starting with the first item
 
   App.panels = {
     forceDirected: {}
