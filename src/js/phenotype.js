@@ -1,4 +1,4 @@
-function Phenotype(path) {
+function Phenotype(arg) {
     
     this.container = d3.select('#phenoVis');
     var svg = this.container.append('svg');
@@ -56,43 +56,6 @@ function Phenotype(path) {
     var csv = null;
     var categories = null;
     var data = null;
-    d3.csv(path, (callback) => {
-        csv = callback;
-        if (!csv) { 
-            console.log('FILE ERROR: could not find ' + path);
-            return;
-        }
-
-        data = {};
-
-        csv.columns.forEach(column => data[column] = []);
-
-        csv.forEach(row => {
-            for (var entry in row) {
-                data[entry].push(row[entry]);
-            }
-        })
-
-        // calculate axes
-        drawAxes();
-
-        // draw paths
-        var line = d3.line()
-            .curve(d3.curveCatmullRom)
-            .x((d, i) => i * (width - margin.left - 1) / (csv.length - 1) + margin.left)
-            .y(d => fx(d));
-
-        categories.forEach((column, i) => {
-            svg.append('path')
-                .attr('class', 'category')
-                .attr('fill', 'none')
-                .style('stroke', d3.schemeCategory10[i])
-                .style('stroke-width', 0.5)
-                .attr('d', line(data[column]));
-        });
-
-        this.updateDomain();
-    })
 
     function drawAxes() {
         categories = csv.columns.filter(d => d !== '[T]');
@@ -211,7 +174,56 @@ function Phenotype(path) {
         }
     }
 
+    this.init = function() {
+        data = {};
+
+        csv.columns.forEach(column => data[column] = []);
+
+        csv.forEach(row => {
+            for (var entry in row) {
+                data[entry].push(row[entry]);
+            }
+        })
+
+        // calculate axes
+        drawAxes();
+
+        // draw paths
+        var line = d3.line()
+            .curve(d3.curveCatmullRom)
+            .x((d, i) => i * (width - margin.left - 1) / (csv.length - 1) + margin.left)
+            .y(d => fx(d));
+
+        categories.forEach((column, i) => {
+            svg.append('path')
+                .attr('class', 'category')
+                .attr('fill', 'none')
+                .style('stroke', d3.schemeCategory10[i])
+                .style('stroke-width', 0.5)
+                .attr('d', line(data[column]));
+        });
+
+        this.updateDomain();
+    }
+
+    if (arg.path) {
+        d3.csv(arg.path, (callback) => {
+            csv = callback;
+            if (!csv) { 
+                console.log('FILE ERROR: could not find ' + path);
+                return;
+            }
+
+            this.init();
+        });
+    }
+    else if (arg.data) {
+        csv = arg.data;
+        this.init();
+    }
+
     function mousemove() {
+        if (!csv) { return; }
         var rect = svg.node().getBoundingClientRect();
         var svgWidth = rect.width;
         var svgX = d3.event.x - rect.left;
@@ -224,7 +236,6 @@ function Phenotype(path) {
             .clamp(true);
 
         axisHelper
-            .style('display','block')
             .attr('transform','translate('+ scale(svgX) +',0)');
     }
 
