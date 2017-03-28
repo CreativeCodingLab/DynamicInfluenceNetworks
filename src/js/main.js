@@ -56,7 +56,7 @@ var App = App || {};
     App.panels.bottomVis = new LineGraph('#bottomVis', {out: true});
     App.panels.focusSlider = new FocusSlider('#focusSlider');
     if (!App.phenotype) {
-      App.phenotype = new Phenotype('data/PreyPred/data.csv');
+      App.phenotype = new Phenotype({path: 'data/PreyPred/data.csv'});
     }
   }
 
@@ -162,7 +162,8 @@ var App = App || {};
     d3.selectAll('.row').selectAll('*').remove();
 
     if (csv) {
-      App.phenotype.resetCSV(csv);
+      App.phenotype = new Phenotype({data: csv});
+      // App.phenotype.resetCSV(csv);
     }
     App.handleData(dataset);
   };
