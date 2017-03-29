@@ -1146,12 +1146,12 @@ ForceDirectedGraph.prototype = {
 
       node.filter('.rule-node')
           .style("fill", function(d) {
-            return d.hits === 0 ? "#ffffff" : (d.isPainted ?
-              'white' : self.clusterColor(d.cluster));
+            return (d.isPainted ? 'white' :
+              d.hits === 0 ? "#777777" : self.clusterColor(d.cluster));
           })
           .style("stroke", function(d) {
-            return d.hits === 0 ? "none" :
-              (d.isPainted ? d.paintedCluster :
+            return d.isPainted ? d.paintedCluster :
+              (d.hits === 0 ? "#000000" :
                 (d._fixed ? "#404040" : "white"));
           })
           .style("stroke-width", function(d) {
