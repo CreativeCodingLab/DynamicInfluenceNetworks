@@ -7,6 +7,7 @@ function Phenotype(arg) {
     var width = 280;
     var height = 200;
 
+    var domain = {};
     var xAxis = svg.append('g');
     var yAxis = svg.append('g');
     var fx = d3.scaleLinear()
@@ -66,7 +67,7 @@ function Phenotype(arg) {
     function drawAxes() {
         categories = csv.columns.filter(d => d !== '[T]');
         var values = [].concat.apply([], categories.map(d => data[d]));
-        var domain = svg.domain = d3.extent(data['[T]'], d => +d);
+        domain = d3.extent(data['[T]'], d => +d);
         var range = d3.extent(values, d => +d);
         
         fx
@@ -100,7 +101,7 @@ function Phenotype(arg) {
     this.drawMarkers = function() {
         if (csv) {
             var item = App.item || 0;
-            var domain = svg.domain = this.x ? this.x.domain() : [0, csv.length - 1];
+            domain = this.x ? this.x.domain() : [0, csv.length - 1];
 
             svg.select('.axis-current').remove();
             if (item >= domain[0] && item <= domain[1]) {
@@ -236,7 +237,6 @@ function Phenotype(arg) {
         var graphOffset = margin.left * svgWidth/280;
         var diff = Math.min(this.width + margin.right - graphOffset -this.width/4 - 7, 0);
 
-        var domain = svg.domain;
         var convertX = d3.scaleLinear()
             .domain([graphOffset, svgWidth])
             .range(domain);
