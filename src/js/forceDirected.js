@@ -1146,7 +1146,7 @@ ForceDirectedGraph.prototype = {
 
       node.filter('.rule-node')
           .style("fill", function(d) {
-            return d.hits === 0 ? "#ffffff" : (d.isPainted ?
+            return d.hits === 0 ? "#404040" : (d.isPainted ?
               'white' : self.clusterColor(d.cluster));
           })
           .style("stroke", function(d) {
