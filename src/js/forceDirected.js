@@ -428,7 +428,9 @@ ForceDirectedGraph.prototype = {
     }
 
     links.forEach(link => {
-      if (Math.abs(link.value) >= threshold) {
+      if (Math.abs(link.value) >= threshold
+        && (data[link.source] || link.source)
+        && (data[link.target] || link.target)) {
         var source = data[link.source] || link.source,
             target = data[link.target] || link.target,
             sc = source.cluster,
@@ -462,6 +464,11 @@ ForceDirectedGraph.prototype = {
     });
 
     // filter out null clusters & re-index
+    // clusters = clusters.map(function(c) {
+    //   console.log(c);
+    //   return c.filter(node => node.inf.length > 0 || node.outf.length > 0);
+    // });
+
     clusters = [[]].concat(clusters.filter(cluster => cluster.length > 0));
     for (var n in data) {
       if (data[n].cluster == undefined) {
@@ -1139,12 +1146,13 @@ ForceDirectedGraph.prototype = {
 
       node.filter('.rule-node')
           .style("fill", function(d) {
-            return d.isPainted ?
-              'white' : self.clusterColor(d.cluster);
+            return d.hits === 0 ? "#ffffff" : (d.isPainted ?
+              'white' : self.clusterColor(d.cluster));
           })
           .style("stroke", function(d) {
-            return d.isPainted ? d.paintedCluster :
-              d._fixed ? "#404040" : "white";
+            return d.hits === 0 ? "none" :
+              (d.isPainted ? d.paintedCluster :
+                (d._fixed ? "#404040" : "white"));
           })
           .style("stroke-width", function(d) {
             return d.isPainted ? 3 : 1.5;
