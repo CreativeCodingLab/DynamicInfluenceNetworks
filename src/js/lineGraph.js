@@ -3,7 +3,9 @@ function LineGraph(selector, options) {
     this.outgoing = (options && options.out === true);
     this.container = document.querySelector(selector) || document.body;
     this.svg = d3.select( this.container )
-                            .append('svg');
+        .append('svg')
+        //.on('mouseover', this.mouseover.bind(this))
+        //.on('mouseout', this.mouseout.bind(this));
 
     this.svg.append('rect')
         .attr('fill','transparent');
@@ -46,6 +48,17 @@ function LineGraph(selector, options) {
     this.textbox.append('text')
         .attr('text-anchor','middle')
         .attr('fill','black');
+
+    // this.textbox = this.svg.append('g')
+    //     .attr('class','textbox')
+    //     .attr('transform', 'translate( 260, 15 )')
+    //     .style('pointer-events','none');
+    // this.textbox.append('rect')
+    //     .attr('fill','white')
+    //     .attr('stroke-width','0.5px')
+    //     .attr('stroke','gray');
+    // this.textbox.append('g')
+    //     .attr('text-anchor', 'end');
 
     this.axisHelper = this.svg.append('g')
         .style('display','none')
@@ -282,16 +295,23 @@ LineGraph.prototype = {
             this.svg.select('.axis-y')
                 .call(d3.axisLeft(this.ypos)
                         .ticks(3)
-                        .tickFormat(formatTick));
+                        .tickFormat(formatTick))
+                .select('path')
+                    .style('display', 'none');
             this.svg.select('.axis-y-signed')
                 .call(d3.axisLeft(this.yneg)
                         .ticks(3)
-                        .tickFormat(formatTick));
-
+                        .tickFormat(formatTick))
+                .select('path')
+                    .style('display', 'none');
         }
     },
     // draw lines
     drawPaths: function() {
+        var links = d3.selectAll('.link-2')
+
+        var current = this;
+        console.log(current);
         var line = d3.line()
             .curve(d3.curveCatmullRom)
             .x(d => this.x(d.i))
@@ -315,29 +335,7 @@ LineGraph.prototype = {
             .style('stroke', path => {
                 return path[0].name === this.rule.name ? 'red' : '#888';
             })
-        .transition()
-            .duration(500)
-            .attr('d', (d) => line(d));
-
-        var links = d3.selectAll('.link-2')
-
-        var hoverPath = this.graph.selectAll('.flux-2')
-            .data(this.fluxs);
-
-        hoverPath.exit().remove();
-        hoverPath.enter().append('path')
-            .attr('class','flux-2')
-            .attr('fill', 'none')
-            .style('stroke-width', 8)
-            .style('stroke-opacity', 0)
-        .merge(hoverPath)
-            .style('stroke', hoverPath => {
-                return hoverPath[0].name === this.rule.name ? 'red' : '#888';
-            })
-            .attr('name', hoverPath => {
-                return hoverPath[0].name; 
-            })
-            .on('mouseover', (d,i) => {
+        .on('mouseover', (d,i) => {
               // fade non-hovered influences (ignore for self-influence)
               if (d[0].name !== this.rule.name) {
                   d3.selectAll('.link-1')
@@ -360,65 +358,64 @@ LineGraph.prototype = {
                 }
               });
               d3.select(d3.event.target).raise()
-                .style('stroke-opacity',0.6);
+                .style('stroke-width', 5);
               this.axisHelper.raise()
                 .style('display','block');
               this.textbox.raise()
                 .style('display','block');
             })
-            .on('mousemove', (d) => {
-                // rescale svg point
-                var svg = this.svg.node();
-                var pt = svg.createSVGPoint();
-                pt.x = d3.event.clientX;
-                pt.y = d3.event.clientY;
-                pt = pt.matrixTransform( svg.getScreenCTM().inverse() );
+        .on('mousemove', (d) => {
+            // rescale svg point
+            var svg = this.svg.node();
+            var pt = svg.createSVGPoint();
+            pt.x = d3.event.clientX;
+            pt.y = d3.event.clientY;
+            pt = pt.matrixTransform( svg.getScreenCTM().inverse() );
 
-                var offset = pt.x - this.margin.left;
-                var i = Math.round(this.x.invert(offset))-this.x.domain()[0];
-                if (!d[i]) { return; }
-                var bbox = this.textbox.select('text')
-                    .text(d[0].name + ': ' + (App.property.sci ?
-                                    Number(d[i].flux.toPrecision(3)).toExponential() :
-                                    Number(d[i].flux.toFixed(3))) )
-                    .node().getBBox();
+            var offset = pt.x - this.margin.left;
+            var i = Math.round(this.x.invert(offset))-this.x.domain()[0];
+            if (!d[i]) { return; }
+            var bbox = this.textbox.select('text')
+                .text(d[0].name + ': ' + (App.property.sci ?
+                                Number(d[i].flux.toPrecision(3)).toExponential() :
+                                Number(d[i].flux.toFixed(3))) )
+                .node().getBBox();
 
-                var diff = Math.min(this.width + this.margin.right - offset - bbox.width/2 - 7, 0);
+            var diff = Math.min(this.width + this.margin.right - offset - bbox.width/2 - 7, 0);
 
+            this.axisHelper
+                .attr('transform','translate('+pt.x+',0)')
+            .select('text')
+                .text('t=' + Number(App.dataset[i+this.x.domain()[0]].timeWindow[0].toFixed(3)))
+                .attr('transform',() => {
+                    var y = this.margin.top;
+                    if (pt.y < y + 30) { y += 30; }
+                    var x = (diff < 0) ? -5 : 5;
+                    return 'translate(' + x + ',' + y + ')';
+                })
+                .attr('text-anchor',(diff < 0) ? 'end' : 'start');
 
-                this.axisHelper
-                    .attr('transform','translate('+pt.x+',0)')
-                .select('text')
-                    .text('t=' + Number(App.dataset[i+this.x.domain()[0]].timeWindow[0].toFixed(3)))
-                    .attr('transform',() => {
-                        var y = this.margin.top;
-                        if (pt.y < y + 30) { y += 30; }
-                        var x = (diff < 0) ? -5 : 5;
-                        return 'translate(' + x + ',' + y + ')';
-                    })
-                    .attr('text-anchor',(diff < 0) ? 'end' : 'start');
-
-                this.textbox
-                    .attr('transform','translate(' + (pt.x + diff) + ',' + (pt.y - 15) + ')')
-                .select('rect')
-                    .attr('width',bbox.width+12)
-                    .attr('height',bbox.height+4)
-                    .attr('x',bbox.x-6)
-                    .attr('y',bbox.y-2);
-            })
-            .on('mouseout', (d,i) => {
-              this.textbox
-                .style('display','none');
-              this.axisHelper
-                .style('display','none');
-              App.panels.forceDirected.updateEdgeVisibility();
-              links.style('stroke-opacity',0.0);
-              d3.select(d3.event.target)
-                .style('stroke-opacity', 0.0)
-            })
-            .attr('d', (d) => line(d));
-
-
+            this.textbox
+                .attr('transform','translate(' + (pt.x + diff) + ',' + (pt.y - 15) + ')')
+            .select('rect')
+                .attr('width',bbox.width+12)
+                .attr('height',bbox.height+4)
+                .attr('x',bbox.x-6)
+                .attr('y',bbox.y-2);
+        })
+        .on('mouseout', (d,i) => {
+            this.textbox
+            .style('display','none');
+            this.axisHelper
+            .style('display','none');
+            App.panels.forceDirected.updateEdgeVisibility();
+            links.style('stroke-opacity',0.0);
+            d3.select(d3.event.target)
+            .style('stroke-width', 1)
+        })
+        .transition()
+            .duration(500)
+            .attr('d', (d) => line(d));        
     },
 
     // draw markers
@@ -466,4 +463,74 @@ LineGraph.prototype = {
             .classed('active',false);
         this.updateGraph();
     }
+    // mouseover: function() {
+    //     console.log(this);
+    //     this.textbox.style('display','block').raise();
+    //     this.axisHelper.style('display','block');
+    // },
+    // mousemove: function() {
+    //     console.log(this);
+    //     var svg = this.svg.node();
+    //     var pt = svg.createSVGPoint();
+    //     pt.x = d3.event.clientX;
+    //     pt.y = d3.event.clientY;
+    //     pt = pt.matrixTransform( svg.getScreenCTM().inverse() );
+
+    //     if (pt.x < this.margin.left || pt.x > 280 - this.margin.right) { return; }
+
+    //     var offset = pt.x - this.margin.left;
+    //             var i = Math.round(this.x.invert(offset))-this.x.domain()[0];
+        
+    //     var diff = Math.min(this.width + this.margin.right - offset - this.width/4 - 7, 0);
+
+    //     //console.log(Number(App.dataset[i+this.x.domain()[0]].timeWindow[0].toFixed(3)));
+    //     this.axisHelper
+    //         .attr('transform','translate('+ pt.x +',0)')
+    //     .select('text')
+    //         .text('t=' + Number(App.dataset[i+this.x.domain()[0]].timeWindow[0].toFixed(3)))
+    //         .attr('transform',() => {
+    //             var y = this.margin.top;
+    //             if (pt.y < y + 30) { y += 30; }
+    //             var x = (diff < 0) ? -5 : 5;
+    //             return 'translate(' + x + ',' + y + ')';
+    //         })
+    //         .attr('text-anchor',(diff < 0) ? 'end' : 'start');
+
+        
+    //     // var x = d3.scaleLinear()
+    //     //     .domain([this.margin.left, 280 - this.margin.right])
+    //     //     .range(this.x.domain())
+    //     //     .clamp(true);
+
+    //     // var items = this.fluxs.map( n => n[Math.round(x(pt.x))] )
+    //     //     .sort((a, b) => b.flux - a.flux);
+
+    //     // // constrain to 3 items
+    //     // if (items.length > 3) {
+    //     //     var startIndex = 0;
+    //     //     items = items.slice(startIndex,3)
+    //     // }
+
+    //     // var text = this.textbox.select('g');
+    //     // text.selectAll('text').remove();
+
+    //     // items.forEach((d,i) => {
+    //     //     text.append('text')
+    //     //         .text(d.name + ': ' + d.flux.toPrecision(3))
+    //     //         .attr('font-size', '10px')
+    //     //         .attr('y', i * 14 + 2)
+    //     //         .attr('x', -2);
+    //     // });
+
+    //     // var width = text.node().getBBox().width + 5;
+    //     // this.textbox.select('rect')
+    //     //     .attr('width', width)
+    //     //     .attr('height', 14 * items.length + 2)
+    //     //     .attr('x', -width)
+    //     //     .attr('y', -10);
+    // },
+    // mouseout: function() {
+    //     this.textbox.style('display','none');
+    //     this.axisHelper.style('display','none');
+    // }
 }

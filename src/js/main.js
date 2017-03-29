@@ -5,13 +5,14 @@ var App = App || {};
 (function() {
   App.timeWindow = [0, 0];
   App.data = {};
+  App.item = 0; // starting with the first item
 
   App.panels = {
     forceDirected: {}
   };
 
   App.init = function() {
-    var url = document.URL.split('?')[1] || "flux_0.json";
+    var url = document.URL.split('?')[1] || "PreyPred/flux_0.json";
     App.loadData(url, true);
     new Toolbar(App);
     App.animation = new AnimationManager();
@@ -55,7 +56,9 @@ var App = App || {};
     App.panels.topVis = new LineGraph('#topVis', {out: false});
     App.panels.bottomVis = new LineGraph('#bottomVis', {out: true});
     App.panels.focusSlider = new FocusSlider('#focusSlider');
-    App.phenotype = new Phenotype('data/global.csv');
+    if (!App.phenotype) {
+      App.phenotype = new Phenotype({path: 'data/PreyPred/data.csv'});
+    }
   }
 
   App.loadData = function(file, isSeries) {
@@ -118,11 +121,7 @@ var App = App || {};
 
       var obj = {};
 
-      var w = [+json.bioBeginTime, +json.bioEndTime];
-      if (!isNaN(w[0]) && !isNaN(w[1])) {
-        obj.timeWindow = w,
-        obj.timeMean = (w[0]+w[1])/2;
-      }
+      obj.timeWindow = [+json.bioBeginTime, +json.bioEndTime];
 
       var data = {};
       for (var n in json.rules) {
@@ -154,8 +153,7 @@ var App = App || {};
     App.draw();
   };
 
-  App.resetData = function(dataset) {
-
+  App.resetData = function(dataset, csv) {
     // remove all children of svg
     App.panels.forceDirected.simulation.stop();
     App.panels.forceDirected.svg.selectAll('*').remove();
@@ -164,6 +162,10 @@ var App = App || {};
     // remove line graphs
     d3.selectAll('.row').selectAll('*').remove();
 
+    if (csv) {
+      App.phenotype = new Phenotype({data: csv});
+      // App.phenotype.resetCSV(csv);
+    }
     App.handleData(dataset);
   };
 
@@ -227,6 +229,10 @@ var App = App || {};
       log: true,
       tabs: ['Clustering', 'Visibility']
     });
+
+    // insert value into input thing
+    document.getElementById('set-threshold').value = App.panels.forceDirected.threshold;
+
     App.infSlider.setPosition( App.panels.forceDirected.threshold );
     App.infSlider.onDrag = function(x, evt) {
       var inf = this.value;
@@ -242,6 +248,9 @@ var App = App || {};
         App.panels.forceDirected.drawGraph();
         App.panels.topVis.drawMarkers();
         App.panels.bottomVis.drawMarkers();
+
+        // insert value into input thing
+        document.getElementById('set-threshold').value = inf;
       }
     }
     App.infSlider.onTabClick = function(x) {

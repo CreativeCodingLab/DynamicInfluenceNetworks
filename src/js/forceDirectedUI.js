@@ -58,6 +58,62 @@ function Toolbar(App) {
     document.querySelectorAll('#toolbar>span').forEach(span => span.style.transform = 'translateX(' + dx + 'px)');
   };
 
+  // set specifically the clustering threshold
+  document.getElementById('set-threshold').onkeyup = function(e) {
+    if (e.key == "Enter") { // enter
+      let inf = parseFloat(this.value);
+
+      e.preventDefault();
+
+      // update clustering threshold
+      App.panels.forceDirected.threshold = inf;
+      App.panels.forceDirected.defineClusters(inf);
+      App.panels.forceDirected.drawGraph();
+      App.panels.topVis.drawMarkers();
+      App.panels.bottomVis.drawMarkers();
+
+      App.infSlider.setPosition(inf);
+      App.infSlider.setTitle('Influence > ' + inf.toPrecision(3));
+    }
+  };
+
+  document.getElementById('timestep-mode').onchange = function() {
+      App.panels.forceDirected.setClusteringMode("timestep");
+
+      App.panels.forceDirected.defineClusters(App.panels.forceDirected.threshold);
+      App.panels.forceDirected.drawGraph();
+  };
+
+  document.getElementById('global-mode').onchange = function() {
+      App.panels.forceDirected.setClusteringMode("global");
+
+      App.panels.forceDirected.defineClusters(App.panels.forceDirected.threshold);
+      App.panels.forceDirected.drawGraph();
+  };
+
+  document.getElementById('window-mode').onchange = function() {
+    App.panels.forceDirected.setClusteringMode("window");
+
+    App.panels.forceDirected.defineClusters(App.panels.forceDirected.threshold);
+    App.panels.forceDirected.drawGraph();
+  };
+
+  // window clustering range value
+  document.getElementById('set-timewindow').onkeyup = function(e) {
+
+    if (e.key == "Enter") { // enter
+      document.getElementById('window-mode').checked = true;
+
+      App.panels.forceDirected.setClusteringMode("window");
+      App.panels.forceDirected.setWindowClusteringRange(parseInt(this.value));
+      // automatically change to window mode in this case..
+      App.panels.forceDirected.defineClusters(App.panels.forceDirected.threshold);
+      App.panels.forceDirected.drawGraph();
+    }
+
+    e.preventDefault();
+  };
+
   // toggle scientific notation
   document.getElementById('sci').onchange = function() {
     App.property.sci = this.checked;
@@ -69,18 +125,13 @@ function Toolbar(App) {
       App.property.label = true;
       d3.selectAll('.rule-text')
         .transition()
-        .style('opacity', function(d) {
-          if (App.property.node == true && d.cluster === 0) {
-            return 0;
-          }
-          return 1;
-        })
+        .style('opacity', 1);
     }
     else {
      App.property.label = false;
      d3.selectAll('.rule-text')
         .transition()
-        .style('opacity', 0)
+        .style('opacity', d => (d.isPainted && d3.schemeCategory20.indexOf(d.paintedCluster) >= 8) ? 1 : 0);
     }
   };
 
@@ -312,6 +363,8 @@ function Toolbar(App) {
           // DFS for a json file, reading files before directories
           var parent = null;
 
+          var csv = fs.entries.find(entry => entry.name && entry.name.endsWith('.csv') && !entry.name.startsWith('.'));
+
           function findJson(root) {
               if ( root.children.some(entry => {
                   return entry.name.endsWith('.json') &&
@@ -329,7 +382,7 @@ function Toolbar(App) {
 
           if (parent) {
               var children = parent.children.filter( file => file.name.endsWith(".json") );
-              parseFiles(children);
+              parseFiles(children, csv);
           }
           else {
             throw new FileException({
@@ -346,7 +399,7 @@ function Toolbar(App) {
       });
   }
 
-  function parseFiles(files) {
+  function parseFiles(files, csv) {
       var series = files.filter(f => f.name.match(/\d+/));
       if (series.length < 1) {
           // read single file
@@ -360,11 +413,12 @@ function Toolbar(App) {
       }
 
       var datasets = [];
+      var parsedCSV = null;
 
       function getDatasets(i) {
         if (i >= series.length) {
           // stop
-          App.resetData(datasets);
+          App.resetData(datasets, parsedCSV);
           return;
         }
         series[i].getText(function(text) {
@@ -379,12 +433,47 @@ function Toolbar(App) {
             d3.select('#filename')
               .text('Error reading file...');
             console.log('error',e);
-            App.resetData(datasets);
+            App.resetData(datasets, parsedCSV);
           }
         })
       };
 
-      getDatasets(0);
+      function parseCSV() {
+        try {
+          csv.getText(function(text) {
+            var parsed = text.split('\n')
+              .filter(row => !row.startsWith('#') && row.indexOf(',') > -1)
+              .map(row => {
+                var entries = row.split(/\s*,\s*/)
+                return entries.map(e => e.replace(/"/g,''));
+              });
+
+            parsedCSV = parsed.slice(1)
+              .map((row) => {
+                var entries = {};
+                row.forEach((entry, i) => {
+                  entries[parsed[0][i]] = entry;
+                })
+                return entries;
+              });
+            parsedCSV.columns = parsed[0];
+            getDatasets(0);
+          });
+        }
+        catch (e) {
+          d3.select('#filename')
+            .text('Error reading CSV...');
+          console.log('error',e);          
+          getDatasets(0);
+        }
+      }
+
+      if (csv) {
+        parseCSV();
+      }
+      else {
+        getDatasets(0);
+      }
   }
 
 };

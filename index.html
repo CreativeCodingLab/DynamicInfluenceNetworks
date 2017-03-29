@@ -49,6 +49,30 @@
                         <button id="changeFile">Upload</button>
                     </div>
                 </span>
+                <span class="ui ui-clusters">
+                  <h4>Clustering</h4>
+                  <div>
+                    <div class="center">Threshold</div>
+                    <input type="text" id="set-threshold">
+                    <div class="center">Mode</div>
+                    <div>
+                      <input name="mode" type="radio" id="timestep-mode" checked>
+                      <label for="global-mode">Timestep</label>
+                    </div>
+                    <div>
+                      <input name="mode" type="radio" id="global-mode">
+                      <label for="global-mode">Global</label>
+                    </div>
+                    <div>
+                        <input name="mode" type="radio" id="window-mode">
+                        <label for="window-mode">Windowed</label>
+                    </div>
+                    <div>
+                      <label for="set-window">Time +/-</label>
+                      <input type="text" id="set-timewindow" value="5">
+                    </div>
+                  </div>
+                </span>
                 <span class="ui ui-labels">
                     <h4>Appearance</h4>
                     <div>
@@ -80,27 +104,26 @@
                         </label>
                         <button id="paint-reset"></button>
                         <div id="palette">
-                            <button class="cs cs20"></button>
-                            <button class="cs cs0"></button>
-                            <button class="cs cs1"></button>
-                            <button class="cs cs2"></button>
-                            <button class="cs cs3"></button>
-                            <button class="cs cs4"></button>
-                            <button class="cs cs5"></button>
-                            <button class="cs cs6"></button>
-                            <button class="cs cs7"></button>
-                            <button class="cs cs8"></button>
-                            <button class="cs cs9"></button>
-                            <button class="cs cs10"></button>
-                            <button class="cs cs11"></button>
-                            <button class="cs cs12"></button>
-                            <button class="cs cs13"></button>
-                            <button class="cs cs14"></button>
-                            <button class="cs cs15"></button>
-                            <button class="cs cs16"></button>
-                            <button class="cs cs17"></button>
-                            <button class="cs cs18"></button>
-                            <button class="cs cs19"></button>
+                            <div id="palette-1">
+                                <button class="cs cs20"></button>
+                                <button class="cs cs0"></button>
+                                <button class="cs cs1"></button>
+                                <button class="cs cs2"></button>
+                                <button class="cs cs4"></button>
+                                <button class="cs cs5"></button>
+                                <button class="cs cs6"></button>
+                                <button class="cs cs7"></button>
+                            </div>
+                            <div id="palette-2">
+                                <button class="cs cs8"></button>
+                                <button class="cs cs9"></button>
+                                <button class="cs cs12"></button>
+                                <button class="cs cs13"></button>
+                                <button class="cs cs16"></button>
+                                <button class="cs cs17"></button>
+                                <button class="cs cs18"></button>
+                                <button class="cs cs19"></button>
+                            </div>
                         </div>
                     </div>
                 </span>

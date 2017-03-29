@@ -1,4 +1,4 @@
-function Phenotype(path) {
+function Phenotype(arg) {
     
     this.container = d3.select('#phenoVis');
     var svg = this.container.append('svg');
@@ -9,8 +9,12 @@ function Phenotype(path) {
 
     var xAxis = svg.append('g');
     var yAxis = svg.append('g');
+    var fx = d3.scaleLinear()
+                .domain([0, 1])
+                .range([height - margin.bottom, margin.top]);
 
-    var axisHelper = svg.append('line')
+    var axisHelper = svg.append('g');
+    axisHelper.append('line')
         .attr('x1', margin.left)
         .attr('x2', margin.left)
         .attr('y1', margin.top)
@@ -18,8 +22,12 @@ function Phenotype(path) {
         .style("stroke-dasharray", "2, 2")
         .style('display','none');
 
+    axisHelper.append('text')
+        .attr('fill','black');
+
     svg
-        .on('mouseover', () => { axisHelper.style('display','block') })
+        .on('mouseover', () => { axisHelper.raise()
+                .style('display','block'); })
         .on('mousemove', mousemove)
         .on('mouseout', mouseout);
 
@@ -41,6 +49,7 @@ function Phenotype(path) {
             .attr("viewBox", "0 0 " + vw + " " + vh)
 
         axisHelper
+            .select('line')
             .attr('y2', vh - margin.bottom);
 
         if (csv) {
@@ -53,49 +62,16 @@ function Phenotype(path) {
     var csv = null;
     var categories = null;
     var data = null;
-    d3.csv(path, (callback) => {
-        csv = callback;
-        if (!csv) { 
-            console.log('FILE ERROR: could not find ' + path);
-            return;
-        }
-
-        data = {};
-
-        csv.columns.forEach(column => data[column] = []);
-
-        csv.forEach(row => {
-            for (var entry in row) {
-                data[entry].push(row[entry]);
-            }
-        })
-
-        // calculate axes
-        drawAxes();
-
-        // draw paths
-        var line = d3.line()
-            .curve(d3.curveCatmullRom)
-            .x((d, i) => i * (width - margin.left - 1) / (csv.length - 1) + margin.left)
-            .y(d => d * (height - margin.bottom - margin.top) + margin.top);
-
-        categories.forEach((column, i) => {
-            svg.append('path')
-                .attr('class', 'category')
-                .attr('fill', 'none')
-                .style('stroke', d3.schemeCategory10[i])
-                .style('stroke-width', 0.5)
-                .attr('d', line(data[column]));
-        });
-
-        this.updateDomain();
-    })
 
     function drawAxes() {
         categories = csv.columns.filter(d => d !== '[T]');
         var values = [].concat.apply([], categories.map(d => data[d]));
         var domain = d3.extent(data['[T]'], d => +d);
         var range = d3.extent(values, d => +d);
+        
+        fx
+            .domain(range)
+            .range([height - margin.bottom, margin.top]);
 
         xAxis.attr('transform', 'translate(0,' + (height - margin.bottom) + ')')
             .call(d3.axisBottom(
@@ -116,11 +92,7 @@ function Phenotype(path) {
                 .attr('stroke', 'none');
 
         yAxis.attr('transform', 'translate('+ margin.left + ',0)')
-            .call(d3.axisLeft(
-                d3.scaleLinear()
-                    .domain(range)
-                    .range([margin.top, height - margin.bottom])
-                ).ticks(2) )
+            .call(d3.axisLeft(fx).ticks(2))
             .select('path')
                 .attr('stroke', 'none');
     }
@@ -150,10 +122,8 @@ function Phenotype(path) {
         }
     }
 
-    this.updateDomain = function(domain) {
-        if (!domain) {
-            domain = [0, csv.length - 1];
-        }
+    this.updateDomain = function(brush) {
+        var domain = brush || [0, csv.length - 1];
         this.x = d3.scaleLinear()
             .domain(domain)
             .range([margin.left, width - 1]);
@@ -168,36 +138,133 @@ function Phenotype(path) {
                     return d;
                 })
             )
-            .select('path')
-                .attr('stroke', 'none');
 
+        if (!brush) {
+            var line = d3.line()
+                .curve(d3.curveCatmullRom)
+                .x((d, i) => i * (width - margin.left - 1) / (domain[1] - domain[0]) + margin.left)
+                .y(d => fx(d));
+
+            svg.selectAll('.category')
+                .attr('d', (d, i) => {
+                    var column = categories[i];
+                    return line(data[column].slice(domain[0], domain[1]+1));
+                });
+        }
+        else {
+            var scaledDomain = [
+                App.dataset[domain[0]].timeWindow[0],
+                App.dataset[domain[1]].timeWindow[1]
+            ];
+
+            var startIndex = data['[T]'].findIndex(data => scaledDomain[0] <= data);
+            var endIndex = data['[T]'].findIndex(data => scaledDomain[1] <= data);
+
+            if (startIndex < 0) { startIndex = 0; }
+            if (endIndex < 0) { endIndex = csv.length - 1; }
+
+            var scale = d3.scaleLinear()
+                .domain([0, endIndex - startIndex])
+                .range([margin.left, width - 1]);
+
+            var line = d3.line()
+                .curve(d3.curveCatmullRom)
+                .x((d, i) => scale(i))
+                .y(d => fx(d));
+
+            svg.selectAll('.category')
+                .attr('d', (d, i) => {
+                    var column = categories[i];
+                    return line(data[column].slice(startIndex, endIndex + 1));
+                });
+        }
+    }
+
+    this.init = function() {
+        data = {};
+
+        csv.columns.forEach(column => data[column] = []);
+
+        csv.forEach(row => {
+            for (var entry in row) {
+                data[entry].push(row[entry]);
+            }
+        })
+
+        // calculate axes
+        drawAxes();
+
+        // draw paths
         var line = d3.line()
             .curve(d3.curveCatmullRom)
-            .x((d, i) => i * (width - margin.left - 1) / (domain[1] - domain[0]) + margin.left)
-            .y(d => d * (height - margin.bottom - margin.top) + margin.top);
+            .x((d, i) => i * (width - margin.left - 1) / (csv.length - 1) + margin.left)
+            .y(d => fx(d));
 
-        svg.selectAll('.category')
-            .attr('d', (d, i) => {
-                var column = categories[i];
-                return line(data[column].slice(domain[0], domain[1]+1));
-            });
+        categories.forEach((column, i) => {
+            svg.append('path')
+                .attr('class', 'category')
+                .attr('fill', 'none')
+                .style('stroke', d3.schemeCategory10[i])
+                .style('stroke-width', 0.5)
+                .attr('d', line(data[column]));
+        });
+
+        this.updateDomain();
+    }
+
+    if (arg.path) {
+        d3.csv(arg.path, (callback) => {
+            csv = callback;
+            if (!csv) { 
+                console.log('FILE ERROR: could not find ' + path);
+                return;
+            }
+
+            this.init();
+        });
+    }
+    else if (arg.data) {
+        csv = arg.data;
+        this.init();
     }
 
     function mousemove() {
+        if (!csv) { return; }
         var rect = svg.node().getBoundingClientRect();
         var svgWidth = rect.width;
         var svgX = d3.event.x - rect.left;
-
         var graphOffset = margin.left * svgWidth/280;
+        var diff = Math.min(this.width + margin.right - graphOffset -this.width/4 - 7, 0);
 
+   
+        var domain = d3.extent(data['[T]'], d => +d);
+  
+
+        var convertX = d3.scaleLinear()
+            .domain([graphOffset, svgWidth])
+            .range(domain);
+     ;
         var scale = d3.scaleLinear()
             .domain([graphOffset, svgWidth])
             .range([0, 280 - margin.left])
             .clamp(true);
+        
+        axisHelper
+            .select('line')
+            .attr('transform','translate('+ scale(svgX) +',0)')
+            .style('display','block');
 
         axisHelper
-            .style('display','block')
-            .attr('transform','translate('+ scale(svgX) +',0)');
+            .select('text')
+            .text('t=' + (Number(convertX(svgX)).toFixed(2) > 0 ? Number(convertX(svgX)).toFixed(2) : '0.00'))
+            .attr('transform',() => {
+                //console.log(margin.top)
+                var y = margin.top + 10;
+                var x = scale(svgX);
+                return 'translate(' + x + ',' + y + ')';
+            })
+            .raise();
+            //.attr('text-anchor',(diff < 0) ? 'end' : 'start');
     }
 
     function mouseout() {

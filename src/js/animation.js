@@ -8,7 +8,6 @@ function AnimationManager() {
   this.totalTime = 1;
   this.isPlaying = false;
 
-  this.interval = null;
   this.speed = 1; // plays at real speed to begin with
 
   this.updateTimestep = 50; // 50ms between updates of animation
@@ -90,7 +89,7 @@ AnimationManager.prototype.togglePlay = function() {
 
     that.updateData();
 
-    if (that.isPlaying) { 
+    if (that.isPlaying) {
       setTimeout( playFunc, that.updateTimestep );
     }
     else {
@@ -163,7 +162,7 @@ AnimationManager.prototype.updateData = function() {
 
   if (startData.timeWindow) {
     var timeRange = startData.timeWindow.map(n => +(n.toFixed(2)) );
-    App.timeSlider.setTitle('Time: ' + timeRange[0] + '-' + timeRange[1]);    
+    App.timeSlider.setTitle('Time: ' + timeRange[0] + '-' + timeRange[1]);
   }
 
   var keys = Object.keys(startData.data);
@@ -215,7 +214,7 @@ AnimationManager.prototype.attachToSlider = function(slider) {
     let selfRect = d3.select('.animationControls').node().getBoundingClientRect();
     d3.select('.animationControls')
       .style('left', rect.right - selfRect.width + 'px')
-      .style('top', rect.top + 'px');    
+      .style('top', rect.top + 'px');
   }
   var oldSliderResize = slider.resize.bind(slider);
 

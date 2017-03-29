@@ -67,8 +67,9 @@ ForceDirectedGraph.prototype = {
       .style("fill", "#444");
 
     this.svg.call(d3.zoom()
-        .scaleExtent([1 / 2, 4])
-        .on("zoom", this.zoomed.bind(this)));
+      .scaleExtent([1 / 2, 4])
+      .on("zoom", this.zoomed.bind(this)))
+      .on("dblclick.zoom", null);
 
     // init containers for legend and slider
     var container = d3.select("#forceDirectedDiv").append("div")
@@ -139,11 +140,11 @@ ForceDirectedGraph.prototype = {
 
     this._isDragging = false;
 
-    this.clusterMode = "timestep";
+    this.clusterMode = "timestep"; // or "global" or "window"
     this.globalClustering = null;
 
     this.windowClustering = null;
-    this.windowClusteringRange = [10, 40];
+    this.windowClusteringRange = 5; // # timesteps before and after current
 
     /* Initialize tooltip for nodes */
     this.tip = d3.select('#forceDirectedDiv').append('div').attr('id', 'tip');
@@ -405,17 +406,17 @@ ForceDirectedGraph.prototype = {
       links = this.links;
     } else if (this.clusterMode === "global") {
       // check if global ilnks have been calculated
-      if (!this.globalClustering) {
+      if (this.globalClustering == null) {
         this.globalClustering = this.averageInfluencesOverTime(0, App.dataset.length-1);
       }
       links = this.globalClustering.links;
     } else if (this.clusterMode === "window") {
       // check if window links have been calculated, or if they need to be because of a new range
-      if (!this.windowClustering ||
-        this.windowClustering.timeRange[0] != this.windowClusteringRange[0] ||
-        this.windowClustering.timeRange[1] != this.windowClusteringRange[1]) {
+      if (this.windowClustering == null ||
+        this.windowClustering.timeRange[0] != App.item - this.windowClusteringRange ||
+        this.windowClustering.timeRange[1] != App.item + this.windowClusteringRange) {
 
-        this.windowClustering = this.averageInfluencesOverTime(this.windowClusteringRange[0], this.windowClusteringRange[1]);
+        this.windowClustering = this.averageInfluencesOverTime(App.item - this.windowClusteringRange, App.item + this.windowClusteringRange);
       }
 
       links = this.windowClustering.links;
@@ -483,12 +484,15 @@ ForceDirectedGraph.prototype = {
 
       if (this.paintingManager.isOverridingExistingClusters() ){
         // remove painted nodes from calculated clusters
+        let paintedClusters = self.paintingManager.getPaintedClusters()
+          .filter((pc) => pc.length && d3.schemeCategory20.indexOf(pc[0].paintedCluster) < 8);
+
         let reducedClusters =
         _.map(clusters, function(c, i) {
 
           let reduced = _.map(c);
 
-          _.forEach(self.paintingManager.getPaintedClusters(), function(pc) {
+          _.forEach(paintedClusters, function(pc) {
               reduced = _.differenceBy(reduced, pc, 'name');
           });
 
@@ -498,13 +502,14 @@ ForceDirectedGraph.prototype = {
         });
 
         // assign new cluster numbers for painted clusters
-        _.forEach(self.paintingManager.getPaintedClusters(), function (pc, i) {
+
+        _.forEach(paintedClusters, function (pc, i) {
           _.forEach(pc, function(node) {
             node.cluster = i + reducedClusters.length;
           });
         });
 
-        clusters = _.concat(reducedClusters, self.paintingManager.getPaintedClusters());
+        clusters = _.concat(reducedClusters, paintedClusters);
 
       } else {
         // remove calculated clustered nodes from painted clusters
@@ -641,8 +646,10 @@ ForceDirectedGraph.prototype = {
   },
 
   // start and end time in terms of array index into App.dataset
-  averageInfluencesOverTime: function(start, end) {
+  averageInfluencesOverTime: function(startTime, endTime) {
     let rules = {};
+    let start = startTime < 0 ? 0: startTime;
+    let end = endTime >= App.dataset.length ? App.dataset.length - 1 : endTime;
 
     for (let rule of Object.keys(App.data)) {
       // make sekeleton to aggregate influences
@@ -725,7 +732,7 @@ ForceDirectedGraph.prototype = {
     return {
       links: links,
       nodes: nodes,
-      timeRange: [start, end]
+      timeRange: [startTime, endTime]
     };
   },
 
@@ -750,12 +757,13 @@ ForceDirectedGraph.prototype = {
     var self = this;
 
     function getFill(d) {
-      return d[0].isPainted ? d[0].paintedCluster :
-        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
-    }
-    function getStroke(d) {
-      return d[0].isPainted ? d[0].paintedCluster :
-        d[0].cluster !== 0 ? self.clusterColor(d[0].cluster) : "none";
+      if (d[0].isPainted && d3.schemeCategory20.indexOf(d[0].paintedCluster) < 8) {
+        return d[0].paintedCluster;
+      }
+      else if (d[0].cluster !== 0) {
+        return self.clusterColor(d[0].cluster);
+      }
+      return 'none';
     }
 
     var circles = this.clusterCircleGroup.selectAll(".clusterCircle").data(clusters);
@@ -764,12 +772,12 @@ ForceDirectedGraph.prototype = {
 
     circles
       .style("fill", getFill)
-      .style("stroke", getStroke);
+      .style("stroke", getFill);
 
     circles.enter().append("circle")
       .attr("class", "clusterCircle")
       .style("fill", getFill)
-      .style("stroke", getStroke)
+      .style("stroke", getFill)
       .style("stroke-dasharray", "2, 2")
       .style("fill-opacity", 0.3)
       .call(d3.drag()
@@ -960,8 +968,8 @@ ForceDirectedGraph.prototype = {
       .text(d => d.name)
       .style('font-size', App.property.labelFontSize)
       .style('opacity', function(d) {
-        if (App.property.label == true) {
-          return (App.property.node == true && d.cluster === 0) ? 0 : 1;
+        if (App.property.label == true || (d.isPainted && d3.schemeCategory20.indexOf(d.paintedCluster) >= 8)) {
+          return 1;
         }
         else {
           return 0;
@@ -1340,7 +1348,7 @@ ForceDirectedGraph.prototype = {
   }, // end createForceLayout
 
   // to be called externally: change the source data
-  updateData:function(data) {
+  updateData: function(data) {
     if (data) { App.data = data; }
 
     // reprocess and cluster data
@@ -1377,5 +1385,15 @@ ForceDirectedGraph.prototype = {
     this.defineClusters(this.threshold, 0);
     this.drawGraph();
     this.simulation.alpha(0.1).restart();
+  },
+
+  // change clustering mode between global, timestep, and window
+  setClusteringMode: function(newMode) {
+    this.clusterMode = newMode;
+  },
+
+  // this is a number where it will cluster around App.item +/- numTimesteps
+  setWindowClusteringRange: function(numTimesteps) {
+    this.windowClusteringRange = numTimesteps;
   }
 }

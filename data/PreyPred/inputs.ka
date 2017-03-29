@@ -1,0 +1,31 @@
+# "uuid" : "575439247"
+%def: "seed" "774677984"
+%def: "newSyntax" "true"
+%def: "dumpIfDeadlocked" "true"
+%def: "maxConsecutiveClash" "2"
+%def: "plotPeriod" "1" "t.u."
+%def: "outputFileName" "data.csv"
+
+%agent: prey()
+%agent: predator()
+
+%var:/*0*/ 'DIM_beat' 2
+%var:/*1*/ 'DIM_length' 5
+%var:/*2*/ 'DIM_tick' 0
+%var:/*3*/ 'DIM_clock' 0
+%plot: [T]
+%plot: |predator()|
+%plot: |prey()|
+
+'reproduce' prey(), +prey() @ 0.3
+'die' -predator() @ 0.25
+'eat' -prey(), predator(), +predator() @ 0.0005
+
+/*0*/%mod: repeat (([T] > DIM_clock) && (DIM_tick > (DIM_length - 1))) do $FLUX "flux_".(DIM_tick - DIM_length).".json" [false] until [false]
+/*1*/%mod: repeat ([T] > DIM_clock) do $FLUX "flux_".DIM_tick.".json" [true] until ((((DIM_tick + DIM_length) + 1) * DIM_beat) > [Tmax])
+/*2*/%mod: repeat ([T] > DIM_clock) do $UPDATE DIM_clock (DIM_clock + DIM_beat); $UPDATE DIM_tick (DIM_tick + 1) until [false]
+
+%init: 580 prey()
+%init: 520 predator()
+
+%mod: [E] = 89842 do $STOP

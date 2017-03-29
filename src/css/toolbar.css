@@ -180,6 +180,20 @@ input[type="checkbox"]:checked + label[for="show-labels"]:before {
   content: "\f06e";
 }
 
+/*Clustering controls*/
+.ui-clusters > div {
+  margin-top:0.5vmin;
+  margin-left:0.8vw;
+}
+
+#set-threshold {
+  width: 4vw;
+}
+
+#set-timewindow {
+  width: 2vw;
+}
+
 /* range slider */
 .ui-labels > div {
   margin-top:0.5vmin;
@@ -349,7 +363,7 @@ input[type="checkbox"]:checked + label[for="paint-start"]:before {
 
 #palette {
   text-align: left;
-  width:21vmin;
+  width:16vmin;
   white-space: initial;
   height:0;
   overflow:hidden;
@@ -357,6 +371,27 @@ input[type="checkbox"]:checked + label[for="paint-start"]:before {
 
 #palette.active {
   height:100%;
+}
+
+#palette > div + div {
+  margin-top:1vmin;
+}
+#palette > div:before {
+  font-family: FontAwesome;
+  line-height: 5vmin;
+  vertical-align: top;
+  display:block;
+  float:left;
+  margin-right:1vmin;
+  width:2vmin;
+}
+
+#palette-1:before {
+  content: '\f069';
+}
+
+#palette-2:before {
+  content: '\f02b';
 }
 
 /* color theme */
