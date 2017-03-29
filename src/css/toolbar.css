@@ -424,6 +424,9 @@ input[type="checkbox"]:checked + label[for="paint-start"]:before {
 
   font-size:0.9em;
 }
+#toolbar div.left-align {
+  text-align:left;
+}
 .ui-legend .legend-type {
   text-align: right;
 }
@@ -475,6 +478,12 @@ input[type="checkbox"]:checked + label[for="paint-start"]:before {
   padding:0 1vmin;
 
   border:0.2vmin solid #ddd;
+}
+
+/* text input */
+input[type="text"] {
+  font-size:inherit;
+  margin-bottom:1vmin;
 }
 
 /* checkbox labels */

@@ -1148,6 +1148,7 @@ ForceDirectedGraph.prototype = {
           .style("fill", function(d) {
             return (d.isPainted ? 'white' :
               d.hits === 0 ? "#777777" : self.clusterColor(d.cluster));
+
           })
           .style("stroke", function(d) {
             return d.isPainted ? d.paintedCluster :

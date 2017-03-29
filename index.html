@@ -55,21 +55,23 @@
                     <div class="center">Threshold</div>
                     <input type="text" id="set-threshold">
                     <div class="center">Mode</div>
-                    <div>
-                      <input name="mode" type="radio" id="timestep-mode" checked>
-                      <label for="global-mode">Timestep</label>
-                    </div>
-                    <div>
-                      <input name="mode" type="radio" id="global-mode">
-                      <label for="global-mode">Global</label>
-                    </div>
-                    <div>
-                        <input name="mode" type="radio" id="window-mode">
-                        <label for="window-mode">Windowed</label>
-                    </div>
-                    <div>
-                      <label for="set-window">Time +/-</label>
-                      <input type="text" id="set-timewindow" value="5">
+                    <div class="left-align">
+                        <div>
+                          <input name="mode" type="radio" id="timestep-mode" checked>
+                          <label for="timestep-mode">Timestep</label>
+                        </div>
+                        <div>
+                          <input name="mode" type="radio" id="global-mode">
+                          <label for="global-mode">Global</label>
+                        </div>
+                        <div>
+                            <input name="mode" type="radio" id="window-mode">
+                            <label for="window-mode">Windowed</label>
+                        </div>
+                        <div>
+                          Time +/-
+                          <input type="text" id="set-timewindow" value="5">
+                        </div>
                     </div>
                   </div>
                 </span>

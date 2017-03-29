@@ -67,7 +67,7 @@ function Phenotype(arg) {
     function drawAxes() {
         categories = csv.columns.filter(d => d !== '[T]');
         var values = [].concat.apply([], categories.map(d => data[d]));
-        domain = d3.extent(data['[T]'], d => +d);
+        domain = [0, App.dataset.length - 1];
         var range = d3.extent(values, d => +d);
         
         fx
@@ -124,7 +124,8 @@ function Phenotype(arg) {
     }
 
     this.updateDomain = function(brush) {
-        var domain = brush || [0, csv.length - 1];
+        var domain = brush || [0, App.dataset.length - 1];
+
         this.x = d3.scaleLinear()
             .domain(domain)
             .range([margin.left, width - 1]);
@@ -240,28 +241,30 @@ function Phenotype(arg) {
         var convertX = d3.scaleLinear()
             .domain([graphOffset, svgWidth])
             .range(domain);
-     ;
+
         var scale = d3.scaleLinear()
             .domain([graphOffset, svgWidth])
             .range([0, 280 - margin.left])
             .clamp(true);
         
+        var i = Math.floor(convertX(svgX));
+        if (App.dataset[i]) {
+            var t = App.dataset[i].timeWindow[0];
+            axisHelper
+                .select('text')
+                .text('t=' + t.toFixed(2))
+                .attr('transform',() => {
+                    var y = margin.top + 10;
+                    var x = scale(svgX) + 2;
+                    return 'translate(' + x + ',' + y + ')';
+                });
+        }
+
         axisHelper
             .select('line')
             .attr('transform','translate('+ scale(svgX) +',0)')
             .style('display','block');
 
-        axisHelper
-            .select('text')
-            .text('t=' + (Number(convertX(svgX)).toFixed(2) > domain[0] ? Number(convertX(svgX)*2).toFixed(2) : domain[0]*2))
-            .attr('transform',() => {
-                //console.log(margin.top)
-                var y = margin.top + 10;
-                var x = scale(svgX) + 2;
-                return 'translate(' + x + ',' + y + ')';
-            })
-            .raise();
-            //.attr('text-anchor',(diff < 0) ? 'end' : 'start');
     }
 
     function mouseout() {
