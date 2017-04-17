@@ -19,7 +19,7 @@ Andrew Burks, Kristine Lee, Xing Li (University of Illinois at Chicago)
 ```[path to python.exe]\python -m SimpleHTTPServer 8080``` to start the server. If this command cannot start the server, use the command: ```[path to python.exe]\python -m http.server 8080``` instead. 
 - Go to localhost:8080 on Google Chrome to load the visualization.
 
-Alternatively, the page is hosted using GitHub Pages at https://creativecodinglab.github.io/DynamicInfluenceNetworks/. (Use the "Dataset" meny to load in data/miniKaiProb3.zip to explore a larger example dataset, or choose your own KaSim output - see below.)
+Alternatively, the page is hosted using GitHub Pages at https://creativecodinglab.github.io/DynamicInfluenceNetworks/. (Use the "Dataset" menu to load in data/miniKaiProb3.zip to explore a larger example dataset, or choose your own KaSim output - see below.)
 
 # How to Use
 
@@ -29,19 +29,17 @@ _Please make sure that the times series json files are in the format name_\__\[0
 
 # Motivation 
 
-For many systems, the specifics regarding the interactions and effects within complex biological systems are unknown. The Kappa Simulator ([KaSim](http://www.kappalanguage.org)) is a stochastic simulator of Kappa rules defined using the Kappa language, used to generate simulations of protein-protein interaction networks. A tool to represent the outputs of these simulations can help systems biologists to better understand the complex systems that they are modeling. This creates a feedback loop between the creation and the visualization of the simulations which iteratively improves both the system models as well as the visual analytics tools which aid in representing and analyzing the biological systems. The current tools do not scale well, are static, cluttered, and can not support time-series visualization. We define the Dynamic Influence Network (DIN) to represent the rules and the influence these rules have on other rules that model the system. Our software tool, DIN-Viz, facilitates the analysis of DINs created from KaSim simulation output.
+For many systems, the specifics regarding the interactions and effects within complex biological systems are unknown. The Kappa Simulator ([KaSim](http://www.kappalanguage.org)) is a stochastic simulator of biological "rules" defined using the Kappa language, used to generate simulations of protein-protein interaction networks. A tool to represent the outputs of these simulations can help systems biologists to better understand the complex systems that they are modeling. This creates a feedback loop between the creation and the visualization of the simulations which iteratively improves both the system models as well as the visual analytics tools which aid in representing and analyzing the biological systems. The current tools do not scale well, are static, cluttered, and can not support time-series visualization. We define the Dynamic Influence Network (DIN) to represent the rules and the influence these rules have on other rules that model the system. Our software tool, DIN-Viz, facilitates the analysis of DINs created from KaSim simulation output.
 
 # The DIN-Viz Visual Analytics Software
 
-DIN-Viz utilizes a force-directed network overlaid on top of influence-based clustering information for the Kappa rules (these influences are generated using Kappa Simulator output data). Due to relatively small number of nodes in these protein-protein interaction simulations, along with our threshold clustering method, the threshold is interactively controllable, and the clustering can recompute in real-time. To reduce clutter, the user may choose to manually rearrange areas of the network, as well as hide nodes or edges which fall below the clustering threshold. Individual nodes can also be manually marked and clustered. Time series data based on a sliding time window can be viewed (assuming the proper JSON data files have been loaded). Supplemental visualizations show overviews of the time series data, for example, to show the influence of a selected rule over time over other rules in the DIN.
+DIN-Viz utilizes a force-directed network overlaid on top of influence-based clustering information for the Kappa rules (these influences are generated using Kappa Simulator output data). Due to relatively small number of nodes in these protein-protein interaction simulations, along with our threshold clustering method, the threshold is interactively controllable, and the clustering can recompute in real-time. To reduce clutter, the user may choose to manually rearrange areas of the network, as well as hide nodes or edges which fall below the clustering threshold. Individual nodes can also be manually marked and clustered. Time series data based on a sliding time window can be viewed (assuming the proper JSON data files have been loaded). Supplemental visualizations show overviews of the time series data, such as the influence that a selected rule has over other rules in the DIN throughout the simulation.
 
 # Screen shots
 
 - Clustering
 
     ![alt text](screencaps/ClusteringThreshold.png "Clustering effects with different thresholds applied")
-    ![alt text](screencaps/Cluster1.png "Cluster 1")
-    ![alt text](screencaps/Cluster2.png "Cluster 2")
 
 - Hovering
 
