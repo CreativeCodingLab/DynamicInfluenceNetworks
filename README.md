@@ -2,11 +2,12 @@
 Interactive visualization of Dynamic Influence Networks for rule-based models. 
 
 
+![alt text](screencaps/teaser.png "Dynamic Influence Networks")
+
+
 DIN Project members: 
 
-Angus Forbes, Andrew Burks, Kristine Lee, and Xing Li (University of Illinois at Chicago)
-Jean Krivine (Universite ́Paris Diderot)
-Pierre Boutillier and Walter Fontana (Harvard Medical School)
+Angus Forbes, Andrew Burks, Kristine Lee, and Xing Li (University of Illinois at Chicago); Jean Krivine (Universite ́Paris Diderot); Pierre Boutillier and Walter Fontana (Harvard Medical School)
 
 DIN-Viz Software Development: 
 
@@ -57,8 +58,8 @@ There are also two supplemental visualizations with the time series data which s
 
 See a video of the tool in action [here](https://vimeo.com/195336381)
 
-# Formal Write-Up
+# Article
 
-An article describing the DIN representation and the DIN-Viz software is currently in submission to IEEE VIS.
+An article describing the DIN representation and the DIN-Viz software is currently in submission to IEEE VIS 2017.
 
 
