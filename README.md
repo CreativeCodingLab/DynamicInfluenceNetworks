@@ -62,7 +62,7 @@ DIN-Viz utilizes a force-directed network overlaid on top of influence-based clu
 
 
 
-# Demo
+# Demonstration Video
 
 See a video of DIN-Viz in action [here](https://vimeo.com/195336381), or another newer one [here](https://dl.dropboxusercontent.com/u/571874/DIN-Viz_03312007_hd.mp4).
 
