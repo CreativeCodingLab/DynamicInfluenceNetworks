@@ -7,7 +7,7 @@ Interactive visualization of Dynamic Influence Networks for rule-based models.
 
 DIN Project members: 
 
-Angus Forbes, Andrew Burks, Kristine Lee, and Xing Li (University of Illinois at Chicago); Jean Krivine (Universite ́Paris Diderot); Pierre Boutillier and Walter Fontana (Harvard Medical School)
+Angus Forbes, Andrew Burks, Kristine Lee, and Xing Li (University of Illinois at Chicago); Jean Krivine (Universite Paris Diderot); Pierre Boutillier and Walter Fontana (Harvard Medical School)
 
 DIN-Viz Software Development: 
 
@@ -21,7 +21,7 @@ Andrew Burks, Kristine Lee, Xing Li (University of Illinois at Chicago)
 ```[path to python.exe]\python -m SimpleHTTPServer 8080``` to start the server. If this command cannot start the server, use the command: ```[path to python.exe]\python -m http.server 8080``` instead. 
 - Go to localhost:8080 on Google Chrome to load the visualization.
 
-Alternatively, the page is hosted using GitHub Pages at https://creativecodinglab.github.io/DynamicInfluenceNetworks/
+Alternatively, the page is hosted using GitHub Pages at https://creativecodinglab.github.io/DynamicInfluenceNetworks/. (Use the "Dataset" meny to load in data/miniKaiProb3.zip to explore a larger example dataset, or choose your own KaSim output - see below.)
 
 # How to Use
 
@@ -56,7 +56,8 @@ There are also two supplemental visualizations with the time series data which s
 
 # Demo
 
-See a video of the tool in action [here](https://vimeo.com/195336381)
+See a video of DIN-Viz in action [here](https://vimeo.com/195336381), or another newer one [here](https://dl.dropboxusercontent.com/u/571874/DIN-Viz_03312007_hd.mp4).
+
 
 # Article
 
