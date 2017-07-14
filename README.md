@@ -69,6 +69,6 @@ See a video of DIN-Viz in action [here](https://vimeo.com/195336381), or another
 
 # Article
 
-An article describing the DIN representation and the DIN-Viz software is currently in submission to IEEE VIS 2017.
+An [article](https://creativecoding.soe.ucsc.edu/pdfs/Forbes_DIN-Viz_VAST2017.pdf_ describing the DIN representation and the DIN-Viz software is accepted to [IEEE Transactions on Visualization and Computer Graphics](https://creativecoding.soe.ucsc.edu/pdfs/Forbes_DIN-Viz_VAST2017.pdf) and will be presented at [IEEE VIS](http://ieeevis.org/) in October 2017.
 
 
