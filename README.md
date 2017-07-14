@@ -72,10 +72,16 @@ See a video of DIN-Viz in action [here](https://vimeo.com/195336381), or another
 Our article, [Rule-based Models for Dynamic Influence Networks](https://creativecoding.soe.ucsc.edu/pdfs/Forbes_DIN-Viz_VAST2017.pdf), describing the DIN representation and the DIN-Viz software is accepted to [IEEE Transactions on Visualization and Computer Graphics](https://creativecoding.soe.ucsc.edu/pdfs/Forbes_DIN-Viz_VAST2017.pdf) and will be presented at [IEEE VIS](http://ieeevis.org/) in October 2017.
 
 
-
 A. G. Forbes, A. Burks, K. Lee, X. Li, P. Boutillier, J. Krivine, and W. Fontana. Dynamic influence networks for rule-based models. IEEE Transactions on Visualization and Computer Graphics, 24(1), January 2018.
 
 
-
-@article{ForbesFontana_DynamicInfluenceNetworks_TVCG_2018, <br>   title = {Dynamic Influence Networks for Rule-based Models}, <br>   author = {Angus G. Forbes and Andrew Burks and Kristine Lee and Xing Li and Pierre Boutillier and Jean Krivine and Walter Fontana}, <br>   journal = {IEEE Transactions on Visualization and Computer Graphics}, <br>   volume = {24}, <br>   number = {1}, <br>   month = {January}, <br>   year = {2018} <br>}
-
+@article{
+<br>&nbsp;&nbsp;&nbsp;&nbsp;ForbesFontana_TVCG_2018, 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;title = {Dynamic Influence Networks for Rule-based Models}, 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;author = {Angus G. Forbes and Andrew Burks and Kristine Lee and Xing Li and Pierre Boutillier and Jean Krivine and Walter Fontana}, 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;journal = {IEEE Transactions on Visualization and Computer Graphics}, 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;volume = {24}, 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;number = {1}, 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;month = {January}, 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;year = {2018} 
+<br>}
