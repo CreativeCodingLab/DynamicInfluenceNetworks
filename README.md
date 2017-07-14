@@ -77,21 +77,5 @@ A. G. Forbes, A. Burks, K. Lee, X. Li, P. Boutillier, J. Krivine, and W. Fontana
 
 
 
-@article{ForbesFontana_DynamicInfluenceNetworks_TVCG_2018,
-
-  title = {Dynamic Influence Networks for Rule-based Models},
-
-  author = {Angus G. Forbes and Andrew Burks and Kristine Lee and Xing Li and Pierre Boutillier and Jean Krivine and Walter Fontana}, 
-
-  journal = {IEEE Transactions on Visualization and Computer Graphics},
-
-  volume = {24},
-
-  number = {1},
-
-  month = {January},
-
-  year = {2018}
-
-}
+@article{ForbesFontana_DynamicInfluenceNetworks_TVCG_2018, <br>title = {Dynamic Influence Networks for Rule-based Models}, <br>author = {Angus G. Forbes and Andrew Burks and Kristine Lee and Xing Li and Pierre Boutillier and Jean Krivine and Walter Fontana}, <br>journal = {IEEE Transactions on Visualization and Computer Graphics}, <br>volume = {24}, <br>number = {1}, <br>month = {January}, <br>year = {2018} <br>}
 
