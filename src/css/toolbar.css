@@ -11,21 +11,21 @@
   width:100%;
   padding:0;
 
-  transition:transform 200ms ease, background-color 100ms ease;
-  white-space: nowrap;
-
-  color:#555;
-
-  font-size: 2vmin;
-
   -webkit-user-select: none; /* Chrome/Safari/Opera */
      -moz-user-select: none; /* Firefox */
       -ms-user-select: none; /* Internet Explorer/Edge */
           user-select: none; /* Non-prefixed version, currently
                                 not supported by any browser */
+  transition:transform 200ms ease, background-color 100ms ease;
+  white-space: nowrap;
+  pointer-events:none;
+
+  color:#555;
+
+  font-size: 2vmin;
+
   -webkit-touch-callout: none; /* iOS Safari */
    -khtml-user-select: none; /* Konqueror */
-  pointer-events:none;
 }
 
 #toolbar > * {
@@ -144,9 +144,11 @@
 
 /* dataset change button */
 #toolbar .ui-data h4:after {
-  font-family: FontAwesome;
-  content: '';
   margin-left:1vmin;
+
+  content: '';
+
+  font-family: FontAwesome;
 }
 #toolbar .ui-data.done h4:after {
   content: '\f00c';
@@ -159,8 +161,9 @@
     to {transform:rotate(360deg);}
 }
 #toolbar .ui-data.loading h4:after {
-  content: '\f110';
   display:inline-block;
+
+  content: '\f110';
   animation: spin 3s infinite linear;
 }
 
@@ -309,26 +312,32 @@ input[type="checkbox"]:checked + label[for="hide-negative"]:before {
 /* pinning and marking nodes */
 .ui-mark h4 span {
   display:none;
-  vertical-align: middle;
+
   width:1.5vmin;
   height:1.5vmin;
+
+  vertical-align: middle;
 }
 .painting .ui-mark h4 span {
   display:inline-block;
+
   margin-left:1vmin;
 }
 .ui-mark button {
   display:block;
+
   width:100%;
 }
 
 #toolbar button.cs {
   display:inline-block;
-  border:0.4vmin solid transparent;
+
   width: 2.3vmin;
   height: 2.3vmin;
   padding:0;
+
   opacity:0.7;
+  border:0.4vmin solid transparent;
 }
 #toolbar button.cs:hover {
   opacity:1;
@@ -339,34 +348,42 @@ input[type="checkbox"]:checked + label[for="hide-negative"]:before {
 }
 
 input[type="checkbox"] + label[for="paint-start"]:before {
-  font-family:FontAwesome;
   margin-left:-1.3vmin;
-  font-size:2.2vmin;
+
   content: '\f044';
+
+  font-family:FontAwesome;
+  font-size:2.2vmin;
 }
 input[type="checkbox"]:checked + label[for="paint-start"]:before {
+  content: '\f046';
+
   font-family: FontAwesome;
   font-size:2.2vmin;
-  content: '\f046';
 }
 #toolbar button#paint-reset {
-  border:none;
   display:inline;
-  padding:0;
+
   width:initial;
   margin-left:2.8vmin;
+  padding:0;
+
+  border:none;
 }
 #paint-reset:before {
-  font-family: FontAwesome;
   content: '\f0e2';
+
+  font-family: FontAwesome;
 }
 
 #palette {
-  text-align: left;
-  width:16vmin;
-  white-space: initial;
-  height:0;
   overflow:hidden;
+
+  width:16vmin;
+  height:0;
+
+  text-align: left;
+  white-space: initial;
 }
 
 #palette.active {
@@ -377,13 +394,16 @@ input[type="checkbox"]:checked + label[for="paint-start"]:before {
   margin-top:1vmin;
 }
 #palette > div:before {
-  font-family: FontAwesome;
-  line-height: 5vmin;
-  vertical-align: top;
   display:block;
   float:left;
-  margin-right:1vmin;
+
   width:2vmin;
+  margin-right:1vmin;
+
+  vertical-align: top;
+
+  font-family: FontAwesome;
+  line-height: 5vmin;
 }
 
 #palette-1:before {
@@ -482,8 +502,9 @@ input[type="checkbox"]:checked + label[for="paint-start"]:before {
 
 /* text input */
 input[type="text"] {
-  font-size:inherit;
   margin-bottom:1vmin;
+
+  font-size:inherit;
 }
 
 /* checkbox labels */
@@ -546,24 +567,31 @@ input[type="checkbox"]:checked + label, input[type="checkbox"]:checked + label:b
   border-color: transparent;
 }
 .cs20:after {
-  content: '';
-  border: 0.2vmin solid #f55;
-  display:block;
   position:absolute;
-  width:1.95vmin;
-  height:1.95vmin;
   top:0;
   left:0;
-  margin-left:-0.3vmin;
+
+  display:block;
+
+  width:1.95vmin;
+  height:1.95vmin;
   margin-top:-0.3vmin;
+  margin-left:-0.3vmin;
+
+  content: '';
+
+  border: 0.2vmin solid #f55;
 }
 .cs20:before {
-  content: '';
-  border-left: 0.2vmin solid #f55;
-  transform: rotate(45deg);
+  display:block;
+
+  height:3vmin;
   margin-top:-0.3vmin;
   margin-left:0.5vmin;
   padding:0;
-  height:3vmin;
-  display:block;
+
+  content: '';
+  transform: rotate(45deg);
+
+  border-left: 0.2vmin solid #f55;
 }

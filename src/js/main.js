@@ -12,7 +12,7 @@ var App = App || {};
   };
 
   App.init = function() {
-    var url = document.URL.split('?')[1] || "PreyPred/flux_0.json";
+    var url = document.URL.split('?')[1] || "MiniKaiRun/flux_0.json";
     App.loadData(url, true);
     new Toolbar(App);
     App.animation = new AnimationManager();
