@@ -121,23 +121,23 @@ var App = App || {};
 
       var obj = {};
 
-      obj.timeWindow = [+json.bioBeginTime, +json.bioEndTime];
-
+      obj.timeWindow = [+json.din_start, +json.din_end];
+      console.log(obj.timeWindow);
       var data = {};
-      for (var n in json.rules) {
-        data[json.rules[n]] = {
-          name: json.rules[n],
-          hits: json.hits[n],
-          inf: json.rules.map((el, i) => {
+      for (var n in json.din_rules) {
+        data[json.din_rules[n]] = {
+          name: json.din_rules[n],
+          hits: json.din_hits[n],
+          inf: json.din_rules.map((el, i) => {
             return {
               name: el,
-              flux: json.fluxs[n][i]
+              flux: json.din_fluxs[n][i]
             };
           }),
-          outf: json.rules.map((el, i) => {
+          outf: json.din_rules.map((el, i) => {
             return {
               name: el,
-              flux: json.fluxs[i][n]
+              flux: json.din_fluxs[i][n]
             }
           })
         };
