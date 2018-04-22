@@ -399,6 +399,69 @@ function Toolbar(App) {
       });
   }
 
+
+  // parse csv
+  function parseCsv(csv) {
+    return new Promise((res, rej) => {
+      if (!csv) { res(null); return; }
+
+      try {
+        csv.getText((text) => {
+          var parsed = text.split('\n')
+            .filter(row => !row.startsWith('#') && row.indexOf(',') > -1)
+            .map(row => {
+              var entries = row.split(/\s*,\s*/)
+              return entries.map(e => e.replace(/"/g,''));
+            });
+
+          let parsedCsv = parsed.slice(1)
+            .map((row) => {
+              var entries = {};
+              row.forEach((entry, i) => {
+                entries[parsed[0][i]] = entry;
+              })
+              return entries;
+            });
+          parsedCsv.columns = parsed[0];
+          res(parsedCsv);
+        });
+      } catch (e) {
+        d3.select('#filename')
+          .text('Error reading CSV...');
+        console.log('error',e);
+        res(null);
+      }
+    });
+  }
+
+  // parse datasets in parallel with promises
+  function getDatasets(files, csv) {
+    let dataPromises = files.map(file => 
+      new Promise((res, rej) => {
+        file.getText(text => {
+          try {
+            var parsedJSON = JSON.parse(text);
+            if (parsedJSON) {
+              res(JSON.parse(text));
+            }
+            rej(file);
+          } catch(e) {
+            rej(file);
+          }
+        })
+      }));
+
+    Promise.all(dataPromises)
+      .then((data) => {
+        App.resetData(data, csv);
+      })
+      .catch(errFile => {
+        d3.select('#filename')
+          .text('Error reading file...');
+        console.log("Failure to parse", errFile);
+      });
+  }
+
   function parseFiles(files, csv) {
       var series = files.filter(f => f.name.match(/\d+/));
       if (series.length < 1) {
@@ -412,68 +475,8 @@ function Toolbar(App) {
           });
       }
 
-      var datasets = [];
-      var parsedCSV = null;
-
-      function getDatasets(i) {
-        if (i >= series.length) {
-          // stop
-          App.resetData(datasets, parsedCSV);
-          return;
-        }
-        series[i].getText(function(text) {
-          try {
-            var parsedJSON = JSON.parse(text);
-            if (parsedJSON) {
-              datasets.push(parsedJSON);
-            }
-            getDatasets(i+1);
-          }
-          catch (e) {
-            d3.select('#filename')
-              .text('Error reading file...');
-            console.log('error',e);
-            App.resetData(datasets, parsedCSV);
-          }
-        })
-      };
-
-      function parseCSV() {
-        try {
-          csv.getText(function(text) {
-            var parsed = text.split('\n')
-              .filter(row => !row.startsWith('#') && row.indexOf(',') > -1)
-              .map(row => {
-                var entries = row.split(/\s*,\s*/)
-                return entries.map(e => e.replace(/"/g,''));
-              });
-
-            parsedCSV = parsed.slice(1)
-              .map((row) => {
-                var entries = {};
-                row.forEach((entry, i) => {
-                  entries[parsed[0][i]] = entry;
-                })
-                return entries;
-              });
-            parsedCSV.columns = parsed[0];
-            getDatasets(0);
-          });
-        }
-        catch (e) {
-          d3.select('#filename')
-            .text('Error reading CSV...');
-          console.log('error',e);          
-          getDatasets(0);
-        }
-      }
-
-      if (csv) {
-        parseCSV();
-      }
-      else {
-        getDatasets(0);
-      }
+      parseCsv(csv)
+        .then((parsedCsv) => getDatasets(series, parsedCsv));
   }
 
 };
