@@ -117,12 +117,21 @@ var App = App || {};
       .classed('error', false)
       .classed('loading', false)
       .classed('done', true);
-    App.dataset = dataset.map(json => {
+    App.dataset = dataset.map((json) => {
 
       var obj = {};
 
+      /* support old format */
+      if (json.din_rules === undefined) {
+        json.din_start = json.bioBeginTime;
+        json.din_end = json.bioEndTime;
+        json.din_rules = json.rules;
+        json.din_fluxs = json.fluxs;
+        json.din_hits = json.hits;
+      }
+
       obj.timeWindow = [+json.din_start, +json.din_end];
-      console.log(obj.timeWindow);
+      // console.log(obj.timeWindow);
       var data = {};
       for (var n in json.din_rules) {
         data[json.din_rules[n]] = {
